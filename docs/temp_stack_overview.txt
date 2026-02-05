@@ -1,0 +1,7 @@
+How does the current stack works
+- right now we are deploying a whole stack (WebSocketAPI, Lambdas, and DynamoDB)
+- run `dotnet lambda deploy-serverless TempSockStack -sb temp-sock-buck` to deploy the code and create the services
+- run `wscat -c wss://nl4g15d5v5.execute-api.us-east-2.amazonaws.com/Prod` to connect to web socket (assumeing you have installed wscat via npm and that link is the correct link for the websocket api)
+- logs for lambda functions are stored at CloudWatch>Logs>Log management on the AWS web console
+
+//delete this file and write better docs when backend foundation is stable
