@@ -26,8 +26,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -36,7 +40,7 @@
               "RelativeDocumentMoniker": "WebSocketFunctions\\Functions.cs",
               "ToolTip": "C:\\Users\\espam\\Documents\\GitHub\\gnome-party\\gnome-party-backend\\WebSocketFunctions\\Functions.cs",
               "RelativeToolTip": "WebSocketFunctions\\Functions.cs",
-              "ViewState": "AgIAAEwAAAAAAAAAAAAiwGEAAABLAAAAAAAAAA==",
+              "ViewState": "AgIAAGAAAAAAAAAAAAAiwGoAAABRAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-05T05:08:29.226Z",
               "EditorCaption": ""
@@ -49,10 +53,9 @@
               "RelativeDocumentMoniker": "WebSocketFunctions\\serverless.template",
               "ToolTip": "C:\\Users\\espam\\Documents\\GitHub\\gnome-party\\gnome-party-backend\\WebSocketFunctions\\serverless.template",
               "RelativeToolTip": "WebSocketFunctions\\serverless.template",
-              "ViewState": "AgIAACQAAAAAAAAAAAAnwDsAAAALAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAnwDsAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-02-05T04:56:12.914Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-05T04:56:12.914Z"
             },
             {
               "$type": "Document",
@@ -64,8 +67,7 @@
               "RelativeToolTip": "WebSocketFunctions\\aws-lambda-tools-defaults.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-05T04:39:11.082Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-05T04:39:11.082Z"
             },
             {
               "$type": "Document",
@@ -77,8 +79,7 @@
               "RelativeToolTip": "Test\\aws-lambda-tools-defaults.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-05T04:38:58.529Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-05T04:38:58.529Z"
             }
           ]
         }

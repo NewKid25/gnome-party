@@ -82,72 +82,12 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
-            //var postConnectionRequest = new PostToConnectionRequest
-            //{
-            //    ConnectionId = connectionId,
-            //    Data = new MemoryStream(UTF8Encoding.UTF8.GetBytes("You connected!!"))
-            //};
-
-
             var domainName = request.RequestContext.DomainName;
             var stage = request.RequestContext.Stage;
             var endpoint = $"https://{domainName}/{stage}";
-            //// Construct the IAmazonApiGatewayManagementApi which will be used to send the message to.
-            var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
+            context.Logger.LogInformation($"API Gateway management endpoint: {endpoint}");
 
-
-            var scanRequest = new ScanRequest
-            {
-                TableName = ConnectionMappingTable,
-                ProjectionExpression = ConnectionIdField
-            };
-
-            var scanResponse = await DDBClient.ScanAsync(scanRequest);
-
-            var stream = new MemoryStream(UTF8Encoding.UTF8.GetBytes($"New user {connectionId} has joined"));
-
-            var count = 0;
-            foreach (var item in scanResponse.Items)
-            {
-                var postConnectionRequest = new PostToConnectionRequest
-                {
-                    ConnectionId = item[ConnectionIdField].S,
-                    Data = stream
-                };
-
-                try
-                {
-                    context.Logger.LogInformation($"Post to connection {count}: {postConnectionRequest.ConnectionId}");
-                    stream.Position = 0;
-                    await apiClient.PostToConnectionAsync(postConnectionRequest);
-                    count++;
-                }
-                catch (AmazonServiceException e)
-                {
-                    // API Gateway returns a status of 410 GONE then the connection is no
-                    // longer available. If this happens, delete the identifier
-                    // from our DynamoDB table.
-                    if (e.StatusCode == HttpStatusCode.Gone)
-                    {
-                        var ddbDeleteRequest = new DeleteItemRequest
-                        {
-                            TableName = ConnectionMappingTable,
-                            Key = new Dictionary<string, AttributeValue>
-                            {
-                                {ConnectionIdField, new AttributeValue {S = postConnectionRequest.ConnectionId}}
-                            }
-                        };
-
-                        context.Logger.LogInformation($"Deleting gone connection: {postConnectionRequest.ConnectionId}");
-                        await DDBClient.DeleteItemAsync(ddbDeleteRequest);
-                    }
-                    else
-                    {
-                        context.Logger.LogInformation($"Error posting message to {postConnectionRequest.ConnectionId}: {e.Message}");
-                        context.Logger.LogInformation(e.StackTrace);
-                    }
-                }
-            }
+            await BroadcastMessage("New user", endpoint, context);
 
             var ddbRequest = new PutItemRequest
             {
@@ -204,9 +144,69 @@ public class Functions
             }
 
             var data = dataProperty.GetString() ?? "";
-            var stream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(data));
 
-            // List all of the current connections. In a more advanced use case the table could be used to grab a group of connection ids for a chat group.
+            await BroadcastMessage(data, endpoint, context);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "Data sent to all connections"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("Error disconnecting: " + e.Message);
+            context.Logger.LogInformation(e.StackTrace);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to send message: {e.Message}"
+            };
+        }
+    }
+
+    public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+            context.Logger.LogInformation($"ConnectionId: {connectionId}");
+
+            var ddbRequest = new DeleteItemRequest
+            {
+                TableName = ConnectionMappingTable,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    {ConnectionIdField, new AttributeValue {S = connectionId}}
+                }
+            };
+
+            await DDBClient.DeleteItemAsync(ddbRequest);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 200,
+                Body = "Disconnected."
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("Error disconnecting: " + e.Message);
+            context.Logger.LogInformation(e.StackTrace);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = $"Failed to disconnect: {e.Message}"
+            };
+        }
+    }
+
+    public async Task<APIGatewayProxyResponse> BroadcastMessage(string msg, string endpoint, ILambdaContext context)
+    {
+        try
+        {
+            var stream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(msg));
+
             var scanRequest = new ScanRequest
             {
                 TableName = ConnectionMappingTable,
@@ -276,42 +276,6 @@ public class Functions
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
                 Body = $"Failed to send message: {e.Message}"
-            };
-        }
-    }
-
-    public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
-    {
-        try
-        {
-            var connectionId = request.RequestContext.ConnectionId;
-            context.Logger.LogInformation($"ConnectionId: {connectionId}");
-
-            var ddbRequest = new DeleteItemRequest
-            {
-                TableName = ConnectionMappingTable,
-                Key = new Dictionary<string, AttributeValue>
-                {
-                    {ConnectionIdField, new AttributeValue {S = connectionId}}
-                }
-            };
-
-            await DDBClient.DeleteItemAsync(ddbRequest);
-
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 200,
-                Body = "Disconnected."
-            };
-        }
-        catch (Exception e)
-        {
-            context.Logger.LogInformation("Error disconnecting: " + e.Message);
-            context.Logger.LogInformation(e.StackTrace);
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 500,
-                Body = $"Failed to disconnect: {e.Message}"
             };
         }
     }
