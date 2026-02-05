@@ -44,13 +44,20 @@
         "Timeout": 30,
         "Role": null,
         "Policies": [
-          {
-            "DynamoDBCrudPolicy": {
-              "TableName": {
-                "Ref": "ConnectionMappingTableName"
-              }
+            {
+                "DynamoDBCrudPolicy": {
+                    "TableName": {
+                        "Ref": "ConnectionMappingTableName"
+                    }
+                }
+            },
+            {
+                "Statement": {
+                    "Effect": "Allow",
+                    "Action": "execute-api:ManageConnections",
+                    "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+                }
             }
-          }
         ],
         "Environment": {
           "Variables": {

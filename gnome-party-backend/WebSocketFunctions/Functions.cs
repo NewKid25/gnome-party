@@ -89,13 +89,65 @@ public class Functions
             //};
 
 
-            //var domainName = request.RequestContext.DomainName;
-            //var stage = request.RequestContext.Stage;
-            //var endpoint = $"https://{domainName}/{stage}";
+            var domainName = request.RequestContext.DomainName;
+            var stage = request.RequestContext.Stage;
+            var endpoint = $"https://{domainName}/{stage}";
             //// Construct the IAmazonApiGatewayManagementApi which will be used to send the message to.
-            //var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
+            var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
 
-            //await apiClient.PostToConnectionAsync(postConnectionRequest);
+
+            var scanRequest = new ScanRequest
+            {
+                TableName = ConnectionMappingTable,
+                ProjectionExpression = ConnectionIdField
+            };
+
+            var scanResponse = await DDBClient.ScanAsync(scanRequest);
+
+            var stream = new MemoryStream(UTF8Encoding.UTF8.GetBytes($"New user {connectionId} has joined"));
+
+            var count = 0;
+            foreach (var item in scanResponse.Items)
+            {
+                var postConnectionRequest = new PostToConnectionRequest
+                {
+                    ConnectionId = item[ConnectionIdField].S,
+                    Data = stream
+                };
+
+                try
+                {
+                    context.Logger.LogInformation($"Post to connection {count}: {postConnectionRequest.ConnectionId}");
+                    stream.Position = 0;
+                    await apiClient.PostToConnectionAsync(postConnectionRequest);
+                    count++;
+                }
+                catch (AmazonServiceException e)
+                {
+                    // API Gateway returns a status of 410 GONE then the connection is no
+                    // longer available. If this happens, delete the identifier
+                    // from our DynamoDB table.
+                    if (e.StatusCode == HttpStatusCode.Gone)
+                    {
+                        var ddbDeleteRequest = new DeleteItemRequest
+                        {
+                            TableName = ConnectionMappingTable,
+                            Key = new Dictionary<string, AttributeValue>
+                            {
+                                {ConnectionIdField, new AttributeValue {S = postConnectionRequest.ConnectionId}}
+                            }
+                        };
+
+                        context.Logger.LogInformation($"Deleting gone connection: {postConnectionRequest.ConnectionId}");
+                        await DDBClient.DeleteItemAsync(ddbDeleteRequest);
+                    }
+                    else
+                    {
+                        context.Logger.LogInformation($"Error posting message to {postConnectionRequest.ConnectionId}: {e.Message}");
+                        context.Logger.LogInformation(e.StackTrace);
+                    }
+                }
+            }
 
             var ddbRequest = new PutItemRequest
             {
