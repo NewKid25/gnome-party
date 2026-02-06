@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gnome-party-backend", "gnome-party-backend", "{436E151F-A3E9-F3BE-D145-188AC5E70675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSocketFunctions", "gnome-party-backend\WebSocketFunctions\WebSocketFunctions.csproj", "{F140632C-61DD-3860-665F-F579BE1244ED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F140632C-61DD-3860-665F-F579BE1244ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F140632C-61DD-3860-665F-F579BE1244ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F140632C-61DD-3860-665F-F579BE1244ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F140632C-61DD-3860-665F-F579BE1244ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F140632C-61DD-3860-665F-F579BE1244ED} = {436E151F-A3E9-F3BE-D145-188AC5E70675}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {543CF4F7-D6A8-46A1-B0FE-39D18048B5C9}
+	EndGlobalSection
+EndGlobal

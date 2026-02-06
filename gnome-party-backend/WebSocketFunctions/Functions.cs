@@ -87,7 +87,19 @@ public class Functions
             var endpoint = $"https://{domainName}/{stage}";
             context.Logger.LogInformation($"API Gateway management endpoint: {endpoint}");
 
-            await BroadcastMessage("New user", endpoint, context);
+            var scanRequest = new ScanRequest
+            {
+                TableName = ConnectionMappingTable,
+                ProjectionExpression = ConnectionIdField
+            };
+
+            var scanResponse = await DDBClient.ScanAsync(scanRequest);
+            var message = JsonSerializer.Serialize(scanResponse.Items
+                            .Select(item => item[ConnectionIdField].S)
+                            .ToList());
+            // var message = JsonSerializer.Serialize(scanResponse.Items);
+            // var message = scanResponse.Items.ToString() ?? "message is null";
+            await BroadcastMessage(message, endpoint, context);
 
             var ddbRequest = new PutItemRequest
             {
