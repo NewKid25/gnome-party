@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="SocketService/SocketService.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
+  </Folder>
+</Solution>
