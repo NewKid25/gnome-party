@@ -8,4 +8,7 @@
 [Oo]bj/
 
 #Visual Studio Stuff
-CopilotIndices
+CopilotIndices/
+.vs/
+*.user
+*.suo
