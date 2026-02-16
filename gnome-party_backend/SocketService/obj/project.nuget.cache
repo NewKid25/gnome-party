@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "XOa4a9sqQ2s=",
+  "dgSpecHash": "PsbT2zgZ+dA=",
   "success": true,
   "projectFilePath": "C:\\Users\\espam\\Documents\\GitHub\\gnome-party\\gnome-party_backend\\SocketService\\SocketService.csproj",
   "expectedPackageFiles": [
@@ -10,6 +10,8 @@
     "C:\\Users\\espam\\.nuget\\packages\\awssdk.apigatewaymanagementapi\\4.0.2.10\\awssdk.apigatewaymanagementapi.4.0.2.10.nupkg.sha512",
     "C:\\Users\\espam\\.nuget\\packages\\awssdk.core\\4.0.3.6\\awssdk.core.4.0.3.6.nupkg.sha512",
     "C:\\Users\\espam\\.nuget\\packages\\awssdk.dynamodbv2\\4.0.10.4\\awssdk.dynamodbv2.4.0.10.4.nupkg.sha512",
+    "C:\\Users\\espam\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\10.0.3\\microsoft.netcore.app.runtime.linux-x64.10.0.3.nupkg.sha512",
+    "C:\\Users\\espam\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\10.0.3\\microsoft.aspnetcore.app.runtime.linux-x64.10.0.3.nupkg.sha512",
     "C:\\Users\\espam\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\10.0.3\\microsoft.netcore.app.crossgen2.win-x64.10.0.3.nupkg.sha512"
   ],
   "logs": []

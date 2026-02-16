@@ -1,0 +1,11 @@
+# .NET Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+
+[Bb]in/
+[Oo]bj/
+
+#Visual Studio Stuff
+CopilotIndices

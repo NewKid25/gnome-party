@@ -5,7 +5,7 @@
   "Parameters": {
     "ConnectionMappingTableName": {
       "Type": "String",
-      "Default": "SimpleChatConnections",
+      "Default": "ConnectionsTableDefaultName",
       "Description": "The name of the new DynamoDB to store connection identifiers for each connected clients. Minimum 3 characters.",
       "MinLength": "3",
       "MaxLength": "50",
@@ -122,7 +122,7 @@
         }
       }
     },
-    "SimpleChatWebSocketApi": {
+    "GPWebSocketApi": {
       "Type": "AWS::ApiGatewayV2::Api",
       "Properties": {
         "Name": "SimpleChatWebSocket",
@@ -134,7 +134,7 @@
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "RouteKey": "$connect",
         "AuthorizationType": "NONE",
@@ -156,7 +156,7 @@
       "Type": "AWS::ApiGatewayV2::Integration",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "IntegrationType": "AWS_PROXY",
         "IntegrationUri": {
@@ -181,7 +181,7 @@
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "RouteKey": "$disconnect",
         "AuthorizationType": "NONE",
@@ -203,7 +203,7 @@
       "Type": "AWS::ApiGatewayV2::Integration",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "IntegrationType": "AWS_PROXY",
         "IntegrationUri": {
@@ -228,7 +228,7 @@
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "RouteKey": "sendmessage",
         "AuthorizationType": "NONE",
@@ -250,7 +250,7 @@
       "Type": "AWS::ApiGatewayV2::Integration",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "IntegrationType": "AWS_PROXY",
         "IntegrationUri": {
@@ -280,7 +280,7 @@
       ],
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         }
       }
     },
@@ -288,7 +288,7 @@
       "Type": "AWS::ApiGatewayV2::Stage",
       "Properties": {
         "ApiId": {
-          "Ref": "SimpleChatWebSocketApi"
+          "Ref": "GPWebSocketApi"
         },
         "DeploymentId": {
           "Ref": "Deployment"
@@ -300,7 +300,7 @@
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
         "OnConnectFunction",
-        "SimpleChatWebSocketApi"
+        "GPWebSocketApi"
       ],
       "Properties": {
         "Action": "lambda:InvokeFunction",
@@ -314,7 +314,7 @@
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
         "OnDisconnectFunction",
-        "SimpleChatWebSocketApi"
+        "GPWebSocketApi"
       ],
       "Properties": {
         "Action": "lambda:InvokeFunction",
@@ -328,7 +328,7 @@
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
         "SendMessageFunction",
-        "SimpleChatWebSocketApi"
+        "GPWebSocketApi"
       ],
       "Properties": {
         "Action": "lambda:InvokeFunction",
@@ -347,7 +347,7 @@
           [
             "wss://",
             {
-              "Ref": "SimpleChatWebSocketApi"
+              "Ref": "GPWebSocketApi"
             },
             ".execute-api.",
             {
