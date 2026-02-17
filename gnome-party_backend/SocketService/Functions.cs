@@ -1,14 +1,16 @@
+using Amazon.ApiGatewayManagementApi;
+using Amazon.ApiGatewayManagementApi.Model;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+using Amazon.Lambda;
+using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.Core;
+using Amazon.Lambda.Model;
+using Amazon.Runtime;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Amazon.Lambda.Core;
-using Amazon.Lambda.APIGatewayEvents;
-
-using Amazon.Runtime;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using Amazon.ApiGatewayManagementApi;
-using Amazon.ApiGatewayManagementApi.Model;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -46,12 +48,12 @@ public class Functions
         DDBClient = new AmazonDynamoDBClient();
 
         // Grab the name of the DynamoDB from the environment variable setup in the CloudFormation template serverless.template
-        if(Environment.GetEnvironmentVariable(TABLE_NAME_ENV) == null)
+        if(System.Environment.GetEnvironmentVariable(TABLE_NAME_ENV) == null)
         {
             throw new ArgumentException($"Missing required environment variable {TABLE_NAME_ENV}");
         }
 
-        ConnectionMappingTable = Environment.GetEnvironmentVariable(TABLE_NAME_ENV) ?? "";
+        ConnectionMappingTable = System.Environment.GetEnvironmentVariable(TABLE_NAME_ENV) ?? "";
 
         this.ApiGatewayManagementApiClientFactory = (Func<string, AmazonApiGatewayManagementApiClient>)((endpoint) => 
         {
@@ -137,6 +139,22 @@ public class Functions
             }
 
             var data = dataProperty.GetString() ?? "";
+
+            var client = new AmazonLambdaClient();
+            var response = await client.InvokeAsync(new InvokeRequest
+            {
+                FunctionName = "TestFunc",
+                Payload = JsonSerializer.Serialize(data)
+            });
+            //var response = client.Invoke(new InvokeRequest
+            //{
+            //    FunctionName = "TestFunc",
+            //    Payload = JsonSerializer.Serialize(new { input = data })
+            //});
+            //data = response.Payload.    .ToString() ?? "data was null";
+            //data = JsonSerializer.Serialize(response);
+            data = Encoding.UTF8.GetString(response.Payload.ToArray());
+
             var stream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(data));
 
             // List all of the current connections. In a more advanced use case the table could be used to grab a group of connection ids for a chat group.
