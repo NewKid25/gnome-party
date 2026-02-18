@@ -14,10 +14,17 @@ namespace AWS_AddCharacter_temp
 {
     public class Function
     {
-        private readonly AmazonDynamoDBClient _dynamoClient;
+        private readonly IAmazonDynamoDB _dynamoClient;
 
+        // Update these if your table names differ
         private const string CharacterTable = "Characters";
         private const string ConnectionTable = "WebSocketConnections";
+
+        // Safer JSON options (case-insensitive, matches your lowerCamel JSON)
+        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public Function()
         {
@@ -28,33 +35,27 @@ namespace AWS_AddCharacter_temp
             APIGatewayProxyRequest request,
             ILambdaContext context)
         {
-            var routeKey = request.RequestContext.RouteKey;
-            context.Logger.LogLine($"Route hit: {routeKey}");
+            var routeKey = request?.RequestContext?.RouteKey ?? "";
+            var connectionId = request?.RequestContext?.ConnectionId ?? "";
+            context.Logger.LogLine($"Route hit: {routeKey} | ConnectionId: {connectionId}");
 
             try
             {
-                switch (routeKey)
+                return routeKey switch
                 {
-                    case "$connect":
-                        return await HandleConnect(request);
-
-                    case "$disconnect":
-                        return await HandleDisconnect(request);
-
-                    case "addCharacter":
-                        return await HandleAddCharacter(request, context);
-
-                    default:
-                        return new APIGatewayProxyResponse
-                        {
-                            StatusCode = 400,
-                            Body = "Unknown route"
-                        };
-                }
+                    "$connect" => await HandleConnect(request, context),
+                    "$disconnect" => await HandleDisconnect(request, context),
+                    "addCharacter" => await HandleAddCharacter(request, context),
+                    _ => new APIGatewayProxyResponse
+                    {
+                        StatusCode = 400,
+                        Body = $"Unknown route: {routeKey}"
+                    }
+                };
             }
             catch (Exception ex)
             {
-                context.Logger.LogLine(ex.ToString());
+                context.Logger.LogLine("Unhandled exception: " + ex);
 
                 return new APIGatewayProxyResponse
                 {
@@ -66,14 +67,19 @@ namespace AWS_AddCharacter_temp
 
         #region CONNECT
 
-        private async Task<APIGatewayProxyResponse> HandleConnect(APIGatewayProxyRequest request)
+        private async Task<APIGatewayProxyResponse> HandleConnect(APIGatewayProxyRequest request, ILambdaContext context)
         {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            context.Logger.LogLine($"$connect -> Storing ConnectionId: {connectionId}");
+
             await _dynamoClient.PutItemAsync(new PutItemRequest
             {
                 TableName = ConnectionTable,
                 Item = new Dictionary<string, AttributeValue>
                 {
-                    { "ConnectionId", new AttributeValue { S = request.RequestContext.ConnectionId } }
+                    { "ConnectionId", new AttributeValue { S = connectionId } },
+                    { "ConnectedAt", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
                 }
             });
 
@@ -84,14 +90,18 @@ namespace AWS_AddCharacter_temp
 
         #region DISCONNECT
 
-        private async Task<APIGatewayProxyResponse> HandleDisconnect(APIGatewayProxyRequest request)
+        private async Task<APIGatewayProxyResponse> HandleDisconnect(APIGatewayProxyRequest request, ILambdaContext context)
         {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            context.Logger.LogLine($"$disconnect -> Deleting ConnectionId: {connectionId}");
+
             await _dynamoClient.DeleteItemAsync(new DeleteItemRequest
             {
                 TableName = ConnectionTable,
                 Key = new Dictionary<string, AttributeValue>
                 {
-                    { "ConnectionId", new AttributeValue { S = request.RequestContext.ConnectionId } }
+                    { "ConnectionId", new AttributeValue { S = connectionId } }
                 }
             });
 
@@ -104,32 +114,28 @@ namespace AWS_AddCharacter_temp
 
         private async Task<APIGatewayProxyResponse> HandleAddCharacter(APIGatewayProxyRequest request, ILambdaContext context)
         {
-            if (string.IsNullOrEmpty(request.Body))
+            if (string.IsNullOrWhiteSpace(request.Body))
             {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = "Request body is empty"
-                };
+                context.Logger.LogLine("addCharacter -> Request body was empty.");
+                return new APIGatewayProxyResponse { StatusCode = 400, Body = "Request body is empty" };
             }
 
+            context.Logger.LogLine("addCharacter -> Raw body: " + request.Body);
 
-            context.Logger.LogInformation($"Body is ======= {request.Body}");
-
-            var wrapper = JsonSerializer.Deserialize<ActionWrapper>(request.Body);
+            // Your WebSocket message format:
+            // {"action":"addCharacter","data":{"characterName":"Sam","characterClass":"Bard","health":"25"}}
+            var wrapper = JsonSerializer.Deserialize<ActionWrapper>(request.Body, JsonOptions);
 
             if (wrapper?.Data == null)
             {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 400,
-                    Body = "Invalid character payload"
-                };
+                context.Logger.LogLine("addCharacter -> wrapper.Data was null (invalid payload).");
+                return new APIGatewayProxyResponse { StatusCode = 400, Body = "Invalid character payload" };
             }
 
             var character = wrapper.Data;
             character.CharacterID = Guid.NewGuid();
 
+            // Save character
             var item = new Dictionary<string, AttributeValue>
             {
                 { "CharacterID", new AttributeValue { S = character.CharacterID.ToString() } },
@@ -138,22 +144,16 @@ namespace AWS_AddCharacter_temp
                 { "Health", new AttributeValue { S = character.Health ?? "" } }
             };
 
+            context.Logger.LogLine($"addCharacter -> Writing to DynamoDB table {CharacterTable}...");
             await _dynamoClient.PutItemAsync(new PutItemRequest
             {
                 TableName = CharacterTable,
                 Item = item
             });
+            context.Logger.LogLine("addCharacter -> DynamoDB PutItem succeeded.");
 
-            // Send response back to caller
-            var domain = request.RequestContext.DomainName;
-            var stage = request.RequestContext.Stage;
-
-            var apiClient = new AmazonApiGatewayManagementApiClient(
-                new AmazonApiGatewayManagementApiConfig
-                {
-                    ServiceURL = $"https://{domain}/{stage}",
-                    RegionEndpoint = _dynamoClient.Config.RegionEndpoint
-                });
+            // Send response back to caller via WebSocket Management API
+            var apiClient = CreateManagementApiClient(request, context);
 
             var responseJson = JsonSerializer.Serialize(new
             {
@@ -161,17 +161,61 @@ namespace AWS_AddCharacter_temp
                 data = character
             });
 
-            await apiClient.PostToConnectionAsync(new PostToConnectionRequest
-            {
-                ConnectionId = request.RequestContext.ConnectionId,
-                Data = new MemoryStream(Encoding.UTF8.GetBytes(responseJson))
-            });
+            context.Logger.LogLine("addCharacter -> Posting response to connection...");
+            await PostToConnectionOrThrow(apiClient, request.RequestContext.ConnectionId, responseJson, context);
 
+            // Note: APIGatewayProxyResponse body is not what the WebSocket client receives;
+            // PostToConnection is what matters. Still returning 200 is correct.
             return new APIGatewayProxyResponse
             {
                 StatusCode = 200,
-                Body = responseJson
+                Body = "OK"
             };
+        }
+
+        private AmazonApiGatewayManagementApiClient CreateManagementApiClient(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var apiId = request.RequestContext.ApiId;
+            var stage = request.RequestContext.Stage;
+            var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1";
+
+            var serviceUrl = $"https://{apiId}.execute-api.{region}.amazonaws.com/{stage}";
+            context.Logger.LogLine("Management API ServiceURL: " + serviceUrl);
+
+            return new AmazonApiGatewayManagementApiClient(
+                new AmazonApiGatewayManagementApiConfig
+                {
+                    ServiceURL = serviceUrl
+                });
+        }
+
+        private static async Task PostToConnectionOrThrow(
+            IAmazonApiGatewayManagementApi apiClient,
+            string connectionId,
+            string message,
+            ILambdaContext context)
+        {
+            try
+            {
+                await apiClient.PostToConnectionAsync(new PostToConnectionRequest
+                {
+                    ConnectionId = connectionId,
+                    Data = new MemoryStream(Encoding.UTF8.GetBytes(message))
+                });
+
+                context.Logger.LogLine("PostToConnection succeeded.");
+            }
+            catch (GoneException)
+            {
+                // Client disconnected; not a server bug.
+                context.Logger.LogLine("PostToConnection failed: GoneException (stale connection).");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogLine("PostToConnection failed with exception: " + ex);
+                throw;
+            }
         }
 
         #endregion
