@@ -84,12 +84,14 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
+            var playerId = "newPlayer";
             var ddbRequest = new PutItemRequest
             {
                 TableName = ConnectionMappingTable,
                 Item = new Dictionary<string, AttributeValue>
                 {
-                    {ConnectionIdField, new AttributeValue{ S = connectionId}}
+                    {ConnectionIdField, new AttributeValue{ S = connectionId}},
+                    {"playerId", new AttributeValue{ S =  playerId} }
                 }
             };
 

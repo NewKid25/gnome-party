@@ -10,7 +10,7 @@
   "configuration": "Release",
   "s3-prefix": "SocketService/",
   "template": "serverless.template",
-  "template-parameters": "\u0022ConnectionMappingTableName\u0022=\u0022ConnectionsTableDefaultName\u0022",
+  "template-parameters": "\u0022ConnectionMappingTableName\u0022=\u0022ConnectionsTable\u0022",
   "s3-bucket": "gp-backend-bucket1",
   "stack-name": "SocketService"
 }
