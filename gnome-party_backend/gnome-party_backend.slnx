@@ -1,4 +1,13 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/infra/">
+    <Project Path="CloudFormationTemplate1/CloudFormationTemplates.cfproj" Type="22325025-cda3-4736-83cb-2d32d2fcc215" Id="99999999-9999-9999-9999-999999999999">
+      <Platform Project="x86" />
+    </Project>
+  </Folder>
   <Folder Name="/src/">
     <Project Path="Models/Models.csproj" />
     <Project Path="SocketService/SocketService.csproj" />
