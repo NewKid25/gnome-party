@@ -1,10 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="SocketService/SocketService.csproj" />
-    <Project Path="TestFunc/TestFunc.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
-    <Project Path="TestFunc.Tests/TestFunc.Tests.csproj" />
   </Folder>
 </Solution>
