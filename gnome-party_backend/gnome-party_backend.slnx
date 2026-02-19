@@ -1,8 +1,11 @@
 <Solution>
   <Folder Name="/src/">
+    <File Path="CharacterModel.cs" />
+    <Project Path="Models/Models.csproj" />
     <Project Path="SocketService/SocketService.csproj" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="Models.Tests/Models.Tests.csproj" Id="66b2285e-5330-4f79-a663-128061271a94" />
     <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
   </Folder>
 </Solution>
