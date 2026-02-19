@@ -50,6 +50,11 @@
                 "Ref": "ConnectionMappingTableName"
               }
             }
+          }, 
+                    {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
           }
         ],
         "Environment": {

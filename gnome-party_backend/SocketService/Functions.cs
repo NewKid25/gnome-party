@@ -11,6 +11,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Models;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -96,6 +97,20 @@ public class Functions
             };
 
             await DDBClient.PutItemAsync(ddbRequest);
+
+            var playerCharacter = new CharacterModel();
+            var ddbCharacterRequest = new PutItemRequest
+            {
+                TableName = "GameTable",
+                Item = new Dictionary<string, AttributeValue>
+                {
+                    { "gameSessionId", new AttributeValue { S = "defaultSessionId" }  },
+                    {"playerId", new AttributeValue{ S = playerId} },
+                    {"characterData", new AttributeValue{ S = JsonSerializer.Serialize(playerCharacter)} }
+                }
+            };
+            await DDBClient.PutItemAsync(ddbCharacterRequest);
+
 
             return new APIGatewayProxyResponse
             {
