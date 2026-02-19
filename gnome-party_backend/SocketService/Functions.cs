@@ -84,7 +84,7 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
-            var playerId = "newPlayer";
+            var playerId = CreateNewPlayerId();
             var ddbRequest = new PutItemRequest
             {
                 TableName = ConnectionMappingTable,
@@ -268,4 +268,10 @@ public class Functions
             };
         }
     }
+
+    string CreateNewPlayerId()
+    {
+        return "player-" + Guid.NewGuid().ToString();
+    }
+
 }
