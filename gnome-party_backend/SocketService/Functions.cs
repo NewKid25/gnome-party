@@ -106,7 +106,7 @@ public class Functions
                 {
                     { "gameSessionId", new AttributeValue { S = "defaultSessionId" }  },
                     {"playerId", new AttributeValue{ S = playerId} },
-                    {"characterData", new AttributeValue{ S = JsonSerializer.Serialize(playerCharacter)} }
+                    {"characterData", new AttributeValue{ S = JsonSerializer.Serialize(playerCharacter)} } //probably convert this to map type later
                 }
             };
             await DDBClient.PutItemAsync(ddbCharacterRequest);
