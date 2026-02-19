@@ -1,6 +1,5 @@
 <Solution>
   <Folder Name="/src/">
-    <File Path="CharacterModel.cs" />
     <Project Path="Models/Models.csproj" />
     <Project Path="SocketService/SocketService.csproj" />
   </Folder>
