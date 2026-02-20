@@ -5,8 +5,13 @@ import ActionButton from './ActionButton.vue';
 
 const model = defineModel<ActionListModel>({required: true});
 
+const emit = defineEmits<{
+  actionChosen: [actionButton:ActionButtonModel]
+}>();
+
 function onActionChosen(actionButton:ActionButtonModel) {
-	console.log(actionButton);
+	console.log("ActionList:", actionButton);
+	emit("actionChosen", actionButton);
 }
 </script>
 <template>
