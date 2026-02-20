@@ -4,7 +4,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/infra/">
-    <Project Path="CloudFormationTemplate1/CloudFormationTemplates.cfproj" Type="22325025-cda3-4736-83cb-2d32d2fcc215" Id="99999999-9999-9999-9999-999999999999">
+    <Project Path="CloudFormationTemplates/CloudFormationTemplates.cfproj" Type="22325025-cda3-4736-83cb-2d32d2fcc215">
       <Platform Project="x86" />
     </Project>
   </Folder>
