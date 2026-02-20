@@ -6,6 +6,6 @@ namespace Models;
 
 class Campaign
 {
-    CharacterModel[] playerCharacters { get; set; }
+    Character[] playerCharacters { get; set; }
     Encounter[] encounters { get; set; }
 }

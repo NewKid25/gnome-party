@@ -6,5 +6,5 @@ namespace Models;
 
 class CombatEncounter
 {
-    CharacterModel[] Enemies { get; set; }
+    Character[] Enemies { get; set; }
 }

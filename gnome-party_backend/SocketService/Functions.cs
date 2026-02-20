@@ -98,7 +98,7 @@ public class Functions
 
             await DDBClient.PutItemAsync(ddbRequest);
 
-            var playerCharacter = new CharacterModel();
+            var playerCharacter = new Character();
             var ddbCharacterRequest = new PutItemRequest
             {
                 TableName = "GameTable",
