@@ -2,10 +2,10 @@
 
 namespace Models.Tests
 {
-    public class CharacterModelTest
+    public class CharacterTest
     {
         [Fact]
-        public void TestNewCharacterModel()
+        public void TestNewCharacter()
         {
             var characterModel = new Character();
             //temporary test to make sure the constructor is working as expected

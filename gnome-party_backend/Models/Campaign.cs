@@ -4,8 +4,14 @@ using System.Text;
 
 namespace Models;
 
-class Campaign
+public class Campaign
 {
-    Character[] playerCharacters { get; set; }
-    Encounter[] encounters { get; set; }
+    List<Character> playerCharacters { get; set; }
+    List<Encounter> encounters { get; set; }
+
+    public Campaign()
+    {
+        playerCharacters = new List<Character>();
+        encounters = new List<Encounter>();
+    }
 }

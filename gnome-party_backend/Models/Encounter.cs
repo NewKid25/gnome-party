@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Models;
 
-class Encounter
+public class Encounter
 {
-    int actionTime { get; set; }
+    int actionTime { get; set; } = 10;
 }
