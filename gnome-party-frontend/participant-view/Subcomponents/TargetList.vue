@@ -6,7 +6,10 @@ import TargetButton from './TargetButton.vue';
 const model = defineModel<TargetListModel>({required: true});
 
 function onTargetChosen(targetButton:TargetButtonModel) {
-    console.log(targetButton);
+    console.log("TargetList:", targetButton);
+    model.value.targets.filter((v) => v != targetButton).forEach((v) => {
+        v.selected = false;
+    })
 }
 </script>
 <template>
