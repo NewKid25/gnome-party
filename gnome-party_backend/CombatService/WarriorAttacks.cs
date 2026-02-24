@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CombatService
 {
-    public sealed class Slash : AttackAction
+    public sealed class Slash : Action
     {
         public Slash() : base("Slash") { }
         public override void ApplyEffect(Character_Base user, Character_Base target, AttackContext context)
@@ -15,7 +15,7 @@ namespace CombatService
             target.ReceiveDamage(damage, context);
         }
     }
-    public sealed class Block : AttackAction
+    public sealed class Block : Action
     {
         public Block() : base("Block") { }
         public override void ApplyEffect(Character_Base user, Character_Base ally, AttackContext context)

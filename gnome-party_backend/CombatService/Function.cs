@@ -38,8 +38,8 @@ namespace CombatService
                 return "Invalid character type";
             }
 
-            AttackAction attack = null;
-            foreach (AttackAction a in attacker.Attacks)
+            Action attack = null;
+            foreach (Action a in attacker.Attacks)
             {
                 if (a.AttackName == request.Attack)
                 {

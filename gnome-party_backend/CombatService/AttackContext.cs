@@ -6,13 +6,13 @@ namespace CombatService
     public sealed class AttackContext
     {
         public Character_Base Attacker { get; private set; }
-        public AttackAction Attack { get; private set; }
+        public Action Attack { get; private set; }
         public Character_Base OriginalTarget { get; private set; }
         public Character_Base CurrentTarget { get; set; }
         public int BaseDamage { get; set; }
         public int ModifiedDamage { get; set; }
         public int HitIndex { get; private set; }
-        public AttackContext(Character_Base contextAttacker, AttackAction contextAttack, Character_Base contextTarget, int contextHitIndex)
+        public AttackContext(Character_Base contextAttacker, Action contextAttack, Character_Base contextTarget, int contextHitIndex)
         {
             if(contextAttacker == null)
             {
@@ -32,6 +32,6 @@ namespace CombatService
             CurrentTarget = contextTarget;
             HitIndex = contextHitIndex;
         }
-        public AttackContext(Character_Base attacker, AttackAction attack, Character_Base target) : this(attacker, attack, target, 0) {}
+        public AttackContext(Character_Base attacker, Action attack, Character_Base target) : this(attacker, attack, target, 0) {}
     }
 }

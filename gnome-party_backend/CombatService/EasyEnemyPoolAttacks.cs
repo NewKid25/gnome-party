@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CombatService
 {
     /********** SKELETON ATTACKS ************/
-    public sealed class Bone_Slash : AttackAction
+    public sealed class Bone_Slash : Action
     {
         public Bone_Slash() : base("Bone Slash") { }
         public override void ApplyEffect(Character_Base user, Character_Base target, AttackContext context)
@@ -16,7 +16,7 @@ namespace CombatService
             target.ReceiveDamage(damage, context);
         }
     }
-    public sealed class Rattle_Guard : AttackAction
+    public sealed class Rattle_Guard : Action
     {
         public Rattle_Guard() : base("Rattle Guard") { }
         public override void ApplyEffect(Character_Base user, Character_Base target, AttackContext context)

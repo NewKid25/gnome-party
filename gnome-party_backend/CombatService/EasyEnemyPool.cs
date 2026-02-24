@@ -24,7 +24,7 @@ namespace CombatService
             Attacks.Add(new Bone_Slash());
             Attacks.Add(new Rattle_Guard());
         }
-        protected override AttackAction ChooseAttack(List<Character_Base> aliveOpponents)
+        protected override Action ChooseAttack(List<Character_Base> aliveOpponents)
         {
             if (Attacks == null || Attacks.Count == 0) return null;
 
