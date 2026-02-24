@@ -1,9 +1,11 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="CombatService/CombatService.csproj" />
     <Project Path="SocketService/SocketService.csproj" />
     <Project Path="TestFunc/TestFunc.csproj" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="CombatService.Tests/CombatService.Tests.csproj" />
     <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
     <Project Path="TestFunc.Tests/TestFunc.Tests.csproj" />
   </Folder>
