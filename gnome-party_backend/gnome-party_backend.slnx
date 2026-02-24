@@ -4,11 +4,12 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/infra/">
-    <Project Path="CloudFormationTemplates/CloudFormationTemplates.cfproj" Type="22325025-cda3-4736-83cb-2d32d2fcc215">
+    <Project Path="CloudFormationTemplates/CloudFormationTemplates.cfproj" Type="22325025-cda3-4736-83cb-2d32d2fcc215" Id="6bc8bdef-3111-4d50-9b5d-90559eb406e8">
       <Platform Project="x86" />
     </Project>
   </Folder>
   <Folder Name="/src/">
+    <Project Path="DatabaseService/DatabaseService.csproj" Id="acb7b21a-8450-40fd-a57f-c97afc92120e" />
     <Project Path="Models/Models.csproj" />
     <Project Path="SocketService/SocketService.csproj" />
   </Folder>

@@ -1,21 +1,38 @@
-﻿using System;
+﻿using Amazon.DynamoDBv2.DataModel;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Models;
+
+[DynamoDBTable("GameTable")]
 public class GameSession
 {
-    Connection Host { get; set; }
-    List<Connection> Participants;
-    int InviteCode { get; set; }
-    Campaign Campaign { get; set; }
+    [DynamoDBHashKey]
+    public string gameSessionId { get; set; }
+    //Connection Host { get; set; }
+    //List<Connection> Participants;
+    public int InviteCode { get; set; }
+    //Campaign Campaign { get; set; }
+    [DynamoDBProperty]
+    public Character character { get; set; }
+
+
+    public GameSession() 
+    {
+        gameSessionId = Guid.NewGuid().ToString();
+        InviteCode = 0;
+        character = new Character();
+    }
 
     public GameSession(Connection _host)
     {
-        Host = _host;
-        Participants = new List<Connection>();
+        gameSessionId = Guid.NewGuid().ToString();
+        //Host = _host;
+        //Participants = new List<Connection>();
         InviteCode = 0;
-        Campaign = new Campaign();
+        //Campaign = new Campaign();
+        character = new Character();
     }
 
 }

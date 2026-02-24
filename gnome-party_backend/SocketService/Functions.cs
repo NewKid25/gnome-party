@@ -1,17 +1,18 @@
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Model;
 using Amazon.Runtime;
+using Models;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Models;
 
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -99,18 +100,16 @@ public class Functions
             await DDBClient.PutItemAsync(ddbRequest);
 
             var playerCharacter = new Character();
-            var ddbCharacterRequest = new PutItemRequest
-            {
-                TableName = "GameTable",
-                Item = new Dictionary<string, AttributeValue>
-                {
-                    { "gameSessionId", new AttributeValue { S = "defaultSessionId" }  },
-                    {"playerId", new AttributeValue{ S = playerId} },
-                    {"characterData", new AttributeValue{ S = JsonSerializer.Serialize(playerCharacter)} } //probably convert this to map type later
-                }
-            };
-            await DDBClient.PutItemAsync(ddbCharacterRequest);
+            var gameSession = new GameSession(new Connection(connectionId, playerId));
 
+            var config = new DynamoDBContextConfig
+            {
+                DisableFetchingTableMetadata = true
+            };
+
+            var dbContext = new DynamoDBContext(DDBClient, config);
+
+            await dbContext.SaveAsync(gameSession);
 
             return new APIGatewayProxyResponse
             {
