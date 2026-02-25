@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 
-namespace CombatService
+namespace Models
 {
     public sealed class AttackContext
     {

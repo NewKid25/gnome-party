@@ -1,21 +1,14 @@
-﻿using System;
+﻿using Models;
+using Statuses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CombatService
+namespace Actions
 {
-    public sealed class Slash : Action
-    {
-        public Slash() : base("Slash") { }
-        public override void ApplyEffect(Character_Base user, Character_Base target, AttackContext context)
-        {
-            int damage = 10;
-            target.ReceiveDamage(damage, context);
-        }
-    }
-    public sealed class Block : Action
+    public sealed class Block : CharacterAction
     {
         public Block() : base("Block") { }
         public override void ApplyEffect(Character_Base user, Character_Base ally, AttackContext context)

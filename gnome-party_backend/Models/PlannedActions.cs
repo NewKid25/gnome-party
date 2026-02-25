@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CombatService
+namespace Models
 {
     public class PlannedAction
     {

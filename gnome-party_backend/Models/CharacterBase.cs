@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CombatService
+namespace Models
 {
     public class Character_Base
     {
@@ -9,14 +9,14 @@ namespace CombatService
         public string CharacterName { get; set; }
         public int Health { get; set; }
         public int MaxHealth { get; set; }
-        public List<Action> Attacks { get; set; }
+        public List<CharacterAction> Attacks { get; set; }
         public List<Character_Base> Opponents { get; set; }
         private readonly List<IStatusEffect> _statuses;
         private static readonly Random _random = new Random();
         public Character_Base()
         {
             CharacterName = string.Empty;
-            Attacks = new List<Action>();
+            Attacks = new List<CharacterAction>();
             Opponents = new List<Character_Base>();
             _statuses = new List<IStatusEffect>();
         }
@@ -79,12 +79,12 @@ namespace CombatService
             }
             return aliveOpponents;
         }
-        protected virtual Action ChooseAttack(List<Character_Base> aliveOpponents)
+        protected virtual CharacterAction ChooseAttack(List<Character_Base> aliveOpponents)
         {
             if (Attacks == null || Attacks.Count == 0) { return null; }
             return Attacks[0];
         }
-        protected virtual Character_Base ChooseTarget(List<Character_Base> aliveOpponents, Action chosenAttack)
+        protected virtual Character_Base ChooseTarget(List<Character_Base> aliveOpponents, CharacterAction chosenAttack)
         {
             if (aliveOpponents == null || aliveOpponents.Count == 0) { return null; }
             int index = _random.Next(0, aliveOpponents.Count);
@@ -94,7 +94,7 @@ namespace CombatService
         {
             if (plannedAction == null) { return; }
             if (!IsAlive) { return; }
-            Action attack = plannedAction.Attack;
+            CharacterAction attack = plannedAction.Attack;
             if (attack == null) { return; }
             if (plannedAction.GroupTargets != null && plannedAction.GroupTargets.Count > 0)
             {
@@ -110,13 +110,13 @@ namespace CombatService
             if (target == null || !target.IsAlive) return;
             ResolveAttack(attack, target);
         }
-        public void ResolveAttack(Action attackAction, Character_Base target)
+        public void ResolveAttack(CharacterAction attackAction, Character_Base target)
         {
             List<Character_Base> opponentList = new List<Character_Base>();
             opponentList.Add(target);
             ResolveAttack(attackAction, opponentList, false);
         }
-        public void ResolveAttack(Action attackAction, List<Character_Base> groupTargets, bool uniqueTargetsOnly)
+        public void ResolveAttack(CharacterAction attackAction, List<Character_Base> groupTargets, bool uniqueTargetsOnly)
         {
             if (attackAction == null) { return; }
             if (groupTargets == null || groupTargets.Count == 0) { return; }
@@ -213,17 +213,5 @@ namespace CombatService
             action.DuplicateTargets = false;
             return action;
         }
-    }
-    public abstract class Action
-    {
-        public string AttackName { get; private set; }
-        public bool Unblockable { get; private set; }
-        protected Action(string attackName, bool unblockable)
-        {
-            AttackName = attackName;
-            Unblockable = unblockable;
-        }
-        protected Action(string attackName) : this(attackName, false) { }
-        public abstract void ApplyEffect(Character_Base user, Character_Base target, AttackContext context);
     }
 }

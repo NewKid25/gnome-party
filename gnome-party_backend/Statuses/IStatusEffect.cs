@@ -1,4 +1,4 @@
-﻿namespace CombatService
+﻿namespace Statuses
 {
     public interface IStatusEffect
     {
