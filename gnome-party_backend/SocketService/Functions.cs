@@ -157,22 +157,12 @@ public class Functions
     {
         try
         {
-            var postConnectionRequest = new PostToConnectionRequest
-            {
-                ConnectionId = request.RequestContext.ConnectionId,
-                Data = new MemoryStream(UTF8Encoding.UTF8.GetBytes("hi there!"))
-
-            };
-            var domainName = request.RequestContext.DomainName;
-            var stage = request.RequestContext.Stage;
-            var endpoint = $"https://{domainName}/{stage}";
-            var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
-            await apiClient.PostToConnectionAsync(postConnectionRequest);
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "hello from the other side");
 
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.OK,
-                Body = "all good :+1"
+                Body = "all good"
             };
         }
         catch (Exception e)
@@ -226,5 +216,23 @@ public class Functions
     string CreateNewPlayerId()
     {
         return "player-" + Guid.NewGuid().ToString();
+    }
+
+    async Task<bool> SendToConnectionAsync(string connectionId, APIGatewayProxyRequest request, object data)
+    {
+        return await SendToConnectionAsync(connectionId, request.RequestContext.DomainName, request.RequestContext.Stage, data);
+    }
+
+    async Task<bool> SendToConnectionAsync(string connectionId, string domainName, string stage, object data)
+    {
+        var postConnectionRequest = new PostToConnectionRequest
+        {
+            ConnectionId = connectionId,
+            Data = new MemoryStream(UTF8Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)))
+        };
+        var endpoint = $"https://{domainName}/{stage}";
+        var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
+        await apiClient.PostToConnectionAsync(postConnectionRequest);
+        return true;
     }
 }
