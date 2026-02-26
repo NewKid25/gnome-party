@@ -9,7 +9,6 @@
     </Project>
   </Folder>
   <Folder Name="/src/">
-    <Project Path="DatabaseService/DatabaseService.csproj" Id="acb7b21a-8450-40fd-a57f-c97afc92120e" />
     <Project Path="Models/Models.csproj" />
     <Project Path="SocketService/SocketService.csproj" />
   </Folder>

@@ -55,6 +55,13 @@
             "DynamoDBCrudPolicy": {
               "TableName": "GameTable"
             }
+          },
+          {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
           }
         ],
         "Environment": {
@@ -93,10 +100,10 @@
         }
       }
     },
-    "SendMessageFunction": {
+    "RouteRequestFunction": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "SocketService::SocketService.Functions::SendMessageHandler",
+        "Handler": "SocketService::SocketService.Functions::RouteRequestHandler",
         "Runtime": "dotnet10",
         "CodeUri": "",
         "MemorySize": 512,
@@ -238,13 +245,13 @@
         }
       }
     },
-    "SendMessageRoute": {
+    "RouteRequestRoute": {
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
         "ApiId": {
           "Ref": "GPWebSocketApi"
         },
-        "RouteKey": "sendmessage",
+        "RouteKey": "routerequest",
         "AuthorizationType": "NONE",
         "OperationName": "ConnectRoute",
         "Target": {
@@ -253,14 +260,14 @@
             [
               "integrations",
               {
-                "Ref": "SendMessageInteg"
+                "Ref": "RouteRequestInteg"
               }
             ]
           ]
         }
       }
     },
-    "SendMessageInteg": {
+    "RouteRequestInteg": {
       "Type": "AWS::ApiGatewayV2::Integration",
       "Properties": {
         "ApiId": {
@@ -276,7 +283,7 @@
               },
               "function": {
                 "Fn::GetAtt": [
-                  "SendMessageFunction",
+                  "RouteRequestFunction",
                   "Arn"
                 ]
               }
@@ -289,7 +296,7 @@
       "Type": "AWS::ApiGatewayV2::Deployment",
       "DependsOn": [
         "ConnectRoute",
-        "SendMessageRoute",
+        "RouteRequestRoute",
         "DisconnectRoute"
       ],
       "Properties": {
@@ -338,16 +345,16 @@
         "Principal": "apigateway.amazonaws.com"
       }
     },
-    "SendMessagePermission": {
+    "RouteRequestPermission": {
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
-        "SendMessageFunction",
+        "RouteRequestFunction",
         "GPWebSocketApi"
       ],
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
-          "Ref": "SendMessageFunction"
+          "Ref": "RouteRequestFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }
