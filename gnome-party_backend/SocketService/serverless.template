@@ -100,10 +100,10 @@
         }
       }
     },
-    "RouteRequestFunction": {
+    "PlayerActionFunction": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "SocketService::SocketService.Functions::RouteRequestHandler",
+        "Handler": "SocketService::SocketService.Functions::PlayerActionHandler",
         "Runtime": "dotnet10",
         "CodeUri": "",
         "MemorySize": 512,
@@ -331,13 +331,13 @@
         }
       }
     },
-    "RouteRequestRoute": {
+    "PlayerActionRoute": {
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
         "ApiId": {
           "Ref": "GPWebSocketApi"
         },
-        "RouteKey": "routerequest",
+        "RouteKey": "player-action",
         "AuthorizationType": "NONE",
         "OperationName": "ConnectRoute",
         "Target": {
@@ -346,14 +346,14 @@
             [
               "integrations",
               {
-                "Ref": "RouteRequestInteg"
+                "Ref": "PlayerActionInteg"
               }
             ]
           ]
         }
       }
     },
-    "RouteRequestInteg": {
+    "PlayerActionInteg": {
       "Type": "AWS::ApiGatewayV2::Integration",
       "Properties": {
         "ApiId": {
@@ -369,7 +369,7 @@
               },
               "function": {
                 "Fn::GetAtt": [
-                  "RouteRequestFunction",
+                  "PlayerActionFunction",
                   "Arn"
                 ]
               }
@@ -382,7 +382,7 @@
       "Type": "AWS::ApiGatewayV2::Deployment",
       "DependsOn": [
         "ConnectRoute",
-        "RouteRequestRoute",
+        "PlayerActionRoute",
         "DisconnectRoute",
         "JoinGameSessionRoute"
       ],
@@ -432,16 +432,16 @@
         "Principal": "apigateway.amazonaws.com"
       }
     },
-    "RouteRequestPermission": {
+    "PlayerActionPermission": {
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
-        "RouteRequestFunction",
+        "PlayerActionFunction",
         "GPWebSocketApi"
       ],
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
-          "Ref": "RouteRequestFunction"
+          "Ref": "PlayerActionFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }

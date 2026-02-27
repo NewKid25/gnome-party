@@ -119,11 +119,11 @@ public class Functions
     }
 
 
-    public async Task<APIGatewayProxyResponse> RouteRequestHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> PlayerActionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
         {
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "hello from the other side");
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached... there's nothing here yet");
 
             return new APIGatewayProxyResponse
             {
