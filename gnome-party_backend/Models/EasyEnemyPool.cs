@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Models
+﻿namespace Models
 {
     public enum EasyEnemyPoolClass 
     {
@@ -21,10 +15,10 @@ namespace Models
             MaxHealth = 20;
             Health = 20;
             CharacterID = characterID;
-            Attacks.Add(new Bone_Slash());
-            Attacks.Add(new Rattle_Guard());
+            Attacks.Add(new BoneSlash());
+            Attacks.Add(new RattleGuard());
         }
-        protected override Action ChooseAttack(List<Character_Base> aliveOpponents)
+        protected override CharacterAction ChooseAttack(List<Character_Base> aliveOpponents)
         {
             if (Attacks == null || Attacks.Count == 0) return null;
 
@@ -38,7 +32,7 @@ namespace Models
                 {
                     for (int i = 0; i < Attacks.Count; i++)
                     {
-                        if (Attacks[i] is Rattle_Guard)
+                        if (Attacks[i] is RattleGuard)
                         {
                             return Attacks[i];
                         }
@@ -49,7 +43,7 @@ namespace Models
             { 
                 for (int i = 0; i < Attacks.Count; i++)
                 {
-                    if (Attacks[i] is Bone_Slash)
+                    if (Attacks[i] is BoneSlash)
                     {
                         return Attacks[i];
                     }

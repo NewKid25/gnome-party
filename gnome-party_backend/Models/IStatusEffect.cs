@@ -1,4 +1,4 @@
-﻿namespace Statuses
+﻿namespace Models
 {
     public interface IStatusEffect
     {

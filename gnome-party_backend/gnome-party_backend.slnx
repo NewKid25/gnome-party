@@ -14,11 +14,10 @@
     <Project Path="Models/Models.csproj" Id="4f7d15bc-8ac4-4efd-9806-3bbe2e5d429a" />
     <Project Path="SocketService/SocketService.csproj" />
     <Project Path="Statuses/Statuses.csproj" />
-    <Project Path="TestFunc/TestFunc.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="CombatService.Tests/CombatService.Tests.csproj" />
+    <Project Path="Models.Tests/Models.Tests.csproj" Id="66b2285e-5330-4f79-a663-128061271a94" />
     <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
-     <Project Path="Models.Tests/Models.Tests.csproj" Id="66b2285e-5330-4f79-a663-128061271a94" />
   </Folder>
 </Solution>

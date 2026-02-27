@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Models
+﻿namespace Models
 {
     public class Character_Base
     {

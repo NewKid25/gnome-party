@@ -1,8 +1,4 @@
-﻿using CombatService;
-using Models;
-
-
-namespace Actions
+﻿namespace Models
 {
     public class Slash : CharacterAction
     {

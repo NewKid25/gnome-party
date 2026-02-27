@@ -2,6 +2,7 @@ using Amazon.Lambda.Core;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Models;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -38,8 +39,8 @@ namespace CombatService
                 return "Invalid character type";
             }
 
-            Action attack = null;
-            foreach (Action a in attacker.Attacks)
+            CharacterAction attack = null;
+            foreach (CharacterAction a in attacker.Attacks)
             {
                 if (a.AttackName == request.Attack)
                 {
