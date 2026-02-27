@@ -94,45 +94,11 @@ public class Functions
                 TableName = ConnectionMappingTable,
                 Item = new Dictionary<string, AttributeValue>
                 {
-                    {ConnectionIdField, new AttributeValue{ S = connectionId}},
-                    {"playerId", new AttributeValue{ S =  playerId} }
+                    {ConnectionIdField, new AttributeValue{ S = connectionId}}
                 }
             };
 
             await DDBClient.PutItemAsync(ddbRequest);
-
-            var playerCharacter = new Character();
-            var gameSession = new GameSession(new Connection(connectionId, playerId));
-            gameSession.character = playerCharacter;
-
-            var config = new DynamoDBContextConfig
-            {
-                DisableFetchingTableMetadata = true
-            };
-
-            var dbContext = new DynamoDBContext(DDBClient, config);
-
-            await dbContext.SaveAsync(gameSession);
-
-            //var responseBody = new
-            //{
-            //    playerId,
-            //    gameSession.gameSessionId,
-            //    playerCharacter
-            //};
-
-            //var postConnectionRequest = new PostToConnectionRequest
-            //{
-            //    ConnectionId = connectionId,
-            //    Data = new MemoryStream(UTF8Encoding.UTF8.GetBytes(JsonSerializer.Serialize(responseBody)))
-
-            //};
-            //var domainName = request.RequestContext.DomainName;
-            //var stage = request.RequestContext.Stage;
-            //var endpoint = $"https://{domainName}/{stage}";
-            //var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
-            //apiClient.PostToConnectionAsync(postConnectionRequest);
-
 
             return new APIGatewayProxyResponse
             {
@@ -179,7 +145,36 @@ public class Functions
 
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "hello from the other side");
+        var connectionId = request.RequestContext.ConnectionId;
+
+        var playerId = CreateNewPlayerId();
+        var ddbRequest = new PutItemRequest
+        {
+            TableName = ConnectionMappingTable,
+            Item = new Dictionary<string, AttributeValue>
+                {
+                    {ConnectionIdField, new AttributeValue{ S = connectionId}},
+                    {"playerId", new AttributeValue{ S =  playerId} }
+                }
+        };
+
+
+        var playerCharacter = new Character();
+        var gameSession = new GameSession(new Connection(connectionId, playerId));
+        gameSession.character = playerCharacter;
+
+        var config = new DynamoDBContextConfig
+        {
+            DisableFetchingTableMetadata = true
+        };
+
+        var dbContext = new DynamoDBContext(DDBClient, config);
+
+        var gameSessionTask =  dbContext.SaveAsync(gameSession);
+        var boolTask = SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
+
+        await gameSessionTask;
+        await boolTask;
         return new APIGatewayProxyResponse
         {
             StatusCode = (int)HttpStatusCode.OK,
