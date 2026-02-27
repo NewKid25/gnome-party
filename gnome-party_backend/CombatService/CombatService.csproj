@@ -16,7 +16,5 @@
   </ItemGroup>
     <ItemGroup>
 	    <ProjectReference Include="..\Models\Models.csproj" />
-        <ProjectReference Include="..\Actions\Actions.csproj" />
-	    <ProjectReference Include="..\Statuses\Statuses.csproj" />
     </ItemGroup>
 </Project>

@@ -1,6 +1,4 @@
-﻿using Models;
-
-namespace Statuses
+﻿namespace Models
 {
     public abstract class StatusEffectBase : IStatusEffect
     {

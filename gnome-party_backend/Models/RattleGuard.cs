@@ -1,8 +1,4 @@
-﻿using Models;
-using Statuses;
-
-
-namespace Actions
+﻿namespace Models
 {
     public sealed class RattleGuard : CharacterAction
     {

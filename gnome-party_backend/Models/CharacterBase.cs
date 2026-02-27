@@ -1,6 +1,4 @@
-﻿using Statuses;
-
-namespace Models
+﻿namespace Models
 {
     public class Character_Base
     {

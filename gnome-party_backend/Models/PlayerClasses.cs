@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static CombatService.Function;
-
-namespace Models
+﻿namespace Models
 {
     public enum PlayerCharacterClass
     {
