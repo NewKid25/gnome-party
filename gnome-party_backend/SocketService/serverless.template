@@ -187,7 +187,7 @@
       "Properties": {
         "Name": "SimpleChatWebSocket",
         "ProtocolType": "WEBSOCKET",
-        "RouteSelectionExpression": "$request.body.message"
+        "RouteSelectionExpression": "$request.body.route"
       }
     },
     "ConnectRoute": {
