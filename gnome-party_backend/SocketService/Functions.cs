@@ -157,7 +157,7 @@ public class Functions
                     {"playerId", new AttributeValue{ S =  playerId} }
                 }
         };
-
+        var respoonseTask = DDBClient.PutItemAsync(ddbRequest);
 
         var playerCharacter = new Character();
         var gameSession = new GameSession(new Connection(connectionId, playerId));
@@ -173,8 +173,11 @@ public class Functions
         var gameSessionTask =  dbContext.SaveAsync(gameSession);
         var boolTask = SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
 
+        //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
+        await respoonseTask;
         await gameSessionTask;
         await boolTask;
+
         return new APIGatewayProxyResponse
         {
             StatusCode = (int)HttpStatusCode.OK,
