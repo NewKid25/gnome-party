@@ -9,11 +9,16 @@
     </Project>
   </Folder>
   <Folder Name="/src/">
-    <Project Path="Models/Models.csproj" />
+    <Project Path="Actions/Actions.csproj" Id="a36c63d8-7cef-4053-8f36-5ef65fbeaa91" />
+    <Project Path="CombatService/CombatService.csproj" />
+    <Project Path="Models/Models.csproj" Id="4f7d15bc-8ac4-4efd-9806-3bbe2e5d429a" />
     <Project Path="SocketService/SocketService.csproj" />
+    <Project Path="Statuses/Statuses.csproj" />
+    <Project Path="TestFunc/TestFunc.csproj" />
   </Folder>
   <Folder Name="/test/">
-    <Project Path="Models.Tests/Models.Tests.csproj" Id="66b2285e-5330-4f79-a663-128061271a94" />
+    <Project Path="CombatService.Tests/CombatService.Tests.csproj" />
     <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
+     <Project Path="Models.Tests/Models.Tests.csproj" Id="66b2285e-5330-4f79-a663-128061271a94" />
   </Folder>
 </Solution>
