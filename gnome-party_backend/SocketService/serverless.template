@@ -143,6 +143,45 @@
         }
       }
     },
+    "JoinGameSessionFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "SocketService::SocketService.Functions::JoinGameSessionHandler",
+        "Runtime": "dotnet10",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": {
+                "Ref": "ConnectionMappingTableName"
+              }
+            }
+          }, 
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+                    {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
+          }
+       ],
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ConnectionMappingTableName"
+            }
+          }
+        }
+      }
+    },
     "GPWebSocketApi": {
       "Type": "AWS::ApiGatewayV2::Api",
       "Properties": {
@@ -245,6 +284,53 @@
         }
       }
     },
+    "JoinGameSessionRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "RouteKey": "join-game",
+        "AuthorizationType": "NONE",
+        "OperationName": "JoinGameSessionRoute",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "JoinGameSessionInteg"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "JoinGameSessionInteg": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Sub": [
+            "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${function}/invocations",
+            {
+              "region": {
+                "Ref": "AWS::Region"
+              },
+              "function": {
+                "Fn::GetAtt": [
+                  "JoinGameSessionFunction",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "RouteRequestRoute": {
       "Type": "AWS::ApiGatewayV2::Route",
       "Properties": {
@@ -297,7 +383,8 @@
       "DependsOn": [
         "ConnectRoute",
         "RouteRequestRoute",
-        "DisconnectRoute"
+        "DisconnectRoute",
+        "JoinGameSessionRoute"
       ],
       "Properties": {
         "ApiId": {
@@ -355,6 +442,20 @@
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Ref": "RouteRequestFunction"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "JoinGameSessionPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "JoinGameSessionFunction",
+        "GPWebSocketApi"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "JoinGameSessionFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }

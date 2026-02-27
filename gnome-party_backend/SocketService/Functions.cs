@@ -177,6 +177,16 @@ public class Functions
         }
     }
 
+    public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "hello from the other side");
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.OK,
+            Body = "all good"
+        };
+    }
+
     public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
