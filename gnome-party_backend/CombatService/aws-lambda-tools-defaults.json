@@ -5,12 +5,21 @@
     "dotnet lambda help",
     "All the command line options for the Lambda command can be specified in this file."
   ],
-  "profile": "Ahmad_testing",
-  "region": "us-east-1",
+  "profile": "default",
+  "region": "us-east-2",
   "configuration": "Release",
   "function-architecture": "x86_64",
-  "function-runtime": "dotnet8",
+  "function-runtime": "dotnet10",
   "function-memory-size": 512,
   "function-timeout": 30,
-  "function-handler": "CombatService::CombatService.Function::FunctionHandler"
+  "function-handler": "CombatService::CombatService.Function::CombatRequestHandler",
+  "framework": "net10.0",
+  "function-name": "CombatRequestHandler",
+  "package-type": "Zip",
+  "function-role": "arn:aws:iam::098597570152:role/lambda_basic_role",
+  "function-subnets": "",
+  "function-security-groups": "",
+  "tracing-mode": "PassThrough",
+  "environment-variables": "",
+  "image-tag": ""
 }

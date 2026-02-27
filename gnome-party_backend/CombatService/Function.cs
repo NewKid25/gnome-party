@@ -10,25 +10,11 @@ namespace CombatService
 {
     public class Function
     {
-        public string FunctionHandler(string input, ILambdaContext context)
+        public CombatResult CombatRequestHandler(CombatRequest request, ILambdaContext context)
         {
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new JsonStringEnumConverter());
-
-            CombatRequest request = null;
-
-            try
-            {
-                request = JsonSerializer.Deserialize<CombatRequest>(input, options);
-            }
-            catch
-            {
-                return "Invalid JSON input";
-            }
-
             if (request == null)
             {
-                return "Invalid input";
+                return null;
             }
 
             Character_Base attacker = CreateCharacter(request.Attacker);
@@ -36,7 +22,7 @@ namespace CombatService
 
             if (attacker == null || target == null)
             {
-                return "Invalid character type";
+                return null;
             }
 
             CharacterAction attack = null;
@@ -51,7 +37,7 @@ namespace CombatService
 
             if (attack == null)
             {
-                return "Invalid attack";
+                return null;
             }
 
             attacker.ResolveAttack(attack, target);
@@ -63,7 +49,7 @@ namespace CombatService
             result.TargetName = target.CharacterName;
             result.TargetHealth = target.Health;
 
-            return JsonSerializer.Serialize(result, options);
+            return result;
         }
         private Character_Base CreateCharacter(PlayerCharacterClass type)
         {
