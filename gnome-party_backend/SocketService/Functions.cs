@@ -9,11 +9,13 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Model;
 using Amazon.Runtime;
 using Amazon.Runtime.Endpoints;
+using Models;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using DatabaseService;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -155,25 +157,21 @@ public class Functions
                     {"playerId", new AttributeValue{ S =  playerId} }
                 }
         };
-        var respoonseTask = DDBClient.PutItemAsync(ddbRequest);
+        var responseTask = DDBClient.PutItemAsync(ddbRequest);
 
         var playerCharacter = new Character();
         var gameSession = new GameSession(new Connection(connectionId, playerId));
         gameSession.character = playerCharacter;
 
-        var config = new DynamoDBContextConfig
-        {
-            DisableFetchingTableMetadata = true
-        };
+        var databaseService = new DatabaseClient();
+        var sameTask = databaseService.SaveAsync(gameSession);
 
-        var dbContext = new DynamoDBContext(DDBClient, config);
 
-        var gameSessionTask = dbContext.SaveAsync(gameSession);
         var boolTask = SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
 
         //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
-        await respoonseTask;
-        await gameSessionTask;
+        await responseTask;
+        await sameTask;
         await boolTask;
 
         return new APIGatewayProxyResponse

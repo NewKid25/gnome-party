@@ -10,6 +10,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="CombatService/CombatService.csproj" />
+    <Project Path="DatabaseService/DatabaseService.csproj" Id="4dae4404-baf9-4fa1-beeb-b62236a338fc" />
     <Project Path="Models/Models.csproj" Id="4f7d15bc-8ac4-4efd-9806-3bbe2e5d429a" />
     <Project Path="SocketService/SocketService.csproj" />
   </Folder>
