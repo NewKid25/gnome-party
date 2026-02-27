@@ -7,7 +7,9 @@
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.10.4" />
-    <ProjectReference Include="..\CombatService\CombatService.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Statuses\Statuses.csproj" />
 	</ItemGroup>
 </Project>
 
