@@ -37,4 +37,16 @@ public class GameSession
         //character = new Character();
     }
 
+    public void AddParticipant(string connectionId, string userId)
+    {
+        var connection = new GameConnection(connectionId, userId);
+        AddParticipant(connection);
+    }
+
+    public void AddParticipant(GameConnection connection)
+    {
+        Participants.Add(connection);
+        var character = new Character(connection.UserId);
+        Campaign.PlayerCharacters.Add(character);
+    }
 }

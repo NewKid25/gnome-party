@@ -158,7 +158,7 @@ public class Functions
             gameSession = new GameSession(connection); //in this case the new connection is also the host
         }
 
-        gameSession.Participants.Add(connection);
+        gameSession.AddParticipant(connection);
         var connectionSaveTask = databaseService.SaveAsync(connection);
         var sessionSaveTask = databaseService.SaveAsync(gameSession);
         var sendTask = SendToConnectionAsync(connectionId, request, gameSession);
