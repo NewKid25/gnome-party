@@ -2,5 +2,5 @@
 
 public class Encounter
 {
-    int actionTime { get; set; } = 10;
+    public int ActionTime { get; set; } = 10;
 }

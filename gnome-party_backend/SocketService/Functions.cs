@@ -144,23 +144,61 @@ public class Functions
         var connectionId = request.RequestContext.ConnectionId;
         var databaseClient = new DatabaseService();
 
-        var playerId = CreateNewPlayerId();
-        var connection = new GameConnection(connectionId, playerId);
-        var connectionSaveTask = databaseClient.SaveAsync(connection);
 
-        var playerCharacter = new Character();
-        var gameSession = new GameSession(connection);
-        gameSession.character = playerCharacter;
+        var DDBClient = new AmazonDynamoDBClient();
+        var config = new DynamoDBContextConfig
+        {
+            DisableFetchingTableMetadata = true
+        };
 
-        var sessionSaveTask = databaseClient.SaveAsync(gameSession);
+        var DBContext = new DynamoDBContext(DDBClient, config);
+
+        var search = DBContext.FromQueryAsync<GameSession>(new Amazon.DynamoDBv2.DocumentModel.QueryOperationConfig()
+        {
+            //KeyExpression = new Amazon.DynamoDBv2.DocumentModel.Expression()
+            //{
+            //    ExpressionStatement = "InviteCode = :v_InviteCode",
+            //},
+            IndexName = "InviteCode-index",
+            Filter = new Amazon.DynamoDBv2.DocumentModel.QueryFilter("InviteCode", Amazon.DynamoDBv2.DocumentModel.QueryOperator.Equal, 0)
+        });
+
+        Console.WriteLine("items retrieved");
+
+        var searchResponse = await search.GetRemainingAsync();
+        GameSession gameSession;
+        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, search);
+        if (searchResponse.Count > 0)
+        {
+            gameSession = searchResponse[0]; //if we found anything that matches our condition, get the first one
+            var playerId = CreateNewPlayerId();
+            gameSession.Participants.Add(new GameConnection(connectionId, playerId));
+            //still need to actually save gameSession to db
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "joining existing game session...");
+        }
+        else
+        {
+            // create new game session 
+            var playerId = CreateNewPlayerId();
+            var connection = new GameConnection(connectionId, playerId);
+            var connectionSaveTask = databaseClient.SaveAsync(connection);
+            gameSession = new GameSession(connection);
+            var sessionSaveTask = databaseClient.SaveAsync(gameSession);
+
+            //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
+            await connectionSaveTask;
+            await sessionSaveTask;
+        }
+        //searchResponse.ForEach((s) = > {
+        //    Console.WriteLine(s.ToString());
+        //});
+        var sendTask = SendToConnectionAsync(connectionId, request, gameSession);
+        await sendTask;
 
 
-        var boolTask = SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
 
-        //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
-        await connectionSaveTask;
-        await sessionSaveTask;
-        await boolTask;
+
+
 
         return new APIGatewayProxyResponse
         {

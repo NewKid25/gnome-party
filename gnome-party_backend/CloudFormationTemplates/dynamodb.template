@@ -59,7 +59,12 @@
                         "AttributeType" : {
                             "Ref" : "HashKeyElementType"
                         }
-                    }
+                    },
+                    {
+                    "AttributeName": "InviteCode",
+                    "AttributeType": "N"
+                    }               
+
                 ],
                 "KeySchema"            : [
                     {
@@ -68,6 +73,19 @@
                         },
                         "KeyType"       : "HASH"
                     }
+                ],
+                 "GlobalSecondaryIndexes": [
+                  {
+                    "IndexName": "InviteCode-index",
+                    "KeySchema": [
+                      { "AttributeName": "InviteCode", "KeyType": "HASH" }
+                    ],
+                    "Projection": { "ProjectionType": "ALL" },
+                    "ProvisionedThroughput": {
+                        "ReadCapacityUnits": 5,
+                        "WriteCapacityUnits": 5
+                      }
+                  }
                 ],
                 "ProvisionedThroughput" : {
                     "ReadCapacityUnits" : {

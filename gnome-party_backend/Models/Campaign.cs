@@ -2,12 +2,12 @@
 
 public class Campaign
 {
-    List<Character> playerCharacters { get; set; }
-    List<Encounter> encounters { get; set; }
+    public List<Character> PlayerCharacters { get; set; }
+    public List<Encounter> Encounters { get; set; }
 
     public Campaign()
     {
-        playerCharacters = new List<Character>();
-        encounters = new List<Encounter>();
+        PlayerCharacters = new List<Character>();
+        Encounters = new List<Encounter>();
     }
 }

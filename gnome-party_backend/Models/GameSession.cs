@@ -6,30 +6,35 @@ namespace GnomeParty.Models;
 public class GameSession
 {
     [DynamoDBHashKey]
-    public string gameSessionId { get; set; }
-    //Connection Host { get; set; }
-    //List<Connection> Participants;
+    public string GameSessionId { get; set; }
+    public GameConnection Host { get; set; }
+    public List<GameConnection> Participants;
+
+    [DynamoDBGlobalSecondaryIndexHashKey("InviteCode-index")]
     public int InviteCode { get; set; }
-    //Campaign Campaign { get; set; }
-    [DynamoDBProperty]
-    public Character character { get; set; }
+    public Campaign Campaign { get; set; }
+    //[DynamoDBProperty]
+    //public Character character { get; set; }
 
 
     public GameSession() 
     {
-        gameSessionId = Guid.NewGuid().ToString();
+        GameSessionId = Guid.NewGuid().ToString();
         InviteCode = 0;
-        character = new Character();
+        //character = new Character();
+        Host = new GameConnection();
+        Participants = new List<GameConnection>();
+        Campaign = new Campaign();
     }
 
     public GameSession(GameConnection _host)
     {
-        gameSessionId = Guid.NewGuid().ToString();
-        //Host = _host;
-        //Participants = new List<Connection>();
+        GameSessionId = Guid.NewGuid().ToString();
+        Host = _host;
+        Participants = new List<GameConnection>();
         InviteCode = 0;
-        //Campaign = new Campaign();
-        character = new Character();
+        Campaign = new Campaign();
+        //character = new Character();
     }
 
 }
