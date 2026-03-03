@@ -142,63 +142,33 @@ public class Functions
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         var connectionId = request.RequestContext.ConnectionId;
-        var databaseClient = new DatabaseService();
+        var databaseService = new DatabaseService();
 
-
-        var DDBClient = new AmazonDynamoDBClient();
-        var config = new DynamoDBContextConfig
-        {
-            DisableFetchingTableMetadata = true
-        };
-
-        var DBContext = new DynamoDBContext(DDBClient, config);
-
-        var search = DBContext.FromQueryAsync<GameSession>(new Amazon.DynamoDBv2.DocumentModel.QueryOperationConfig()
-        {
-            //KeyExpression = new Amazon.DynamoDBv2.DocumentModel.Expression()
-            //{
-            //    ExpressionStatement = "InviteCode = :v_InviteCode",
-            //},
-            IndexName = "InviteCode-index",
-            Filter = new Amazon.DynamoDBv2.DocumentModel.QueryFilter("InviteCode", Amazon.DynamoDBv2.DocumentModel.QueryOperator.Equal, 0)
-        });
-
-        Console.WriteLine("items retrieved");
-
-        var searchResponse = await search.GetRemainingAsync();
         GameSession gameSession;
-        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, search);
-        if (searchResponse.Count > 0)
+        try 
         {
-            gameSession = searchResponse[0]; //if we found anything that matches our condition, get the first one
+            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0); //with throw exception if invite code not found
             var playerId = CreateNewPlayerId();
             gameSession.Participants.Add(new GameConnection(connectionId, playerId));
             //still need to actually save gameSession to db
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "joining existing game session...");
+            await SendToConnectionAsync(connectionId, request, "joining existing game session...");
         }
-        else
+        catch
         {
-            // create new game session 
+            // create new game session (this will eventually be in a route that just the host calls)
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
-            var connectionSaveTask = databaseClient.SaveAsync(connection);
+            var connectionSaveTask = databaseService.SaveAsync(connection);
             gameSession = new GameSession(connection);
-            var sessionSaveTask = databaseClient.SaveAsync(gameSession);
+            var sessionSaveTask = databaseService.SaveAsync(gameSession);
 
             //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
             await connectionSaveTask;
             await sessionSaveTask;
         }
-        //searchResponse.ForEach((s) = > {
-        //    Console.WriteLine(s.ToString());
-        //});
+
         var sendTask = SendToConnectionAsync(connectionId, request, gameSession);
         await sendTask;
-
-
-
-
-
 
         return new APIGatewayProxyResponse
         {
