@@ -1,16 +1,10 @@
-using Amazon.Lambda.Core;
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Models;
+using GnomeParty.Models;
 
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-
-namespace CombatService
+namespace GnomeParty.Combat
 {
-    public class Function
+    public class CombatService
     {
-        public CombatResult CombatRequestHandler(CombatRequest request, ILambdaContext context)
+        public CombatResult CombatRequestHandler(CombatRequest request)
         {
             if (request == null)
             {

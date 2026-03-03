@@ -1,6 +1,6 @@
-﻿using Models;
+﻿using GnomeParty.Models;
 
-namespace CombatService
+namespace GnomeParty.Combat
 {
     public sealed class CombatRoundManager
     {

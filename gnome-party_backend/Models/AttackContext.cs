@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 
-namespace Models
+namespace GnomeParty.Models
 {
     public sealed class AttackContext
     {

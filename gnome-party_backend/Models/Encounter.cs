@@ -1,4 +1,4 @@
-﻿namespace Models;
+﻿namespace GnomeParty.Models;
 
 public class Encounter
 {

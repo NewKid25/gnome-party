@@ -9,13 +9,14 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Model;
 using Amazon.Runtime;
 using Amazon.Runtime.Endpoints;
-using Models;
+using GnomeParty.Models;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using DatabaseService;
+using GnomeParty.Database;
+using GnomeParty.Combat;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -88,7 +89,7 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
-            var databaseClient = new DatabaseClient();
+            var databaseClient = new DatabaseService();
             var connection = new GameConnection(connectionId);
             await databaseClient.SaveAsync(connection);
 
@@ -116,7 +117,9 @@ public class Functions
     {
         try
         {
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached... there's nothing here yet");
+            //await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached... there's nothing here yet");
+
+            CombatService combatService = new CombatService();
 
             return new APIGatewayProxyResponse
             {
@@ -139,7 +142,7 @@ public class Functions
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         var connectionId = request.RequestContext.ConnectionId;
-        var databaseClient = new DatabaseClient();
+        var databaseClient = new DatabaseService();
 
         var playerId = CreateNewPlayerId();
         var connection = new GameConnection(connectionId, playerId);
@@ -173,7 +176,7 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
-            var databaseClient = new DatabaseClient();
+            var databaseClient = new DatabaseService();
             var connection = await databaseClient.LoadAsync<GameConnection>(connectionId);
             await databaseClient.DeleteAsync(connection);
 

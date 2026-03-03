@@ -1,6 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 
-namespace Models;
+namespace GnomeParty.Models;
 
 [DynamoDBTable("GameTable")]
 public class GameSession

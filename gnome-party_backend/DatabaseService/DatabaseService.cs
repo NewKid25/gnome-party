@@ -1,15 +1,15 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
-using Models;
+using GnomeParty.Models;
 
-namespace DatabaseService;
-public class DatabaseClient
+namespace GnomeParty.Database;
+public class DatabaseService
 {
     IAmazonDynamoDB DDBClient { get; }
     IDynamoDBContext DBContext { get; }
 
-    public DatabaseClient()
+    public DatabaseService()
     {
         DDBClient = new AmazonDynamoDBClient();
         var config = new DynamoDBContextConfig
@@ -23,7 +23,7 @@ public class DatabaseClient
     /// <summary>
     /// constructor that can be used to inject dependencies, for testing.
     /// </summary>
-    public DatabaseClient(IAmazonDynamoDB ddbClient, IDynamoDBContext dbContext)
+    public DatabaseService(IAmazonDynamoDB ddbClient, IDynamoDBContext dbContext)
     {
         DDBClient = ddbClient;
         DBContext = dbContext;
