@@ -31,14 +31,34 @@ class LeapAnimation implements AnimationStep {
 	{
 		this.node = leapingNode;
 
+
 		let destinationPos:Konva.Vector2d;
 		if (destination instanceof Konva.Node)
 		{
 			destinationPos = destination.position();
+			if (leapingNode.position().x < destinationPos.x)
+			{
+				destinationPos.x -= (destination.width() + leapingNode.width()) / 2 * 1.25;
+			}
+			else
+			{
+				destinationPos.x += (destination.width() + leapingNode.width()) / 2 * 1.25;
+			}
 		}
 		else
 		{
 			destinationPos = destination;
+		}
+
+		let higher:number;
+
+		if (destinationPos.y < leapingNode.position().y)
+		{
+			higher = destinationPos.y;
+		}
+		else
+		{
+			higher = leapingNode.position().y;
 		}
 
 		this.animationSequence = new AnimationSequence([
@@ -48,7 +68,7 @@ class LeapAnimation implements AnimationStep {
 				new AnimationSequence([
 					new TweenFromCurrent({
 						node: leapingNode,
-						y: destinationPos.y - jumpHeight,
+						y: higher - jumpHeight,
 						duration: leapDuration / 4,
 						easing: () => Easings.EaseOut
 					}),
@@ -74,7 +94,7 @@ class LeapAnimation implements AnimationStep {
 				new AnimationSequence([
 					new TweenFromCurrent({
 						node: leapingNode,
-						y: destinationPos.y - jumpHeight,
+						y: higher - jumpHeight,
 						duration: leapDuration / 4,
 						easing: () => Easings.EaseOut
 					}),

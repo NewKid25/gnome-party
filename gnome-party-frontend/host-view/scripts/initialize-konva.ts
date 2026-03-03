@@ -30,8 +30,18 @@ function initializeKonva() {
 		strokeWidth: 4,
 	});
 
+	var otherCircle = new Konva.Circle({
+		x: stage.width() / 2 - 400,
+		y: stage.height() / 2 - 200,
+		radius: 50,
+		fill: 'orange',
+		stroke: 'black',
+		strokeWidth: 4,
+	})
+
 	// add the shape to the layer
 	layer.add(circle);
+	layer.add(otherCircle);
 
 	// add the layer to the stage
 	stage.add(layer);
@@ -41,13 +51,12 @@ function initializeKonva() {
 		node: circle,
 		duration: 1,
 		fill: 'green'
-	})
-
-	
+	})	
 
 	let leapAnimation:LeapAnimation = new LeapAnimation({
 		leapingNode: circle,
-		destination: {x: circle.position().x + 300, y: circle.position().y - 200},
+		// destination: {x: circle.position().x + 300, y: circle.position().y - 200},
+		destination: otherCircle,
 		landingAnimation: tweenColor
 	})
 
