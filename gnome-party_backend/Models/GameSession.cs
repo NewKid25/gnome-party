@@ -22,7 +22,7 @@ public class GameSession
         character = new Character();
     }
 
-    public GameSession(Connection _host)
+    public GameSession(GameConnection _host)
     {
         gameSessionId = Guid.NewGuid().ToString();
         //Host = _host;

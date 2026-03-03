@@ -88,17 +88,10 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
-            var playerId = CreateNewPlayerId();
-            var ddbRequest = new PutItemRequest
-            {
-                TableName = ConnectionMappingTable,
-                Item = new Dictionary<string, AttributeValue>
-                {
-                    {ConnectionIdField, new AttributeValue{ S = connectionId}}
-                }
-            };
+            var databaseClient = new DatabaseClient();
+            var connection = new GameConnection(connectionId);
+            await databaseClient.SaveAsync(connection);
 
-            await DDBClient.PutItemAsync(ddbRequest);
 
             return new APIGatewayProxyResponse
             {
@@ -146,32 +139,24 @@ public class Functions
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         var connectionId = request.RequestContext.ConnectionId;
+        var databaseClient = new DatabaseClient();
 
         var playerId = CreateNewPlayerId();
-        var ddbRequest = new PutItemRequest
-        {
-            TableName = ConnectionMappingTable,
-            Item = new Dictionary<string, AttributeValue>
-                {
-                    {ConnectionIdField, new AttributeValue{ S = connectionId}},
-                    {"playerId", new AttributeValue{ S =  playerId} }
-                }
-        };
-        var responseTask = DDBClient.PutItemAsync(ddbRequest);
+        var connection = new GameConnection(connectionId, playerId);
+        var connectionSaveTask = databaseClient.SaveAsync(connection);
 
         var playerCharacter = new Character();
-        var gameSession = new GameSession(new Connection(connectionId, playerId));
+        var gameSession = new GameSession(connection);
         gameSession.character = playerCharacter;
 
-        var databaseService = new DatabaseClient();
-        var sameTask = databaseService.SaveAsync(gameSession);
+        var sessionSaveTask = databaseClient.SaveAsync(gameSession);
 
 
         var boolTask = SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
 
         //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
-        await responseTask;
-        await sameTask;
+        await connectionSaveTask;
+        await sessionSaveTask;
         await boolTask;
 
         return new APIGatewayProxyResponse
@@ -188,16 +173,9 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
             context.Logger.LogInformation($"ConnectionId: {connectionId}");
 
-            var ddbRequest = new DeleteItemRequest
-            {
-                TableName = ConnectionMappingTable,
-                Key = new Dictionary<string, AttributeValue>
-                {
-                    {ConnectionIdField, new AttributeValue {S = connectionId}}
-                }
-            };
-
-            await DDBClient.DeleteItemAsync(ddbRequest);
+            var databaseClient = new DatabaseClient();
+            var connection = await databaseClient.LoadAsync<GameConnection>(connectionId);
+            await databaseClient.DeleteAsync(connection);
 
             return new APIGatewayProxyResponse
             {

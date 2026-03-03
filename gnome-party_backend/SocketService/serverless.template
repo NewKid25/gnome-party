@@ -21,13 +21,13 @@
         },
         "AttributeDefinitions": [
           {
-            "AttributeName": "connectionId",
+            "AttributeName": "ConnectionId",
             "AttributeType": "S"
           }
         ],
         "KeySchema": [
           {
-            "AttributeName": "connectionId",
+            "AttributeName": "ConnectionId",
             "KeyType": "HASH"
           }
         ],

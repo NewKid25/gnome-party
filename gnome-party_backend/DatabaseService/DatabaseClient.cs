@@ -34,4 +34,14 @@ public class DatabaseClient
         await DBContext.SaveAsync(item);
         return;
     }
+
+    public async Task<T> LoadAsync<T>(Object hashKey)
+    {
+        return await DBContext.LoadAsync<T>(hashKey);
+    }
+     public async Task DeleteAsync<T>(T item)
+    {
+        await DBContext.DeleteAsync(item);
+        return;
+    }
 }
