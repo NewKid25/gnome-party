@@ -8,7 +8,7 @@ public class GameSession
     [DynamoDBHashKey]
     public string GameSessionId { get; set; }
     public GameConnection Host { get; set; }
-    public List<GameConnection> Participants;
+    public List<GameConnection> Participants { get; set; }
 
     [DynamoDBGlobalSecondaryIndexHashKey("InviteCode-index")]
     public int InviteCode { get; set; }

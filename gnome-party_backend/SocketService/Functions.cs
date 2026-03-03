@@ -145,29 +145,26 @@ public class Functions
         var databaseService = new DatabaseService();
 
         GameSession gameSession;
+        var playerId = CreateNewPlayerId();
+        var connection = new GameConnection(connectionId, playerId);
         try 
         {
             gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0); //with throw exception if invite code not found
-            var playerId = CreateNewPlayerId();
-            gameSession.Participants.Add(new GameConnection(connectionId, playerId));
-            //still need to actually save gameSession to db
             await SendToConnectionAsync(connectionId, request, "joining existing game session...");
         }
         catch
         {
             // create new game session (this will eventually be in a route that just the host calls)
-            var playerId = CreateNewPlayerId();
-            var connection = new GameConnection(connectionId, playerId);
-            var connectionSaveTask = databaseService.SaveAsync(connection);
-            gameSession = new GameSession(connection);
-            var sessionSaveTask = databaseService.SaveAsync(gameSession);
-
-            //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
-            await connectionSaveTask;
-            await sessionSaveTask;
+            gameSession = new GameSession(connection); //in this case the new connection is also the host
         }
 
+        gameSession.Participants.Add(connection);
+        var connectionSaveTask = databaseService.SaveAsync(connection);
+        var sessionSaveTask = databaseService.SaveAsync(gameSession);
         var sendTask = SendToConnectionAsync(connectionId, request, gameSession);
+        //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
+        await connectionSaveTask;
+        await sessionSaveTask;
         await sendTask;
 
         return new APIGatewayProxyResponse
