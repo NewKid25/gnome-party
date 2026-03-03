@@ -5,6 +5,7 @@ import { Tween } from "konva/lib/Tween";
 import AnimationSequence from "./AnimationSequence";
 import SimultaneousAnimation from "./SimultaneousAnimation";
 import TweenFromCurrent from "./TweenFromCurrent";
+import LeapAnimation from "./animations/LeapAnimation";
 
 function initializeKonva() {
 	var container:HTMLDivElement = document.getElementById("konva-container") as HTMLDivElement;
@@ -35,45 +36,20 @@ function initializeKonva() {
 	// add the layer to the stage
 	stage.add(layer);
 
-	var tween:TweenFromCurrent = new TweenFromCurrent({
-		node: circle,
-		duration: 1,
-		onFinish: () => {console.log("Done!")},
-		x: circle.position().x + 20
-	});
-
-	var tween2:TweenFromCurrent = new TweenFromCurrent({
-		node: circle,
-		duration: 1,
-		x: circle.position().x - 200
-	})
 
 	var tweenColor:TweenFromCurrent = new TweenFromCurrent({
 		node: circle,
-		duration: 4,
+		duration: 1,
 		fill: 'green'
 	})
 
-	var sequence:AnimationSequence = new AnimationSequence([
-		tween,
-		tween2,
-	]);
+	
 
-	var simul:SimultaneousAnimation = new SimultaneousAnimation([
-		sequence,
-		tweenColor
-	]);
+	let leapAnimation:LeapAnimation = new LeapAnimation({
+		leapingNode: circle,
+		destination: {x: circle.position().x + 300, y: circle.position().y - 200},
+		landingAnimation: tweenColor
+	})
 
-	var sequence2:AnimationSequence = new AnimationSequence([
-		simul,
-		new TweenFromCurrent({
-			node: circle,
-			duration: 1,
-			onFinish: () => {console.log("Done!")},
-			x: (() => circle.position().x + 20)
-		}),
-	]);
-
-
-	sequence2.play();
+	leapAnimation.play();
 }
