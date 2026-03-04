@@ -113,7 +113,7 @@ public class Functions
         }
     }
 
-    //{"route": "player-action","EncounterId":"318669cf-fb29-4b8b-9a4c-bee69aa91ba8", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-97d6f607-ec3c-4bd5-a6d7-9605d25a5594", "Attack":"Slash"}
+    //{"route": "player-action","EncounterId":"bc32096a-0cee-4fc0-82b7-6bea703b6754", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-97d6f607-ec3c-4bd5-a6d7-9605d25a5594", "Attack":"Slash"}
     public async Task<APIGatewayProxyResponse> PlayerActionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -122,7 +122,9 @@ public class Functions
             var databaseService = new DatabaseService();
             JsonDocument message = JsonDocument.Parse(request.Body);
             var combatRequest = message.Deserialize<CombatRequest>();
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, combatRequest);
+            var combatService = new CombatService();
+            var response = await combatService.CombatRequestHandlerAsync(combatRequest);
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, response);
             //var activeEncounter = new ActiveCombatEncounter()
             //activeEncounter.PlayerReadied.Add(true);
             //await databaseService.SaveAsync(activeEncounter);

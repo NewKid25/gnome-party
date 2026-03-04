@@ -1,12 +1,43 @@
+using GnomeParty.Database;
 using GnomeParty.Models;
+using System.Text.Json;
+
 
 namespace GnomeParty.Combat
 {
     public class CombatService
     {
-        public bool CombatRequestHandler(CombatRequest request)
+        public async Task<bool>  CombatRequestHandlerAsync(CombatRequest request)
         {
-            Console.WriteLine($"request is {request}");
+            var databaseService = new DatabaseService();
+            var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
+
+            Console.WriteLine($"Size of player characters is {activeEncounter.PlayerCharacters.Count}");
+            Console.WriteLine($"Size of player readied is {activeEncounter.PlayerReadied.Length}");
+            Console.WriteLine($"Size of combat requests is {activeEncounter.CombatRequests.Length}");
+            // Mark the source character as readied
+            for (int i = 0; i < activeEncounter.PlayerCharacters.Count; i++)
+            {
+                if (activeEncounter.PlayerCharacters[i].Id == request.SourceCharacterId)
+                {
+                    activeEncounter.CombatRequests[i] = request;
+                    activeEncounter.PlayerReadied[i] = true;
+                    break;
+                }
+            }
+            await databaseService.SaveAsync(activeEncounter);
+            // Check if all players have readied up
+            foreach (var playerReadier in activeEncounter.PlayerReadied)
+            {
+                if (!playerReadier)
+                {
+                    // Not all players have readied up yet, so we can't process the combat request
+                    return false;
+                }
+            }
+            // All players have readied up, so we can process all the combat requests
+
+            Console.WriteLine($"request is {JsonSerializer.Serialize(activeEncounter)}");
             return true;
             //if (request == null)
             //{

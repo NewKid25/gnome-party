@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models;
+namespace GnomeParty.Models;
 
 [DynamoDBTable("ActiveEncounterTable")]
 public class ActiveCombatEncounter
@@ -13,7 +13,8 @@ public class ActiveCombatEncounter
     public string EncounterId { get; set; }
     public List<Character> PlayerCharacters { get; set; }
     public List<Character> EnemyCharacters { get; set; }
-    public List<bool> PlayerReadied { get; set; } = [];
+    public bool[] PlayerReadied { get; set; }
+    public CombatRequest[] CombatRequests { get; set; }
 
     public ActiveCombatEncounter() : this([], []) { }
 
@@ -22,9 +23,7 @@ public class ActiveCombatEncounter
         EncounterId = Guid.NewGuid().ToString();
         PlayerCharacters = playerCharacters;
         EnemyCharacters = enemyCharacters;
-        foreach (var _ in PlayerCharacters)
-        {
-            PlayerReadied.Add(false);
-        }
+        PlayerReadied = new bool[PlayerCharacters.Count]; //should deafualt to all false
+        CombatRequests = new CombatRequest[PlayerCharacters.Count];
     }
 }
