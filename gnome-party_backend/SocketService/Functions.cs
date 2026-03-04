@@ -186,8 +186,8 @@ public class Functions
         var connection = new GameConnection(connectionId, playerId);
         try 
         {
-            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0); //with throw exception if invite code not found
-            await SendToConnectionAsync(connectionId, request, "joining existing game session...");
+            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0); //will throw exception if invite code not found
+            //await SendToConnectionAsync(connectionId, request, "joining existing game session...");
         }
         catch
         {
