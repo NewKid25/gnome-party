@@ -27,7 +27,7 @@ class LeapAnimation implements AnimationStep {
 
 	onFinish: Function | undefined;
 
-	constructor({leapingNode, destination, jumpHeight=30, leapDuration=1, landingAnimation=new AnimationPause()} : LeapAnimationParams)
+	constructor({leapingNode, destination, jumpHeight=50, leapDuration=1, landingAnimation=new AnimationPause()} : LeapAnimationParams)
 	{
 		this.node = leapingNode;
 

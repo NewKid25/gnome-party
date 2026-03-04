@@ -6,6 +6,7 @@ import AnimationSequence from "./AnimationSequence";
 import SimultaneousAnimation from "./SimultaneousAnimation";
 import TweenFromCurrent from "./TweenFromCurrent";
 import LeapAnimation from "./animations/LeapAnimation";
+import AnimationPause from "./AnimationPause";
 
 function initializeKonva() {
 	var container:HTMLDivElement = document.getElementById("konva-container") as HTMLDivElement;
@@ -31,8 +32,8 @@ function initializeKonva() {
 	});
 
 	var otherCircle = new Konva.Circle({
-		x: stage.width() / 2 - 400,
-		y: stage.height() / 2 - 200,
+		x: stage.width() / 2 + 400,
+		y: stage.height() / 2 + 200,
 		radius: 50,
 		fill: 'orange',
 		stroke: 'black',
@@ -57,7 +58,7 @@ function initializeKonva() {
 		leapingNode: circle,
 		// destination: {x: circle.position().x + 300, y: circle.position().y - 200},
 		destination: otherCircle,
-		landingAnimation: tweenColor
+		landingAnimation: new AnimationPause(1000)
 	})
 
 	leapAnimation.play();
