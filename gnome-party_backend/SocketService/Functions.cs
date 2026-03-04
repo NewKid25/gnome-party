@@ -113,17 +113,19 @@ public class Functions
         }
     }
 
-
+    //{"route": "player-action","EncounterId":"318669cf-fb29-4b8b-9a4c-bee69aa91ba8", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-97d6f607-ec3c-4bd5-a6d7-9605d25a5594", "Attack":"Slash"}
     public async Task<APIGatewayProxyResponse> PlayerActionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
         {
             await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached...");
             var databaseService = new DatabaseService();
-            var activeEncounter = new ActiveCombatEncounter();
-            activeEncounter.PlayerReadied.Add(true);
-            await databaseService.SaveAsync(activeEncounter);
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, activeEncounter);
+            JsonDocument message = JsonDocument.Parse(request.Body);
+            var combatRequest = message.Deserialize<CombatRequest>();
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, combatRequest);
+            //var activeEncounter = new ActiveCombatEncounter()
+            //activeEncounter.PlayerReadied.Add(true);
+            //await databaseService.SaveAsync(activeEncounter);
 
 
             return new APIGatewayProxyResponse

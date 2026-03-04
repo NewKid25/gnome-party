@@ -4,46 +4,48 @@ namespace GnomeParty.Combat
 {
     public class CombatService
     {
-        public CombatResult CombatRequestHandler(CombatRequest request)
+        public bool CombatRequestHandler(CombatRequest request)
         {
-            if (request == null)
-            {
-                return null;
-            }
+            Console.WriteLine($"request is {request}");
+            return true;
+            //if (request == null)
+            //{
+            //    return null;
+            //}
 
-            Character_Base attacker = CreateCharacter(request.Attacker);
-            Character_Base target = CreateCharacter(request.Target);
+            //Character_Base attacker = CreateCharacter(request.Attacker);
+            //Character_Base target = CreateCharacter(request.Target);
 
-            if (attacker == null || target == null)
-            {
-                return null;
-            }
+            //if (attacker == null || target == null)
+            //{
+            //    return null;
+            //}
 
-            CharacterAction attack = null;
-            foreach (CharacterAction a in attacker.Attacks)
-            {
-                if (a.AttackName == request.Attack)
-                {
-                    attack = a;
-                    break;
-                }
-            }
+            //CharacterAction attack = null;
+            //foreach (CharacterAction a in attacker.Attacks)
+            //{
+            //    if (a.AttackName == request.Attack)
+            //    {
+            //        attack = a;
+            //        break;
+            //    }
+            //}
 
-            if (attack == null)
-            {
-                return null;
-            }
+            //if (attack == null)
+            //{
+            //    return null;
+            //}
 
-            attacker.ResolveAttack(attack, target);
+            //attacker.ResolveAttack(attack, target);
 
-            CombatResult result = new CombatResult();
-            result.AttackerId = attacker.CharacterID;
-            result.AttackerName = attacker.CharacterName;
-            result.TargetId = target.CharacterID;
-            result.TargetName = target.CharacterName;
-            result.TargetHealth = target.Health;
+            //CombatResult result = new CombatResult();
+            //result.AttackerId = attacker.CharacterID;
+            //result.AttackerName = attacker.CharacterName;
+            //result.TargetId = target.CharacterID;
+            //result.TargetName = target.CharacterName;
+            //result.TargetHealth = target.Health;
 
-            return result;
+            //return result;
         }
         private Character_Base CreateCharacter(PlayerCharacterClass type)
         {
@@ -65,12 +67,6 @@ namespace GnomeParty.Combat
             {
                 return null;
             }
-        }
-        public class CombatRequest
-        {
-            public PlayerCharacterClass Attacker { get; set; }
-            public PlayerCharacterClass Target { get; set; }
-            public string Attack { get; set; }
         }
         public class CombatResult
         {
