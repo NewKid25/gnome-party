@@ -87,72 +87,72 @@
             int index = _random.Next(0, aliveOpponents.Count);
             return aliveOpponents[index];
         }
-        public void ResolvePlannedAction(PlannedAction plannedAction)
-        {
-            if (plannedAction == null) { return; }
-            if (!IsAlive) { return; }
-            CharacterAction attack = plannedAction.Attack;
-            if (attack == null) { return; }
-            if (plannedAction.GroupTargets != null && plannedAction.GroupTargets.Count > 0)
-            {
-                ResolveAttack(attack, plannedAction.GroupTargets, plannedAction.DuplicateTargets); 
-                return;
-            }
-            Character_Base target = plannedAction.Target;
-            if(target == null || !target.IsAlive)
-            {
-                List<Character_Base> aliveOpponents = GetAliveOpponents();
-                target = ChooseTarget(aliveOpponents, attack);
-            }
-            if (target == null || !target.IsAlive) return;
-            ResolveAttack(attack, target);
-        }
-        public void ResolveAttack(CharacterAction attackAction, Character_Base target)
-        {
-            List<Character_Base> opponentList = new List<Character_Base>();
-            opponentList.Add(target);
-            ResolveAttack(attackAction, opponentList, false);
-        }
-        public void ResolveAttack(CharacterAction attackAction, List<Character_Base> groupTargets, bool uniqueTargetsOnly)
-        {
-            if (attackAction == null) { return; }
-            if (groupTargets == null || groupTargets.Count == 0) { return; }
-            List<AttackContext> contexts = new List<AttackContext>();
-            for (int i = 0; i < groupTargets.Count; i++)
-            {
-                Character_Base target = groupTargets[i];
-                if (target == null || !target.IsAlive) { continue; }
-                AttackContext cont = new AttackContext(this, attackAction, target, i);
-                target.TriggerBeforeBeingAttacked(cont);
-                if (cont.CurrentTarget != null && cont.CurrentTarget.IsAlive)
-                {
-                    contexts.Add(cont);
-                }
-            }
-            if (uniqueTargetsOnly)
-            {
-                List<AttackContext> unique = new List<AttackContext>();
-                HashSet<Guid> seen = new HashSet<Guid>();
-                for (int i = 0; i < contexts.Count; i++)
-                {
-                    AttackContext cont = contexts[i];
-                    if (cont.CurrentTarget == null) { continue; }
-                    Guid id = cont.CurrentTarget.CharacterID;
-                    if (!seen.Contains(id))
-                    {
-                        seen.Add(id);
-                        unique.Add(cont);
-                    }
-                }
-                contexts = unique;
-            }
-            for (int i = 0; i < contexts.Count; i++)
-            {
-                AttackContext cont = contexts[i];
-                if (cont.CurrentTarget == null || !cont.CurrentTarget.IsAlive) { continue; }
-                attackAction.ApplyEffect(this, cont.CurrentTarget, cont);
-            }
-        }
+        //public void ResolvePlannedAction(PlannedAction plannedAction)
+        //{
+        //    if (plannedAction == null) { return; }
+        //    if (!IsAlive) { return; }
+        //    CharacterAction attack = plannedAction.Attack;
+        //    if (attack == null) { return; }
+        //    if (plannedAction.GroupTargets != null && plannedAction.GroupTargets.Count > 0)
+        //    {
+        //        ResolveAttack(attack, plannedAction.GroupTargets, plannedAction.DuplicateTargets); 
+        //        return;
+        //    }
+        //    Character_Base target = plannedAction.Target;
+        //    if(target == null || !target.IsAlive)
+        //    {
+        //        List<Character_Base> aliveOpponents = GetAliveOpponents();
+        //        target = ChooseTarget(aliveOpponents, attack);
+        //    }
+        //    if (target == null || !target.IsAlive) return;
+        //    ResolveAttack(attack, target);
+        //}
+        //public void ResolveAttack(CharacterAction attackAction, Character_Base target)
+        //{
+        //    List<Character_Base> opponentList = new List<Character_Base>();
+        //    opponentList.Add(target);
+        //    ResolveAttack(attackAction, opponentList, false);
+        //}
+        //public void ResolveAttack(CharacterAction attackAction, List<Character_Base> groupTargets, bool uniqueTargetsOnly)
+        //{
+        //    if (attackAction == null) { return; }
+        //    if (groupTargets == null || groupTargets.Count == 0) { return; }
+        //    List<AttackContext> contexts = new List<AttackContext>();
+        //    for (int i = 0; i < groupTargets.Count; i++)
+        //    {
+        //        Character_Base target = groupTargets[i];
+        //        if (target == null || !target.IsAlive) { continue; }
+        //        AttackContext cont = new AttackContext(this, attackAction, target, i);
+        //        target.TriggerBeforeBeingAttacked(cont);
+        //        if (cont.CurrentTarget != null && cont.CurrentTarget.IsAlive)
+        //        {
+        //            contexts.Add(cont);
+        //        }
+        //    }
+        //    if (uniqueTargetsOnly)
+        //    {
+        //        List<AttackContext> unique = new List<AttackContext>();
+        //        HashSet<Guid> seen = new HashSet<Guid>();
+        //        for (int i = 0; i < contexts.Count; i++)
+        //        {
+        //            AttackContext cont = contexts[i];
+        //            if (cont.CurrentTarget == null) { continue; }
+        //            Guid id = cont.CurrentTarget.CharacterID;
+        //            if (!seen.Contains(id))
+        //            {
+        //                seen.Add(id);
+        //                unique.Add(cont);
+        //            }
+        //        }
+        //        contexts = unique;
+        //    }
+        //    for (int i = 0; i < contexts.Count; i++)
+        //    {
+        //        AttackContext cont = contexts[i];
+        //        if (cont.CurrentTarget == null || !cont.CurrentTarget.IsAlive) { continue; }
+        //        attackAction.ApplyEffect(this, cont.CurrentTarget, cont);
+        //    }
+        //}
         private void TriggerBeforeBeingAttacked(AttackContext context)
         {
             List<IStatusEffect> applied = new List<IStatusEffect>(_statuses);

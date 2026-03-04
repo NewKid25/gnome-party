@@ -18,28 +18,28 @@
         public virtual void OnModifyIncomingDamage(Character_Base owner, AttackContext context) { }   
         public virtual void ProgressRound() { RoundsRemaining--;}
     }
-    public sealed class RedirectAttackToCaster_Status : StatusEffectBase
-    {
-        private readonly Character_Base _protector;
-        public RedirectAttackToCaster_Status(Character_Base protector, int rounds) : base(rounds) { _protector = protector;}
-        public override void OnBeforeBeingAttacked(Character_Base owner, AttackContext context)
-        {
-            if(_protector == null)
-            {
-                return;
-            }
-            if(_protector.Health <= 0)
-            {
-                return;
+    //public sealed class RedirectAttackToCaster_Status : StatusEffectBase
+    //{
+    //    private readonly Character_Base _protector;
+    //    public RedirectAttackToCaster_Status(Character_Base protector, int rounds) : base(rounds) { _protector = protector;}
+    //    public override void OnBeforeBeingAttacked(Character_Base owner, AttackContext context)
+    //    {
+    //        if(_protector == null)
+    //        {
+    //            return;
+    //        }
+    //        if(_protector.Health <= 0)
+    //        {
+    //            return;
 
-            }
-            context.CurrentTarget = _protector;
-        }
-        public override string StatusName
-        {
-            get { return "Protected"; }
-        }
-    }
+    //        }
+    //        context.CurrentTarget = _protector;
+    //    }
+    //    public override string StatusName
+    //    {
+    //        get { return "Protected"; }
+    //    }
+    //}
     public sealed class DamageReduction_Status : StatusEffectBase
     {
         private readonly double _multiplier;

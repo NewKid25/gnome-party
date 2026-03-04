@@ -12,6 +12,6 @@
             ActionDescription = new CharacterActionDescription(attackName);
         }
         protected CharacterAction(string attackName) : this(attackName, false) { }
-        public abstract void ApplyEffect(Character_Base user, Character_Base target, AttackContext context);
+        public abstract void ApplyEffect(Character user, Character target, AttackContext context);
     }
 }

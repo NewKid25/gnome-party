@@ -3,10 +3,12 @@
     public class Slash : CharacterAction
     {
         public Slash() : base("Slash") { }
-        public override void ApplyEffect(Character_Base user, Character_Base target, AttackContext context)
+        public override void ApplyEffect(Character user, Character target, AttackContext context)
         {
             int damage = 10;
-            target.ReceiveDamage(damage, context);
+            //temp solution
+            target.Health -= damage;
+            //target.ReceiveDamage(damage, context);
         }
     }
 }

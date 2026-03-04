@@ -86,7 +86,7 @@ namespace GnomeParty.Combat
                 if (action == null) continue;
                 Character_Base user = action.User;
                 if(user == null || !user.IsAlive) continue;
-                user.ResolvePlannedAction(action);
+                //user.ResolvePlannedAction(action);
             }
         }
     }

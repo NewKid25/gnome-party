@@ -5,14 +5,14 @@ namespace GnomeParty.Models
 {
     public sealed class AttackContext
     {
-        public Character_Base Attacker { get; private set; }
+        public Character Attacker { get; private set; }
         public CharacterAction Attack { get; private set; }
-        public Character_Base OriginalTarget { get; private set; }
-        public Character_Base CurrentTarget { get; set; }
+        public Character OriginalTarget { get; private set; }
+        public Character CurrentTarget { get; set; }
         public int BaseDamage { get; set; }
         public int ModifiedDamage { get; set; }
         public int HitIndex { get; private set; }
-        public AttackContext(Character_Base contextAttacker, CharacterAction contextAttack, Character_Base contextTarget, int contextHitIndex)
+        public AttackContext(Character contextAttacker, CharacterAction contextAttack, Character contextTarget, int contextHitIndex)
         {
             if(contextAttacker == null)
             {
@@ -32,6 +32,6 @@ namespace GnomeParty.Models
             CurrentTarget = contextTarget;
             HitIndex = contextHitIndex;
         }
-        public AttackContext(Character_Base attacker, CharacterAction attack, Character_Base target) : this(attacker, attack, target, 0) {}
+        public AttackContext(Character attacker, CharacterAction attack, Character target) : this(attacker, attack, target, 0) {}
     }
 }

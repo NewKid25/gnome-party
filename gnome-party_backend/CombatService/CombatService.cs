@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using GnomeParty.Models;
 using System.Text.Json;
@@ -7,7 +8,7 @@ namespace GnomeParty.Combat
 {
     public class CombatService
     {
-        public async Task<bool>  CombatRequestHandlerAsync(CombatRequest request)
+        public async Task<ActiveCombatEncounter>  CombatRequestHandlerAsync(CombatRequest request)
         {
             var databaseService = new DatabaseService();
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
@@ -32,13 +33,15 @@ namespace GnomeParty.Combat
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return false;
+                    return activeEncounter;
                 }
             }
             // All players have readied up, so we can process all the combat requests
 
-            Console.WriteLine($"request is {JsonSerializer.Serialize(activeEncounter)}");
-            return true;
+            Console.WriteLine($"encounter is {JsonSerializer.Serialize(activeEncounter)}");
+
+            activeEncounter = await ProcessCombatRequestsAsync(activeEncounter.CombatRequests, activeEncounter);
+            return activeEncounter;
             //if (request == null)
             //{
             //    return null;
@@ -78,6 +81,21 @@ namespace GnomeParty.Combat
 
             //return result;
         }
+
+        async Task<ActiveCombatEncounter> ProcessCombatRequestsAsync(CombatRequest[] combatRequests, ActiveCombatEncounter encounter)
+        {
+            foreach (var request in combatRequests)
+            {
+                var action = CharacterActionFactory.CreateCharacterAction(request.Action);
+                var srcCharacter = encounter.PlayerCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId) ?? encounter.EnemyCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId);
+                var targetCharacter = encounter.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
+                var context = new AttackContext(srcCharacter, action, targetCharacter);
+                action.ApplyEffect(srcCharacter, targetCharacter, context);
+            }
+            await new DatabaseService().SaveAsync(encounter);
+            return encounter;
+        }
+
         private Character_Base CreateCharacter(PlayerCharacterClass type)
         {
             Guid id = Guid.NewGuid();
@@ -99,13 +117,13 @@ namespace GnomeParty.Combat
                 return null;
             }
         }
-        public class CombatResult
-        {
-            public Guid AttackerId { get; set; }
-            public string AttackerName { get; set; }
-            public Guid TargetId { get; set; }
-            public string TargetName { get; set; }
-            public int TargetHealth { get; set; }
-        }
+        //public class CombatResult
+        //{
+        //    public Guid AttackerId { get; set; }
+        //    public string AttackerName { get; set; }
+        //    public Guid TargetId { get; set; }
+        //    public string TargetName { get; set; }
+        //    public int TargetHealth { get; set; }
+        //}
     }
 }

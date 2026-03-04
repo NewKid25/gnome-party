@@ -9,14 +9,14 @@ public class CombatRequest
         public string EncounterId { get; set; }
         public string TargetCharacterId { get; set; }
         public string SourceCharacterId { get; set; }
-        public string Attack { get; set; }
+        public string Action { get; set; }
 
-        public CombatRequest(string encounterId, string targetCharacterId, string sourceCharacterId, string attack)
+        public CombatRequest(string encounterId, string targetCharacterId, string sourceCharacterId, string action)
         {
             EncounterId = encounterId;
             TargetCharacterId = targetCharacterId;
             SourceCharacterId = sourceCharacterId;
-            Attack = attack;
+            Action = action;
         }
         
         public CombatRequest() : this("", "", "", "") { }    
