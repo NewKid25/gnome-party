@@ -1,13 +1,21 @@
 ﻿namespace GnomeParty.Models;
 
-public class CombatEncounter
+public class CombatEncounter : Encounter
 {
-    List<Character> Enemies { get; set; }
+    public List<Character> Enemies { get; set; }
 
 
     public CombatEncounter()
     {
-        Enemies = new List<Character>();
+        var skeleton = new Character
+        {
+            Id = "test-enemy",
+            Name = "skeleton",
+            MaxHealth = 10,
+            Health = 10,
+            ActionsDescriptions = [new CharacterActionDescription("punch", "A weak punch")]
+        };
+        Enemies = [skeleton];
     }
 
     public CombatEncounter(List<Character> _enemies)
