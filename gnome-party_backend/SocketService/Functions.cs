@@ -17,6 +17,7 @@ using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using GnomeParty.Database;
 using GnomeParty.Combat;
+using Models;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -117,9 +118,13 @@ public class Functions
     {
         try
         {
-            //await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached... there's nothing here yet");
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached...");
+            var databaseService = new DatabaseService();
+            var activeEncounter = new ActiveCombatEncounter();
+            activeEncounter.PlayerReadied.Add(true);
+            await databaseService.SaveAsync(activeEncounter);
+            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, activeEncounter);
 
-            CombatService combatService = new CombatService();
 
             return new APIGatewayProxyResponse
             {
@@ -138,6 +143,42 @@ public class Functions
             };
         }
     }
+
+
+
+    public async Task<APIGatewayProxyResponse> BeginCombatEncounterHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+
+        //{"route": "begin-combat-encounter", "GameSessionId": "f4477afa-a9e8-48fc-9dcc-60e7ac64ac3b"}
+        JsonDocument message = JsonDocument.Parse(request.Body);
+
+        // ripped most of this code from WebSocket sample at https://github.com/aws/aws-lambda-dotnet/blob/master/Blueprints/BlueprintDefinitions/vs2026/WebSocketAPIServerless/template/src/BlueprintBaseName.1/Functions.cs
+        JsonElement gameSessionIdElement;
+        if (!message.RootElement.TryGetProperty("GameSessionId", out gameSessionIdElement) || gameSessionIdElement.GetString() == null)
+        {
+            context.Logger.LogInformation("Failed to find GameSessionId element in JSON document");
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest
+            };
+        }
+        var gameSessionId = gameSessionIdElement.GetString() ?? "";
+
+        var gameSession = await new DatabaseService().LoadAsync<GameSession>(gameSessionId);
+        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
+
+        var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, gameSession.Campaign.Encounters[0].Enemies);
+        await new DatabaseService().SaveAsync(activeEncounter);
+        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, activeEncounter);
+
+
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)HttpStatusCode.OK,
+            Body = "all good"
+        };
+    }
+
 
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {

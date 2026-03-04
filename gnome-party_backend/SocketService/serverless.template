@@ -124,15 +124,11 @@
               "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
             }
           },
-                    {
-            "Statement": {
-              "Effect": "Allow",
-              "Action": "lambda:InvokeFunction",
-              "Resource": {
-                "Fn::Sub": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:TestFunc"
-              }
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "ActiveEncounterTable"
             }
-        }
+          } 
         ],
         "Environment": {
           "Variables": {
@@ -163,6 +159,50 @@
           {
             "DynamoDBCrudPolicy": {
               "TableName": "GameTable"
+            }
+          },
+                    {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
+          }
+       ],
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ConnectionMappingTableName"
+            }
+          }
+        }
+      }
+    },
+    "BeginCombatEncounterFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "SocketService::SocketService.Functions::BeginCombatEncounterHandler",
+        "Runtime": "dotnet10",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": {
+                "Ref": "ConnectionMappingTableName"
+              }
+            }
+          }, 
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "ActiveEncounterTable"
             }
           },
                     {
@@ -378,13 +418,61 @@
         }
       }
     },
+    "BeginCombatEncounterRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "RouteKey": "begin-combat-encounter",
+        "AuthorizationType": "NONE",
+        "OperationName": "ConnectRoute",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "BeginCombatEncounterInteg"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "BeginCombatEncounterInteg": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Sub": [
+            "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${function}/invocations",
+            {
+              "region": {
+                "Ref": "AWS::Region"
+              },
+              "function": {
+                "Fn::GetAtt": [
+                  "BeginCombatEncounterFunction",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "Deployment": {
       "Type": "AWS::ApiGatewayV2::Deployment",
       "DependsOn": [
         "ConnectRoute",
         "PlayerActionRoute",
         "DisconnectRoute",
-        "JoinGameSessionRoute"
+        "JoinGameSessionRoute",
+        "BeginCombatEncounterRoute"
       ],
       "Properties": {
         "ApiId": {
@@ -456,6 +544,20 @@
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Ref": "JoinGameSessionFunction"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "BeginCombatEncounterPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "BeginCombatEncounterFunction",
+        "GPWebSocketApi"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "BeginCombatEncounterFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }
