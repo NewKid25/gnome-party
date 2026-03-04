@@ -148,11 +148,11 @@ public class Functions
 
     public async Task<APIGatewayProxyResponse> BeginCombatEncounterHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-
+        // example message body to trigger this route
         //{"route": "begin-combat-encounter", "GameSessionId": "f4477afa-a9e8-48fc-9dcc-60e7ac64ac3b"}
+        // ripped most of this Json parsing code from WebSocket sample at https://github.com/aws/aws-lambda-dotnet/blob/master/Blueprints/BlueprintDefinitions/vs2026/WebSocketAPIServerless/template/src/BlueprintBaseName.1/Functions.cs
         JsonDocument message = JsonDocument.Parse(request.Body);
 
-        // ripped most of this code from WebSocket sample at https://github.com/aws/aws-lambda-dotnet/blob/master/Blueprints/BlueprintDefinitions/vs2026/WebSocketAPIServerless/template/src/BlueprintBaseName.1/Functions.cs
         JsonElement gameSessionIdElement;
         if (!message.RootElement.TryGetProperty("GameSessionId", out gameSessionIdElement) || gameSessionIdElement.GetString() == null)
         {
@@ -163,13 +163,14 @@ public class Functions
             };
         }
         var gameSessionId = gameSessionIdElement.GetString() ?? "";
+        var databaseService = new DatabaseService();
 
-        var gameSession = await new DatabaseService().LoadAsync<GameSession>(gameSessionId);
-        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, gameSession);
+        var gameSession = await databaseService.LoadAsync<GameSession>(gameSessionId);
+        var connectionId = request.RequestContext.ConnectionId;
 
         var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, gameSession.Campaign.Encounters[0].Enemies);
-        await new DatabaseService().SaveAsync(activeEncounter);
-        await SendToConnectionAsync(request.RequestContext.ConnectionId, request, activeEncounter);
+        await databaseService.SaveAsync(activeEncounter);
+        await SendToConnectionAsync(connectionId, request, activeEncounter);
 
 
         return new APIGatewayProxyResponse
