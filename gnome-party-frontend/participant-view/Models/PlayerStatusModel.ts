@@ -8,10 +8,11 @@ class PlayerStatusModel {
     public healthBar: HealthBarModel
 
     constructor(
-        healthBar: HealthBarModel,
         playerImage: PlayerImageModel,
+        healthBar: HealthBarModel,
     ) {
-        this.healthBar = healthBar
         this.playerImage = playerImage
+        this.healthBar = healthBar
+        
     }
 }

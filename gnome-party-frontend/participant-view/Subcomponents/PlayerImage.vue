@@ -7,6 +7,6 @@ const model = defineModel<PlayerImageModel>({required: true})
 
 <template>
     <div class="player-image">
-        <img />
+        <img src="model.source" :alt="model.alt"/>
     </div>
 </template>

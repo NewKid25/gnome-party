@@ -14,5 +14,5 @@ function onClick() {
 </script>
 
 <template>
-	<button @click="onClick">{{ model?.actionName }}</button>
+	<button class="action-button" @click="onClick">{{ model?.actionName }}</button>
 </template>

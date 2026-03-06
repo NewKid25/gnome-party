@@ -19,7 +19,12 @@ function onActionChosen(actionButton:ActionButtonModel) {
 	emit("actionChosen", actionButton);
 }
 </script>
+
 <template>
-<PlayerStatus v-model="model.playerStatusModel"></PlayerStatus>
-<ActionList v-model="model.actionListModel" @action-chosen="onActionChosen"></ActionList>	
+<div class="participant-container">
+    <div class="participant-view">
+		<PlayerStatus v-model="model.playerStatusModel"></PlayerStatus>
+		<ActionList v-model="model.actionListModel" @action-chosen="onActionChosen"></ActionList>	
+    </div>
+</div>
 </template>

@@ -7,6 +7,6 @@ const model = defineModel<HealthBarModel>({required: true});
 
 <template>
     <div class="healthbar">
-
+        <div class="healthbar-fill" :style="{width: (model.value / model.maxValue * 100) + '%'}"></div>
     </div>
 </template>

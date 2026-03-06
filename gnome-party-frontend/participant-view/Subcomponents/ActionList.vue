@@ -10,5 +10,6 @@ function onActionChosen(actionButton:ActionButtonModel) {
 }
 </script>
 <template>
+	<h1>ACTIONS</h1>
 	<ActionButton v-for="(actionButton, i) in model.actions" v-model="model.actions[i]" @action-chosen="onActionChosen"></ActionButton>
 </template>

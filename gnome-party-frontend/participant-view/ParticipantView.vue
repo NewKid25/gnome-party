@@ -1,32 +1,41 @@
 <script setup lang="ts">
-import { ActionButtonModel } from './Models/ActionButtonModel'
-import { ActionListModel } from './Models/ActionListModel'
-import ActionList from './Subcomponents/ActionList.vue'
+import { reactive } from "vue";
+import CombatActionMenu from "./Menus/CombatActionMenu.vue";
 
-import { TargetButtonModel } from './Models/TargetButtonModel'
-import { TargetListModel } from './Models/TargetListModel'
-import TargetList from './Subcomponents/TargetList.vue'
+import { ActionButtonModel } from "./Models/ActionButtonModel";
+import { ActionListModel } from "./Models/ActionListModel";
+import { PlayerStatusModel } from "./Models/PlayerStatusModel";
+import { HealthBarModel } from "./Models/HealthBarModel";
+import { PlayerImageModel } from "./Models/PlayerImageModel";
 
-// This stuff is in here just to test. Eventually it will all be moved to CombatActionMenu
+import "./styles.css";
 
-var buttonTestModel1:ActionButtonModel = {'selected': false, 'actionName': 'Hello World 1'}
-var buttonTestModel2:ActionButtonModel = {'selected': false, 'actionName': 'Hello World 2'}
-var buttonTestModel3:ActionButtonModel = {'selected': false, 'actionName': 'Hello World 3'}
+const actionListModel = new ActionListModel([
+  { selected: false, actionName: "Slash" } as ActionButtonModel,
+  { selected: false, actionName: "Block" } as ActionButtonModel,
+  { selected: false, actionName: "Parry" } as ActionButtonModel,
+  { selected: false, actionName: "Whirling Strike" } as ActionButtonModel,
+]);
 
-var actionListTestModel:ActionListModel = new ActionListModel([buttonTestModel1, buttonTestModel2, buttonTestModel3])
+const healthBarModel: HealthBarModel = { value: 30, maxValue: 100 };
+const playerImageModel: PlayerImageModel = { source: "../placeholder_player_image.png", alt: "placeholder for player image" };
+const playerStatusModel = new PlayerStatusModel(
+  playerImageModel,
+  healthBarModel
+);
 
-var buttonTestModelA:TargetButtonModel = {'selected': false, 'targetName': 'Hello World A'}
-var buttonTestModelB:TargetButtonModel = {'selected': false, 'targetName': 'Hello World B'}
-var buttonTestModelC:TargetButtonModel = {'selected': false, 'targetName': 'Hello World C'}
+const combatActionMenuModel = reactive({
+  playerStatusModel,
+  actionListModel,
+});
 
-var targetListTestModel:TargetListModel = new TargetListModel([buttonTestModelA, buttonTestModelB, buttonTestModelC])
+function onActionChosen(actionButton: ActionButtonModel) {
+  console.log("App.vue:", actionButton);
+}
+
 
 </script>
 
 <template>
-<p>participant view</p>
-
-<ActionList v-model="actionListTestModel"></ActionList>
-
-<TargetList v-model="targetListTestModel"></TargetList>
+  <CombatActionMenu v-model="combatActionMenuModel" @action-chosen="onActionChosen"></CombatActionMenu>
 </template>
