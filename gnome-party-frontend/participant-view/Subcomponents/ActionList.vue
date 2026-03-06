@@ -10,12 +10,11 @@ const emit = defineEmits<{
 }>();	
 
 function onActionChosen(actionButton: ActionButtonModel) {
-	console.log("ActionList:", actionButton);
-
-	model.value.actions.filter((v) => v != actionButton).forEach((v) => {
-		v.selected = false;
+	model.value.actions.forEach((v) => {
+		v.selected = (v === actionButton);
 	});
 
+	console.log("ActionList selected:", model.value.selected);
 	emit("actionChosen", actionButton);
 }
 </script>

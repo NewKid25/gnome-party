@@ -8,12 +8,11 @@ const emit = defineEmits<{
 }>();
 
 function onClick() {
-	model.value.selected = true;
 	console.log("ActionButton clicked:", model.value.actionName);
 	emit("actionChosen", model.value);
 }
 </script>
 
 <template>
-	<button class="action-button" :class="{ 'selected': model?.selected }" @click="onClick">{{ model?.actionName }}</button>
+	<button type="button"class="action-button" :class="{ 'selected': model?.selected }" @click="onClick">{{ model?.actionName }}</button>
 </template>

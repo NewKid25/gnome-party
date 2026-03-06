@@ -1,17 +1,56 @@
+@font-face {
+    font-family: "Mystorica";
+    src: url(../DS_Mystorica.ttf) format("truetype");
+}
+
+html, body, #app {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100dvh;
+    overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.participant-view {
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eaf6fc;
+    padding: clamp(12px, 2vw, 28px);
+}
+
+.participant-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(92vw, 38rem);
+    gap: clamp(0.9rem, 2.2vh, 1.6rem);
+}
 
 .action-button {
-	border-radius: 8px;
+	border-radius: clamp(8px, 1vw, 14px);
     border: 2px solid #2f2f2f;
-    padding: 12px;
-    width: 90%;
-    margin: 6px 5px;
+    padding: clamp(0.75rem, 1.6vh, 1rem);
+    width: 88%;
+    margin: clamp(0.3rem, 0.8vh, 0.6rem) 0;
     background-color: #bfe5f7;
     color: #3a3a3a;
     font-weight: bold;
     font-family: "Amasis MT Pro", serif;
     text-transform: uppercase;
-    font-size: 1.45rem;
-    /* box-sizing: border-box; */
+    font-size: clamp(1.25rem, 2.5vw, 1.45rem);
     cursor: pointer;
     transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -36,9 +75,9 @@ h1 {
     font-family: "Amasis MT Pro", serif;
     color: #2f2f2f;
     font-weight: normal;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
     letter-spacing: 0.5px;
-    margin: 4px 0 8px 0;
+    margin: 0;
 }
 
 .player-status {
@@ -46,20 +85,19 @@ h1 {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    gap: 20px;
+    gap: clamp(0.9rem, 2.5vh, 1.6rem);
 }
 
 .character-image {
-    width: 72%;
+    width: min(72%, 20rem);
     aspect-ratio: 1 / 1;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: #dfeaf1;
-    border-radius: 26px;
-    padding: 3px;
+    border-radius: clamp(18px, 3vw, 28px);
+    padding: clamp(3px, 0.5vw, 8px);
     border: 2px solid black;
-    box-sizing: border-box;
 }
 
 .character-image img {
@@ -73,36 +111,15 @@ hr {
     width: 97%;
     border: none;
     border-top: 1px solid #b4b5b5;
-    margin: 16px 0 10px 0;
-}
-
-.participant-view {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-.participant-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    width: 100%;
-    max-width: 340px;
-    background-color: #eaf6fc;
-    /* margin: 10px; */
-    border: 2px solid #2f2f2f;
-    padding: 18px 18px 24px 18px;
-    box-sizing: border-box;
+    margin: clamp(0.8rem, 2vh, 1.2rem) 0 clamp(0.5rem, 1vh, 0.8rem) 0;
 }
 
 .healthbar {
     width: 91%;
-    height: 38px;
+    height: clamp(1.8rem, 4.2vh, 2.6rem);
     background-color: #747474;
     border: 2px solid #2f2f2f;
     overflow: hidden;
-    box-sizing: border-box;
 }
 
 .healthbar-fill {
@@ -112,12 +129,17 @@ hr {
 }
 
 .target-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 18px 28px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2vh, 1.5rem);
     width: 100%;
-    margin-top: 10px;
+    margin-top: clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.target-list > :nth-child(3) {
+    grid-column: 1 / span 2;
+    justify-self: center;
+    width: 48%;
 }
 
 .target-button {
@@ -125,10 +147,10 @@ hr {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 120px;
-    padding: 10px;
-    border-radius: 12px;
+    gap: clamp(0.5rem, 1.2vh, 1rem);
+    width: 100%;
+    padding: clamp(0.5rem, 1.2vh, 1rem);
+    border-radius: clamp(12px, 2vw, 18px);
     border: 2px solid transparent;
     background: transparent;
     cursor: pointer;
@@ -137,8 +159,6 @@ hr {
 
 .target-button:hover {
     background-color: #dfeaf1;
-    /* border-color: #2f2f2f;
-    transform: translateY(-2px); */
 }
 
 .target-button:active {
@@ -152,13 +172,14 @@ hr {
 }
 
 .target-button .healthbar {
-    width: 90px;
-    height: 20px;
+    width: 90%;
+    height: clamp(1.5rem, 3.5vh, 2.2rem);
 }
 
 .target-button .character-image {
-    width: 80px;
-    height: 80px;
+    width: min(100%, 7rem);
+    height: auto;
+    aspect-ratio: 1 / 1;
     border: none;
     padding: 0;
     background: transparent;
@@ -174,6 +195,15 @@ hr {
     font-family: "Amasis MT Pro", serif;
     color: #3a3a3a;
     font-weight: bold;
-    font-size: 0.95rem;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    text-align: center;
+}
+
+.target-menu-title {
+    font-family: "Mystorica", serif;
+    color: #2f2f2f;
+    font-size: clamp(2.3rem, 7vw, 3.6rem);
+    line-height: 1;
+    margin: 0 0 clamp(0.2rem, 0.8vh, 0.5rem) 0;
     text-align: center;
 }

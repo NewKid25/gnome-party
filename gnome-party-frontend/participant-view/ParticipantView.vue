@@ -63,6 +63,10 @@ function onTargetChosen(target: TargetButtonModel) {
 </script>
 
 <template>
-  <CombatActionMenu v-model="combatActionMenuModel" @action-chosen="onActionChosen"></CombatActionMenu>
-  <CombatTargetMenu v-model="combatTargetMenuModel" @target-chosen="onTargetChosen"></CombatTargetMenu>
+<div class="participant-view">
+    <div class="participant-container">
+        <CombatActionMenu v-model="combatActionMenuModel" @action-chosen="onActionChosen"></CombatActionMenu>
+        <!-- <CombatTargetMenu v-model="combatTargetMenuModel" @target-chosen="onTargetChosen"></CombatTargetMenu> -->
+    </div>
+</div>
 </template>
