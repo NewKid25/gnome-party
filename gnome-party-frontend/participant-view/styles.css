@@ -49,7 +49,7 @@ h1 {
     gap: 20px;
 }
 
-.player-image {
+.character-image {
     width: 72%;
     aspect-ratio: 1 / 1;
     display: flex;
@@ -62,7 +62,7 @@ h1 {
     box-sizing: border-box;
 }
 
-.player-image img {
+.character-image img {
     width: 85%;
     height: 85%;
     display: block;

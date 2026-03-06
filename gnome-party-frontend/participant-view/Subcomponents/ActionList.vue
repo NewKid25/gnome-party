@@ -6,10 +6,10 @@ import ActionButton from './ActionButton.vue';
 const model = defineModel<ActionListModel>({required: true});
 
 const emit = defineEmits<{
-  actionChosen: [actionButton:ActionButtonModel]
+  actionChosen: [actionButton: ActionButtonModel]
 }>();	
 
-function onActionChosen(actionButton:ActionButtonModel) {
+function onActionChosen(actionButton: ActionButtonModel) {
 	console.log("ActionList:", actionButton);
 
 	model.value.actions.filter((v) => v != actionButton).forEach((v) => {

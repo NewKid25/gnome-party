@@ -11,10 +11,10 @@ const model = defineModel<{
 }>({required: true});
 
 const emit = defineEmits<{
-  actionChosen: [actionButton:ActionButtonModel]
+  actionChosen: [actionButton: ActionButtonModel]
 }>();
 
-function onActionChosen(actionButton:ActionButtonModel) {
+function onActionChosen(actionButton: ActionButtonModel) {
 	console.log("CombatActionMenu:", actionButton);
 	emit("actionChosen", actionButton);
 }

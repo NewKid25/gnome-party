@@ -1,17 +1,17 @@
-import { PlayerImageModel } from "./PlayerImageModel";
+import { CharacterImageModel } from "./CharacterImageModel";
 import { HealthBarModel } from "./HealthBarModel";
 
 export { PlayerStatusModel }
 
 class PlayerStatusModel {
-    public playerImage: PlayerImageModel
+    public characterImage: CharacterImageModel
     public healthBar: HealthBarModel
 
     constructor(
-        playerImage: PlayerImageModel,
+        characterImage: CharacterImageModel,
         healthBar: HealthBarModel,
     ) {
-        this.playerImage = playerImage
+        this.characterImage = characterImage
         this.healthBar = healthBar
         
     }

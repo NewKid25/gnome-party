@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PlayerStatusModel } from '../Models/PlayerStatusModel';
 import HealthBar from './HealthBar.vue';
-import PlayerImage from './PlayerImage.vue';
+import CharacterImage from './CharacterImage.vue';
 
 const model = defineModel<PlayerStatusModel>({required: true})
 
@@ -9,7 +9,7 @@ const model = defineModel<PlayerStatusModel>({required: true})
 
 <template>
     <div class="player-status">
-        <PlayerImage v-model="model.playerImage"></PlayerImage>
+        <CharacterImage v-model="model.characterImage"></CharacterImage>
         <HealthBar v-model="model.healthBar"></HealthBar>
         <hr>
     </div>
