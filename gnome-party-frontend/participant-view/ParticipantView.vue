@@ -29,8 +29,8 @@ const combatActionMenuModel = reactive({
   actionListModel,
 });
 
-function onActionChosen(actionButton: ActionButtonModel) {
-  console.log("App.vue:", actionButton);
+function onActionChosen(action: ActionButtonModel) {
+  console.log("App.vue:", action);
 }
 
 

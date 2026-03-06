@@ -11,7 +11,25 @@
     font-family: "Amasis MT Pro", serif;
     text-transform: uppercase;
     font-size: 1.45rem;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-button:hover {
+    background-color: #a0d0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.action-button:active {
+    transform: scale(0.98);
+}
+
+.action-button.selected {
+    background-color: #a0d0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
 }
 
 h1 {
