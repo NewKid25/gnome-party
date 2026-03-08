@@ -35,14 +35,15 @@ class LeapAnimation implements AnimationStep {
 		let destinationPos:Konva.Vector2d;
 		if (destination instanceof Konva.Node)
 		{
+			console.log("Width: ", leapingNode.width());
 			destinationPos = destination.position();
 			if (leapingNode.position().x < destinationPos.x)
 			{
-				destinationPos.x -= (destination.width() + leapingNode.width()) / 2 * 1.25;
+				destinationPos.x -= (destination.width() + leapingNode.width() * leapingNode.scaleX()) / 2 * 1.25;
 			}
 			else
 			{
-				destinationPos.x += (destination.width() + leapingNode.width()) / 2 * 1.25;
+				destinationPos.x += (destination.width() + leapingNode.width() * leapingNode.scaleX()) / 2 * 1.25;
 			}
 		}
 		else
