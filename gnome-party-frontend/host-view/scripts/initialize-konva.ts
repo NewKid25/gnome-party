@@ -8,9 +8,11 @@ import TweenFromCurrent from "./TweenFromCurrent";
 import LeapAnimation from "./animations/LeapAnimation";
 import AnimationPause from "./AnimationPause";
 import GnomePuppet from "./GnomePuppet";
+import HealthBar from "./HealthBar";
+import FunctionStep from "./FunctionStep";
 
 function initializeKonva() {
-	var container:HTMLDivElement = document.getElementById("konva-container") as HTMLDivElement;
+	const container:HTMLDivElement = document.getElementById("konva-container") as HTMLDivElement;
 
 	// first we need to create a stage
 	var stage = new Konva.Stage({
@@ -19,18 +21,9 @@ function initializeKonva() {
 		height: container.clientHeight
 	});
 
-	// then create layer
-	var layer = new Konva.Layer();
+	// then create layers
+	var mainLayer = new Konva.Layer();
 
-	// create our shape
-	var circle = new Konva.Circle({
-		x: stage.width() / 2,
-		y: stage.height() / 2,
-		radius: 70,
-		fill: 'red',
-		stroke: 'black',
-		strokeWidth: 4,
-	});
 
 	var otherCircle = new Konva.Circle({
 		x: stage.width() / 2 + 600,
@@ -45,21 +38,18 @@ function initializeKonva() {
 	gnome.x(stage.width() / 2);
 	gnome.y(stage.height() / 2);
 
+	let health:HealthBar = new HealthBar(20, {x: 30, y:150});
+	health.x(gnome.x() - gnome.width() / 1.75)
+	health.y(gnome.y() - 85)
+
 	
 	// add the shape to the layer
-	layer.add(circle);
-	layer.add(gnome);
-	layer.add(otherCircle);
+	mainLayer.add(gnome);
+	mainLayer.add(otherCircle);
+	mainLayer.add(health);
 
 	// add the layer to the stage
-	stage.add(layer);
-
-
-	var tweenColor:TweenFromCurrent = new TweenFromCurrent({
-		node: gnome,
-		duration: 1,
-		fill: 'green'
-	})	
+	stage.add(mainLayer);
 
 	let leapAnimation:LeapAnimation = new LeapAnimation({
 		leapingNode: gnome,
@@ -78,23 +68,13 @@ function initializeKonva() {
 		})
 	])
 
-	let circleLeapAnimation:LeapAnimation = new LeapAnimation({
-		leapingNode: circle,
-		// destination: {x: circle.position().x + 300, y: circle.position().y - 200},
-		destination: otherCircle,
-		landingAnimation: new AnimationPause(100),
-		leapDuration: 0.1
-	})
-
 
 	let sequence:AnimationSequence = new AnimationSequence([
 		new AnimationPause(1000),
 		flipAnimation,
-		circleLeapAnimation
+		new FunctionStep(() => {health.changeHealth(10)})
 	])
 	
 	sequence.play();
-	console.log(circle.offset());
-
 
 }
