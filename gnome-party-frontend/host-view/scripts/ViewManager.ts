@@ -39,66 +39,6 @@ class ViewManager {
 		// add layers to the stage
 		this.stage.add(this.mainLayer);
 		this.stage.add(this.uiLayer);
-	
-	
-		// test shapes
-		/*
-		var otherCircle = new Konva.Circle({
-			x: this.stage.width() / 2 + 600,
-			y: this.stage.height() / 2 - 200,
-			radius: 50,
-			fill: 'orange',
-			stroke: 'black',
-			strokeWidth: 4,
-		})
-	
-		let gnome:GnomePuppet = new GnomePuppet();
-		gnome.x(this.stage.width() / 2);
-		gnome.y(this.stage.height() / 2);
-	
-		let gnomeHealth:HealthBar = new HealthBar(20, {x: 30, y:150});
-		gnomeHealth.x(gnome.x() - gnome.width() / 1.75)
-		gnomeHealth.y(gnome.y() - 85)
-	
-		let circleHealth:HealthBar = new HealthBar(20, {x: 30, y:150});
-		circleHealth.x(otherCircle.x() + otherCircle.width() / 1.75)
-		circleHealth.y(otherCircle.y() - 85)
-	
-		
-		// add the shape to the layer
-		this.mainLayer.add(gnome);
-		this.mainLayer.add(otherCircle);
-		this.uiLayer.add(gnomeHealth);
-		this.uiLayer.add(circleHealth);
-	
-	
-	
-		let leapAnimation:LeapAnimation = new LeapAnimation({
-			leapingNode: gnome,
-			// destination: {x: circle.position().x + 300, y: circle.position().y - 200},
-			destination: otherCircle,
-			landingAnimation: new SimultaneousAnimation([new AnimationPause(100), new FunctionStep(() => {circleHealth.changeHealth(8)})]),
-			leapDuration: 1.5
-		})
-	
-		let flipAnimation:SimultaneousAnimation = new SimultaneousAnimation([
-			leapAnimation,
-			new Konva.Tween({
-				node: gnome,
-				rotation: 360,
-				duration: .75
-			})
-		])
-	
-	
-		let sequence:AnimationSequence = new AnimationSequence([
-			new AnimationPause(1000),
-			flipAnimation,
-			new FunctionStep(() => {gnomeHealth.changeHealth(15)})
-		])
-		
-		sequence.play();
-		*/
 	}
 	
 	loadEncounter()
