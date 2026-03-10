@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import Konva from "konva";
 import { onMounted } from "vue";
-import initializeKonva from "./scripts/initialize-konva";
+import ViewManager from "./scripts/ViewManager";
 
 
 onMounted(() => {
-  initializeKonva();
+  const vm = new ViewManager();
+  vm.loadEncounter();
+
+  vm.testAnimation();
 })
 
 
