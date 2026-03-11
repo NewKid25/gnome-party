@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using GnomeParty.Models;
+using Models;
 using System.Text.Json;
 
 
@@ -8,15 +9,15 @@ namespace GnomeParty.Combat
 {
     public class CombatService
     {
-        public async Task<ActiveCombatEncounter>  CombatRequestHandlerAsync(CombatRequest request)
+        public async Task<List<CombatResult>>  CombatRequestHandlerAsync(CombatRequest request)
         {
             var databaseService = new DatabaseService();
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
 
             //// Mark the source character as readied
-            for (int i = 0; i < activeEncounter.PlayerCharacters.Count; i++)
+            for (int i = 0; i < activeEncounter.GameState.PlayerCharacters.Count; i++)
             {
-                if (activeEncounter.PlayerCharacters[i].Id == request.SourceCharacterId)
+                if (activeEncounter.GameState.PlayerCharacters[i].Id == request.SourceCharacterId)
                 {
                     activeEncounter.CombatRequests[i] = request;
                     activeEncounter.PlayerReadied[i] = true;
@@ -30,29 +31,31 @@ namespace GnomeParty.Combat
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return activeEncounter;
+                    return [new CombatResult(request, activeEncounter.GameState)];
                 }
             }
             // All players have readied up, so we can process all the combat requests
 
-            //Console.WriteLine($"encounter is {JsonSerializer.Serialize(activeEncounter)}");
-
-            activeEncounter = await ProcessCombatRequestsAsync(activeEncounter.CombatRequests, activeEncounter);
-            return activeEncounter;
+           var CombatResult =   await ProcessCombatRequestsAsync(activeEncounter.CombatRequests, activeEncounter);
+            return CombatResult;
         }
 
-        async Task<ActiveCombatEncounter> ProcessCombatRequestsAsync(CombatRequest[] combatRequests, ActiveCombatEncounter encounter)
+        async Task<List<CombatResult>> ProcessCombatRequestsAsync(CombatRequest[] combatRequests, ActiveCombatEncounter encounter)
         {
+            var combatRequestGameStateTuples = new List<CombatResult>();
+            //save off the result of each combat request to the encounter, 
+            // so it that each result can be send back to the 
             foreach (var request in combatRequests)
             {
                 var action = CharacterActionFactory.CreateCharacterAction(request.Action);
-                var srcCharacter = encounter.PlayerCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId) ?? encounter.EnemyCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId);
-                var targetCharacter = encounter.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
+                var srcCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId);
+                var targetCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
                 var context = new AttackContext(srcCharacter, action, targetCharacter);
                 action.ApplyEffect(srcCharacter, targetCharacter, context);
+                combatRequestGameStateTuples.Add(new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy())); //make sure al the info is a copy so that character data is not changed in this states during future iterations of this loop
             }
             await new DatabaseService().SaveAsync(encounter);
-            return encounter;
+            return combatRequestGameStateTuples;
         }
     }
 }

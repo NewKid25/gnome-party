@@ -104,7 +104,7 @@ public class Functions
         }
     }
 
-    //{"route": "player-action","EncounterId":"bc32096a-0cee-4fc0-82b7-6bea703b6754", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-97d6f607-ec3c-4bd5-a6d7-9605d25a5594", "Attack":"Slash"}
+    //{"route": "player-action","EncounterId":"50b8c0cf-e032-4625-ba07-dad08231081b", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-6a71319b-1c22-4fe6-a791-459d6d546ba5", "Action":"Slash"}
     public async Task<APIGatewayProxyResponse> PlayerActionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -175,7 +175,7 @@ public class Functions
         };
     }
 
-
+    //{"route":"join-game"}
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         var connectionId = request.RequestContext.ConnectionId;

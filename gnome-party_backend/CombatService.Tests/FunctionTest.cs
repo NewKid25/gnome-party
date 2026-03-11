@@ -6,13 +6,8 @@ using CombatService;
 
 namespace CombatService.Tests
 {
-    public class FunctionTest
+    public class CombatServiceTests
     {
-        private JsonSerializerOptions BuildOptions()
-        {
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
-        }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Models;
+using Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,8 +12,7 @@ public class ActiveCombatEncounter
 {
     [DynamoDBHashKey]
     public string EncounterId { get; set; }
-    public List<Character> PlayerCharacters { get; set; }
-    public List<Character> EnemyCharacters { get; set; }
+    public CombatEncounterGameState GameState { get; set; }
     public bool[] PlayerReadied { get; set; }
     public CombatRequest[] CombatRequests { get; set; }
 
@@ -21,9 +21,8 @@ public class ActiveCombatEncounter
     public ActiveCombatEncounter(List<Character> playerCharacters, List<Character> enemyCharacters)
     {
         EncounterId = Guid.NewGuid().ToString();
-        PlayerCharacters = playerCharacters;
-        EnemyCharacters = enemyCharacters;
-        PlayerReadied = new bool[PlayerCharacters.Count]; //should deafualt to all false
-        CombatRequests = new CombatRequest[PlayerCharacters.Count];
+        GameState = new CombatEncounterGameState(playerCharacters, enemyCharacters);
+        PlayerReadied = new bool[playerCharacters.Count]; //should deafualt to all false
+        CombatRequests = new CombatRequest[playerCharacters.Count];
     }
 }

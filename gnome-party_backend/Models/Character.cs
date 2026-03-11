@@ -18,4 +18,17 @@ public class Character
         ActionsDescriptions.Add(new Slash().ActionDescription);
         ActionsDescriptions.Add(new Block().ActionDescription);
     }
+
+    public Character DeepCopy()
+    {
+        var copy = new Character(Id)
+        {
+            Name = Name,
+            Health = Health,
+            MaxHealth = MaxHealth,
+            ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions)
+        };
+        return copy;
+
+    }
 }

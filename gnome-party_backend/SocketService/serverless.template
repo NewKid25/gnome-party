@@ -10,6 +10,13 @@
       "MinLength": "3",
       "MaxLength": "50",
       "AllowedPattern": "^[A-Za-z_]+$"
+    },
+    "StageName": {
+      "Type": "String",
+      "Default": "Dev",
+      "Description": "The stage name for the WebSocket API deployment, listed at the end of the URL. Minimum 3 characters.",
+      "MaxLength": "50",
+      "AllowedPattern": "^[A-Za-z_]+$"
     }
   },
   "Resources": {
@@ -489,7 +496,9 @@
         "DeploymentId": {
           "Ref": "Deployment"
         },
-        "StageName": "Prod"
+        "StageName": {
+        "Ref": "StageName"
+        }
       }
     },
     "OnConnectPermission": {

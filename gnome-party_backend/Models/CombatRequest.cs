@@ -20,4 +20,9 @@ public class CombatRequest
         }
         
         public CombatRequest() : this("", "", "", "") { }    
+
+        public CombatRequest DeepCopy()
+        {
+            return new CombatRequest(EncounterId, TargetCharacterId, SourceCharacterId, Action);
+        }
 }
