@@ -104,7 +104,7 @@ public class Functions
         }
     }
 
-    //{"route": "player-action","EncounterId":"50b8c0cf-e032-4625-ba07-dad08231081b", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-6a71319b-1c22-4fe6-a791-459d6d546ba5", "Action":"Slash"}
+    //{"route": "player-action","EncounterId":"50b8c0cf-e032-4625-ba07-dad08231081b", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-6a71319b-1c22-4fe6-a791-459d6d546ba5", "Action":"Slash", "GameSessionId":"f4477afa-a9e8-48fc-9dcc-60e7ac64ac3b"}
     public async Task<APIGatewayProxyResponse> PlayerActionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -115,10 +115,10 @@ public class Functions
             var combatRequest = message.Deserialize<CombatRequest>();
             var combatService = new CombatService();
             var response = await combatService.CombatRequestHandlerAsync(combatRequest);
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, response);
-            //var activeEncounter = new ActiveCombatEncounter()
-            //activeEncounter.PlayerReadied.Add(true);
-            //await databaseService.SaveAsync(activeEncounter);
+
+            var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
+            //Console.WriteLine($"Game session {JsonSerializer.Serialize(gameSession)}");
+            await BroadcastToConnectionAsync(gameSession, request, response);
 
 
             return new APIGatewayProxyResponse
@@ -260,6 +260,25 @@ public class Functions
         var endpoint = $"https://{domainName}/{stage}";
         var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
         await apiClient.PostToConnectionAsync(postConnectionRequest);
+        return true;
+    }
+
+    public async Task<bool> BroadcastToConnectionAsync(GameSession gameSession, APIGatewayProxyRequest request, object data)
+    {
+        var hostSendTask = SendToConnectionAsync(gameSession.Host.ConnectionId, request, data);
+        gameSession.Participants.ForEach(async (participant) =>
+        {
+            try
+            {
+                await SendToConnectionAsync(participant.ConnectionId, request, data);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and continue sending to other participants
+                Console.WriteLine($"Failed to send message to participant {participant.ConnectionId}: {ex.Message}");
+            }
+        });
+        await hostSendTask;
         return true;
     }
 }
