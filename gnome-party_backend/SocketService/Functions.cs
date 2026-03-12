@@ -120,7 +120,6 @@ public class Functions
             //Console.WriteLine($"Game session {JsonSerializer.Serialize(gameSession)}");
             await BroadcastToConnectionAsync(gameSession, request, response);
 
-
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.OK,
