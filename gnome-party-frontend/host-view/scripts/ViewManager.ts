@@ -9,6 +9,9 @@ import GnomePuppet from "./GnomePuppet";
 import HealthBar from "./HealthBar";
 import FunctionStep from "./FunctionStep";
 import AnimationStep from "./interfaces/AnimationStep";
+import { TurnStep } from "./interfaces/TurnStep";
+import Puppet from "./interfaces/Puppet";
+import SlashAnimation from "./animations/SlashAnimation";
 
 export default
 class ViewManager {
@@ -18,8 +21,8 @@ class ViewManager {
 	mainLayer:Konva.Layer
 	uiLayer:Konva.Layer
 	
-	playerVisualComponents:Map<number, CharacterVisualComponents> = new Map<number, CharacterVisualComponents>()
-	enemyVisualComponents:Map<number, CharacterVisualComponents> = new Map<number, CharacterVisualComponents>()
+	playerVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
+	enemyVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 
 
 	constructor() {
@@ -67,7 +70,7 @@ class ViewManager {
 
 			this.uiLayer.add(healthbar);
 
-			this.playerVisualComponents.set(i, {puppet: puppet, healthbar: healthbar});
+			this.playerVisualComponents.set(i.toString(), {puppet: puppet, healthbar: healthbar});
 		}
 
 		// Load enemy characters
@@ -89,7 +92,7 @@ class ViewManager {
 
 			this.uiLayer.add(healthbar);
 
-			this.enemyVisualComponents.set(i, {puppet: puppet, healthbar: healthbar});
+			this.enemyVisualComponents.set("test-enemy", {puppet: puppet, healthbar: healthbar});
 		}
 	}
 
@@ -97,30 +100,174 @@ class ViewManager {
 	{
 	}
 
-	testAnimation()
+	processTurn(turn:TurnStep[])
 	{
-		let anims:AnimationStep[] = []
-		for (const pair of this.playerVisualComponents) {
-			const pvc:CharacterVisualComponents = pair[1];
-
-			const enemy:CharacterVisualComponents = (this.enemyVisualComponents.get(0) as CharacterVisualComponents)
-
-			let anim:LeapAnimation = new LeapAnimation({
-				leapingNode: pvc.puppet, 
-				destination: enemy.puppet, 
-				landingAnimation: new FunctionStep(() => { enemy.healthbar.changeHealth(20 - (pair[0] + 1) * 2); })
-			});
-
-			anims.push(anim);
+		let animations:AnimationStep[] = [];
+		for (let step of turn)
+		{
+			let animation:AnimationStep | undefined = this.instantiateActionAnimation(step);
+			if (animation) animations.push(animation);
 		}
 
-		let sequence:AnimationSequence = new AnimationSequence(anims);
-
+		let sequence:AnimationSequence = new AnimationSequence(animations);
 		sequence.play();
+	}
+
+	testAnimation()
+	{
+		// let anims:AnimationStep[] = []
+		// for (const pair of this.playerVisualComponents) {
+		// 	const pvc:CharacterVisualComponents = pair[1];
+
+		// 	const enemy:CharacterVisualComponents = (this.enemyVisualComponents.get('0') as CharacterVisualComponents)
+
+		// 	let anim:LeapAnimation = new LeapAnimation({
+		// 		leapingNode: pvc.puppet, 
+		// 		destination: enemy.puppet, 
+		// 		landingAnimation: new FunctionStep(() => { enemy.healthbar.changeHealth(20 - (parseInt(pair[0]) + 1) * 2); })
+		// 	});
+
+		// 	anims.push(anim);
+		// }
+
+		// let sequence:AnimationSequence = new AnimationSequence(anims);
+
+		// sequence.play();
+
+		let sampleSteps:TurnStep[] = 
+		[
+			{
+				"Request": {
+				"EncounterId": "50b8c0cf-e032-4625-ba07-dad08231081b",
+				"TargetCharacterId": "test-enemy",
+				"SourceCharacterId": "0",
+				"Action": "Slash"
+				},
+				"GameState": {
+				"PlayerCharacters": [
+					{
+					"Id": "0",
+					"Name": "Default Name",
+					"Health": 1,
+					"MaxHealth": 1,
+					"ActionsDescriptions": [
+						{
+						"Name": "Slash",
+						"Description": "default_action_description"
+						},
+						{
+						"Name": "Block",
+						"Description": "default_action_description"
+						}
+					]
+					},
+					{
+					"Id": "1",
+					"Name": "Default Name",
+					"Health": 1,
+					"MaxHealth": 1,
+					"ActionsDescriptions": [
+						{
+						"Name": "Slash",
+						"Description": "default_action_description"
+						},
+						{
+						"Name": "Block",
+						"Description": "default_action_description"
+						}
+					]
+					}
+				],
+				"EnemyCharacters": [
+					{
+					"Id": "test-enemy",
+					"Name": "skeleton",
+					"Health": 12,
+					"MaxHealth": 10,
+					"ActionsDescriptions": [
+						{
+						"Name": "punch",
+						"Description": "A weak punch"
+						}
+					]
+					}
+				]
+				}
+			},
+			{
+				"Request": {
+				"EncounterId": "50b8c0cf-e032-4625-ba07-dad08231081b",
+				"TargetCharacterId": "test-enemy",
+				"SourceCharacterId": "1",
+				"Action": "Slash"
+				},
+				"GameState": {
+				"PlayerCharacters": [
+					{
+					"Id": "0",
+					"Name": "Default Name",
+					"Health": 1,
+					"MaxHealth": 1,
+					"ActionsDescriptions": [
+						{
+						"Name": "Slash",
+						"Description": "default_action_description"
+						},
+						{
+						"Name": "Block",
+						"Description": "default_action_description"
+						}
+					]
+					},
+					{
+					"Id": "1",
+					"Name": "Default Name",
+					"Health": 1,
+					"MaxHealth": 1,
+					"ActionsDescriptions": [
+						{
+						"Name": "Slash",
+						"Description": "default_action_description"
+						},
+						{
+						"Name": "Block",
+						"Description": "default_action_description"
+						}
+					]
+					}
+				],
+				"EnemyCharacters": [
+					{
+					"Id": "test-enemy",
+					"Name": "skeleton",
+					"Health": 8,
+					"MaxHealth": 10,
+					"ActionsDescriptions": [
+						{
+						"Name": "punch",
+						"Description": "A weak punch"
+						}
+					]
+					}
+				]
+				}
+			}
+		];
+
+		this.processTurn(sampleSteps);
+	}
+
+	instantiateActionAnimation(step:TurnStep)
+	{
+		let actionName = step.Request.Action;
+		switch(actionName) {
+			case "Slash":
+				return new SlashAnimation(step, this);
+		}
 	}
 }
 
-interface CharacterVisualComponents {
+export interface CharacterVisualComponents {
 	healthbar:HealthBar
-	puppet:Konva.Group
+	puppet:Puppet
 }

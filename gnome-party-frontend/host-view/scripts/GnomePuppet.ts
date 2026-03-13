@@ -1,8 +1,9 @@
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
+import Puppet from "./interfaces/Puppet";
 
 export default
-class GnomePuppet extends Konva.Group {
+class GnomePuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 	head:Konva.Image

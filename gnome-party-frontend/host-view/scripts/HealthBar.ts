@@ -23,7 +23,7 @@ class HealthBar extends Konva.Group {
 
 		let prevHealth = this.remainingHealth;
 		let prevHealthRatio = prevHealth / this.maxHealth;
-		this.remainingHealth = newHealth;
+		this.remainingHealth = Math.max(newHealth, 0);
 		let healthRatio = this.remainingHealth / this.maxHealth;
 
 		let fillBarAnimation = new AnimationSequence([
