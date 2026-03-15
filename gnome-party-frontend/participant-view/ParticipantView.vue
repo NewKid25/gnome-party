@@ -1,25 +1,22 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+
 import CombatActionMenu from "./Menus/CombatActionMenu.vue";
 import CombatTargetMenu from "./Menus/CombatTargetMenu.vue";
 
 import { ActionButtonModel } from "./Models/ActionButtonModel";
 import { ActionListModel } from "./Models/ActionListModel";
-import { PlayerStatusModel } from "./Models/PlayerStatusModel";
-import { HealthBarModel } from "./Models/HealthBarModel";
 import { CharacterImageModel } from "./Models/CharacterImageModel";
+import { HealthBarModel } from "./Models/HealthBarModel";
+import { PlayerStatusModel } from "./Models/PlayerStatusModel";
 import { TargetButtonModel } from "./Models/TargetButtonModel";
 import { TargetListModel } from "./Models/TargetListModel";
 
+import { useCombatFlow } from "./Composables/useCombatFlow";
+
 import "./styles.css";
 
-type ViewState = "actionMenu" | "targetMenu" | "waitingMenu" | "deadMenu";
-
-const currentView = ref<ViewState>("actionMenu");
-
-const chosenAction = ref<ActionButtonModel | null>(null);
-
-// CombatActionMenu logic and test data
+// Test data
 const actionListModel = new ActionListModel([
   { selected: false, actionName: "Slash" } as ActionButtonModel,
   { selected: false, actionName: "Block" } as ActionButtonModel,
@@ -29,34 +26,7 @@ const actionListModel = new ActionListModel([
 
 const healthBarModel: HealthBarModel = { value: 30, maxValue: 100 };
 const characterImageModel: CharacterImageModel = { source: "../placeholder_player_image.png", alt: "placeholder for player image" };
-const playerStatusModel = new PlayerStatusModel(
-  characterImageModel,
-  healthBarModel
-);
-// End of CombatActionMenu logic and test data
 
-const combatActionMenuModel = reactive({
-  playerStatusModel,
-  actionListModel,
-});
-
-function onActionChosen(action: ActionButtonModel) {
-  console.log("ParticipantView:", action);
-
-  chosenAction.value = action;
-
-  // TODO: Connect to backend
-  populateTargetMenu(action);
-
-  currentView.value = "targetMenu";
-}
-
-function populateTargetMenu(action: ActionButtonModel) {
-  console.log("Populating target menu for action:", action);
-  // TODO: Replace with backend data
-}
-
-// CombatTargetMenu logic and test data
 const targetAHealthBarModel: HealthBarModel = { value: 30, maxValue: 100 };
 const targetBHealthBarModel: HealthBarModel = { value: 50, maxValue: 100 };
 const targetCHealthBarModel: HealthBarModel = { value: 80, maxValue: 100 };
@@ -70,43 +40,36 @@ const targetListModel = new TargetListModel([
   { selected: false, targetName: "Skeleton B", healthbar: targetBHealthBarModel, characterImage: targetBCharacterImageModel } as TargetButtonModel,
   { selected: false, targetName: "Skeleton C", healthbar: targetCHealthBarModel, characterImage: targetCCharacterImageModel } as TargetButtonModel,
 ]);
-// End of CombatTargetMenu logic and test data
+// End of test data
+
+// Define models
+const playerStatusModel = new PlayerStatusModel(
+  characterImageModel,
+  healthBarModel
+);
+
+const combatActionMenuModel = reactive({
+  playerStatusModel,
+  actionListModel,
+});
 
 const combatTargetMenuModel = reactive({
   targetListModel,
 });
 
-function onTargetChosen(target: TargetButtonModel) {
-  console.log("Chosen target:", target);
 
-  if(!chosenAction.value) {
-    console.error("No action chosen before target selection!");
-    return;
-  }
 
-  sendActionToBackend(chosenAction.value, target);
-  currentView.value = "waitingMenu";
-}
-
-function sendActionToBackend(action: ActionButtonModel, target: TargetButtonModel) {
-  console.log("Sending action and target to backend:", action, target);
-}
-
-function checkIfDead() {
-  if(playerStatusModel.healthBar.value <= 0) {
-    currentView.value = "deadMenu";
-  }
-}
+const combatFlow = useCombatFlow(playerStatusModel);
 
 </script>
 
 <template>
 <div class="participant-view">
     <div class="participant-container">
-      <CombatActionMenu v-if="currentView === 'actionMenu'" v-model="combatActionMenuModel" @action-chosen="onActionChosen"></CombatActionMenu>
-      <CombatTargetMenu v-else-if="currentView === 'targetMenu'" v-model="combatTargetMenuModel" @target-chosen="onTargetChosen"></CombatTargetMenu>
       <!-- <CombatWaitingMenu v-else-if="currentView === 'waitingMenu'" v-model="combatWaitingMenuModel"></CombatWaitingMenu>
       <CombatDeadMenu v-else-if="currentView === 'deadMenu'" v-model="combatDeadMenuModel"></CombatDeadMenu> -->
+      <CombatActionMenu v-if="combatFlow.currentView.value === 'actionMenu'" v-model="combatActionMenuModel" @action-chosen="combatFlow.onActionChosen"></CombatActionMenu>
+      <CombatTargetMenu v-else-if="combatFlow.currentView.value === 'targetMenu'" v-model="combatTargetMenuModel" @target-chosen="combatFlow.onTargetChosen"></CombatTargetMenu>
     </div>
 </div>
 </template>
