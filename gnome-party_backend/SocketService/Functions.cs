@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using GnomeParty.Database;
 using GnomeParty.Combat;
+using Amazon;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -52,12 +53,16 @@ public class Functions
 
         ConnectionMappingTable = System.Environment.GetEnvironmentVariable(TABLE_NAME_ENV) ?? "";
 
-        this.ApiGatewayManagementApiClientFactory = (Func<string, AmazonApiGatewayManagementApiClient>)((endpoint) => 
+        this.ApiGatewayManagementApiClientFactory = (Func<string, AmazonApiGatewayManagementApiClient>)((endpoint) =>
         {
-            return new AmazonApiGatewayManagementApiClient(new AmazonApiGatewayManagementApiConfig
-            {
-                ServiceURL = endpoint
-            });
+            var regionName = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-2";
+
+            return new AmazonApiGatewayManagementApiClient(
+                new AmazonApiGatewayManagementApiConfig
+                {
+                    ServiceURL = endpoint,
+                    AuthenticationRegion = regionName
+                });
         });
     }
 
@@ -138,8 +143,6 @@ public class Functions
         }
     }
 
-
-
     public async Task<APIGatewayProxyResponse> BeginCombatEncounterHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         // example message body to trigger this route
@@ -175,6 +178,7 @@ public class Functions
     }
 
     //{"route":"join-game"}
+    /*
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         var connectionId = request.RequestContext.ConnectionId;
@@ -208,6 +212,67 @@ public class Functions
             StatusCode = (int)HttpStatusCode.OK,
             Body = "all good"
         };
+    }
+    */
+    public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+            var domainName = request.RequestContext.DomainName;
+            var stage = request.RequestContext.Stage;
+
+            context.Logger.LogInformation($"JoinGameSessionHandler reached");
+            context.Logger.LogInformation($"ConnectionId: {connectionId}");
+            context.Logger.LogInformation($"DomainName: {domainName}");
+            context.Logger.LogInformation($"Stage: {stage}");
+            context.Logger.LogInformation($"Body: {request.Body}");
+
+            var databaseService = new DatabaseService();
+
+            GameSession gameSession;
+            var playerId = CreateNewPlayerId();
+            var connection = new GameConnection(connectionId, playerId);
+
+            try
+            {
+                gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
+                context.Logger.LogInformation("Loaded existing game session");
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogInformation($"GetGameSessionByInviteCodeAsync failed, creating new session: {ex.Message}");
+                gameSession = new GameSession(connection);
+            }
+
+            gameSession.AddParticipant(connection);
+
+            await databaseService.SaveAsync(connection);
+            context.Logger.LogInformation("Saved connection");
+
+            await databaseService.SaveAsync(gameSession);
+            context.Logger.LogInformation("Saved game session");
+
+            await SendToConnectionAsync(connectionId, request, gameSession);
+            context.Logger.LogInformation("Sent game session to connection");
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("JoinGameSessionHandler failed: " + e.Message);
+            context.Logger.LogInformation(e.StackTrace);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to join game: {e.Message}"
+            };
+        }
     }
 
     public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
@@ -249,7 +314,7 @@ public class Functions
         return await SendToConnectionAsync(connectionId, request.RequestContext.DomainName, request.RequestContext.Stage, data);
     }
 
-    async Task<bool> SendToConnectionAsync(string connectionId, string domainName, string stage, object data)
+    /* async Task<bool> SendToConnectionAsync(string connectionId, string domainName, string stage, object data)
     {
         var postConnectionRequest = new PostToConnectionRequest
         {
@@ -260,24 +325,52 @@ public class Functions
         var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
         await apiClient.PostToConnectionAsync(postConnectionRequest);
         return true;
+    } */
+
+    async Task<bool> SendToConnectionAsync(string connectionId, string domainName, string stage, object data)
+    {
+        var postConnectionRequest = new PostToConnectionRequest
+        {
+            ConnectionId = connectionId,
+            Data = new MemoryStream(UTF8Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)))
+        };
+
+        string endpoint = domainName.Contains(".execute-api.")
+            ? $"https://{domainName}/{stage}"
+            : $"https://{domainName}";
+
+        Console.WriteLine($"SendToConnectionAsync");
+        Console.WriteLine($"  connectionId: {connectionId}");
+        Console.WriteLine($"  domainName: {domainName}");
+        Console.WriteLine($"  stage: {stage}");
+        Console.WriteLine($"  endpoint: {endpoint}");
+
+        var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
+        await apiClient.PostToConnectionAsync(postConnectionRequest);
+        return true;
     }
 
     public async Task<bool> BroadcastToConnectionAsync(GameSession gameSession, APIGatewayProxyRequest request, object data)
     {
-        var hostSendTask = SendToConnectionAsync(gameSession.Host.ConnectionId, request, data);
-        gameSession.Participants.ForEach(async (participant) =>
+        var tasks = new List<Task>();
+
+        tasks.Add(SendToConnectionAsync(gameSession.Host.ConnectionId, request, data));
+
+        foreach (var participant in gameSession.Participants)
         {
-            try
+            tasks.Add(Task.Run(async () =>
             {
-                await SendToConnectionAsync(participant.ConnectionId, request, data);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception and continue sending to other participants
-                Console.WriteLine($"Failed to send message to participant {participant.ConnectionId}: {ex.Message}");
-            }
-        });
-        await hostSendTask;
+                try
+                {
+                    await SendToConnectionAsync(participant.ConnectionId, request, data);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to send message to participant {participant.ConnectionId}: {ex.Message}");
+                }
+            }));
+        }
+        await Task.WhenAll(tasks);
         return true;
     }
 }
