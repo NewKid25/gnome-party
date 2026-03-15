@@ -17,7 +17,9 @@ function onTargetChosen(targetButton: TargetButtonModel) {
 </script>
 
 <template>
-    <h1 class="target-menu-title">Pick Target</h1>
-    <hr></hr>
-    <TargetList v-model="model.targetListModel" @target-chosen="onTargetChosen"></TargetList>
+    <div class="combat-menu-panel">
+        <h1 class="target-menu-title">Pick Target</h1>
+        <hr></hr>
+        <TargetList v-model="model.targetListModel" @target-chosen="onTargetChosen"></TargetList>
+    </div>
 </template>

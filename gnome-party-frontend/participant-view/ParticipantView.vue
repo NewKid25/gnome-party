@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive } from "vue";
 
 import CombatActionMenu from "./Menus/CombatActionMenu.vue";
+import CombatWaitingMenu from "./Menus/CombatWaitingMenu.vue";
+import CombatDeadMenu from "./Menus/CombatDeadMenu.vue";
 import CombatTargetMenu from "./Menus/CombatTargetMenu.vue";
 
 import { ActionButtonModel } from "./Models/ActionButtonModel";
 import { ActionListModel } from "./Models/ActionListModel";
 import { CharacterImageModel } from "./Models/CharacterImageModel";
 import { HealthBarModel } from "./Models/HealthBarModel";
+import { MessageMenuModel } from "./Models/MessageMenuModel";
 import { PlayerStatusModel } from "./Models/PlayerStatusModel";
 import { TargetButtonModel } from "./Models/TargetButtonModel";
 import { TargetListModel } from "./Models/TargetListModel";
@@ -57,7 +60,15 @@ const combatTargetMenuModel = reactive({
   targetListModel,
 });
 
+const combatWaitingMenuModel: MessageMenuModel = reactive({
+  title: "Waiting for Turn",
+  message: "Please wait while the other players choose their actions.",
+});
 
+const combatDeadMenuModel: MessageMenuModel = reactive({
+  title: "You Died!",
+  message: "You were defeated by Skeleton A!",
+});
 
 const combatFlow = useCombatFlow(playerStatusModel);
 
@@ -66,10 +77,12 @@ const combatFlow = useCombatFlow(playerStatusModel);
 <template>
 <div class="participant-view">
     <div class="participant-container">
-      <!-- <CombatWaitingMenu v-else-if="currentView === 'waitingMenu'" v-model="combatWaitingMenuModel"></CombatWaitingMenu>
-      <CombatDeadMenu v-else-if="currentView === 'deadMenu'" v-model="combatDeadMenuModel"></CombatDeadMenu> -->
-      <CombatActionMenu v-if="combatFlow.currentView.value === 'actionMenu'" v-model="combatActionMenuModel" @action-chosen="combatFlow.onActionChosen"></CombatActionMenu>
-      <CombatTargetMenu v-else-if="combatFlow.currentView.value === 'targetMenu'" v-model="combatTargetMenuModel" @target-chosen="combatFlow.onTargetChosen"></CombatTargetMenu>
+      <Transition name="combat-menu" mode="out-in">
+        <CombatActionMenu v-if="combatFlow.currentView.value === 'actionMenu'" key="action-menu" v-model="combatActionMenuModel" @action-chosen="combatFlow.onActionChosen"></CombatActionMenu>
+        <CombatTargetMenu v-else-if="combatFlow.currentView.value === 'targetMenu'" key="target-menu" v-model="combatTargetMenuModel" @target-chosen="combatFlow.onTargetChosen"></CombatTargetMenu>
+        <CombatWaitingMenu v-else-if="combatFlow.currentView.value === 'waitingMenu'" key="waiting-menu" v-model="combatWaitingMenuModel"></CombatWaitingMenu>
+        <CombatDeadMenu v-else-if="combatFlow.currentView.value === 'deadMenu'" key="dead-menu" v-model="combatDeadMenuModel"></CombatDeadMenu>
+      </Transition>
     </div>
 </div>
 </template>

@@ -21,6 +21,8 @@ function onActionChosen(actionButton: ActionButtonModel) {
 </script>
 
 <template>
-	<PlayerStatus v-model="model.playerStatusModel"></PlayerStatus>
-	<ActionList v-model="model.actionListModel" @action-chosen="onActionChosen"></ActionList>	
+	<div class="combat-menu-panel">
+		<PlayerStatus v-model="model.playerStatusModel"></PlayerStatus>
+		<ActionList v-model="model.actionListModel" @action-chosen="onActionChosen"></ActionList>	
+	</div>
 </template>
