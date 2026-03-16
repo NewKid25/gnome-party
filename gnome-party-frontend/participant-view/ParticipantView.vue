@@ -19,15 +19,16 @@ import { useCombatFlow } from "./Composables/useCombatFlow";
 
 import "./styles.css";
 
-// Test data
-const actionListModel = new ActionListModel([
-  { selected: false, actionName: "Slash" } as ActionButtonModel,
-  { selected: false, actionName: "Block" } as ActionButtonModel,
-  { selected: false, actionName: "Parry" } as ActionButtonModel,
-  { selected: false, actionName: "Whirling Strike" } as ActionButtonModel,
-]);
 
-const healthBarModel: HealthBarModel = { value: 30, maxValue: 100 };
+// Test data
+const actionListModel = reactive(new ActionListModel([
+  // { selected: false, actionName: "Slash" } as ActionButtonModel,
+  // { selected: false, actionName: "Block" } as ActionButtonModel,
+  // { selected: false, actionName: "Parry" } as ActionButtonModel,
+  // { selected: false, actionName: "Whirling Strike" } as ActionButtonModel,
+]));
+
+const healthBarModel: HealthBarModel = reactive({ value: 30, maxValue: 100 });
 const characterImageModel: CharacterImageModel = { source: "../placeholder_player_image.png", alt: "placeholder for player image" };
 
 const targetAHealthBarModel: HealthBarModel = { value: 30, maxValue: 100 };
@@ -38,11 +39,11 @@ const targetACharacterImageModel: CharacterImageModel = { source: "../placeholde
 const targetBCharacterImageModel: CharacterImageModel = { source: "../placeholder_target_image.png", alt: "placeholder for target B image" };
 const targetCCharacterImageModel: CharacterImageModel = { source: "../placeholder_target_image.png", alt: "placeholder for target C image" };
 
-const targetListModel = new TargetListModel([
-  { selected: false, targetName: "Skeleton A", healthbar: targetAHealthBarModel, characterImage: targetACharacterImageModel } as TargetButtonModel,
-  { selected: false, targetName: "Skeleton B", healthbar: targetBHealthBarModel, characterImage: targetBCharacterImageModel } as TargetButtonModel,
-  { selected: false, targetName: "Skeleton C", healthbar: targetCHealthBarModel, characterImage: targetCCharacterImageModel } as TargetButtonModel,
-]);
+const targetListModel = reactive(new TargetListModel([
+  // { selected: false, targetName: "Skeleton A", healthbar: targetAHealthBarModel, characterImage: targetACharacterImageModel } as TargetButtonModel,
+  // { selected: false, targetName: "Skeleton B", healthbar: targetBHealthBarModel, characterImage: targetBCharacterImageModel } as TargetButtonModel,
+  // { selected: false, targetName: "Skeleton C", healthbar: targetCHealthBarModel, characterImage: targetCCharacterImageModel } as TargetButtonModel,
+]));
 // End of test data
 
 // Define models
@@ -71,6 +72,67 @@ const combatDeadMenuModel: MessageMenuModel = reactive({
 });
 
 const combatFlow = useCombatFlow(playerStatusModel);
+
+
+
+const socket = new WebSocket("wss://ws.gnome-party.com");
+
+var loadedActionData = new Promise(() => {});
+
+
+// Listen for messages
+socket.addEventListener("message", (event) => {
+  console.log("Message from server ", event.data);
+
+  let parsedJSON = JSON.parse(event.data);
+
+  if (parsedJSON.Campaign) {
+
+    console.log(parsedJSON.Campaign.PlayerCharacters.length, " players");
+
+    let player:any = parsedJSON.Campaign.PlayerCharacters[0];
+    
+    // Load valid actions
+    let actionButtonList:ActionButtonModel[] = [];
+    for (let action of player.ActionsDescriptions)
+    {
+      console.log("Action:", action.Name);
+      actionButtonList.push({selected: false, actionName: action.Name});
+    }
+    actionListModel.actions = actionButtonList;
+
+    // Load health
+    healthBarModel.maxValue = player.MaxHealth;
+    healthBarModel.value = player.Health;
+
+    
+
+    // Load enemies
+    let enemyList:TargetButtonModel[] = [];
+    for (let enemy of parsedJSON.Campaign.Encounters[0].Enemies)
+    {
+      enemyList.push({
+        selected: false,
+        targetName: enemy.Name,
+        healthbar: {value: enemy.Health, maxValue: enemy.MaxHealth},
+        characterImage: { source: "../placeholder_target_image.png", alt: enemy.Name }
+      });
+    }
+    targetListModel.targets = enemyList;
+
+    
+  } else {
+    console.log("OH NOOOOO")
+  }
+});
+
+socket.onopen = (ev:Event) => {
+  socket.send(JSON.stringify({"route": "join-game"}))
+}
+
+window.addEventListener("beforeunload", () => {
+  socket.close();
+})
 
 </script>
 
