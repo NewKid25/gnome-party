@@ -9,12 +9,12 @@ public class CombatResult
 {
     public CombatRequest Request { get; set; }
     public CombatEncounterGameState GameState { get; set; }
-    public List<CombatMessage> Messages { get; set; }
+    public List<CombatEvent> Events { get; set; }
 
     public CombatResult(CombatRequest request, CombatEncounterGameState gameState)
     {
         Request = request;
         GameState = gameState;
-        Messages = new List<CombatMessage>();
+        Events = new List<CombatEvent>();
     }
 }

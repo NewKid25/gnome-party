@@ -110,6 +110,7 @@ public class Functions
     }
 
     //{"route": "player-action","EncounterId":"50b8c0cf-e032-4625-ba07-dad08231081b", "TargetCharacterId":"test-enemy", "SourceCharacterId":"player-6a71319b-1c22-4fe6-a791-459d6d546ba5", "Action":"Slash", "GameSessionId":"f4477afa-a9e8-48fc-9dcc-60e7ac64ac3b"}
+    //{"route": "player-action","EncounterId":"", "TargetCharacterId":"test-enemy", "SourceCharacterId":"", "Action":"Slash", "GameSessionId":""}
     public async Task<APIGatewayProxyResponse> PlayerActionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -143,6 +144,7 @@ public class Functions
         }
     }
 
+    //{"route": "begin-combat-encounter", "GameSessionId": ""}
     public async Task<APIGatewayProxyResponse> BeginCombatEncounterHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         // example message body to trigger this route

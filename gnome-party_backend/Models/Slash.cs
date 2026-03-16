@@ -8,6 +8,7 @@
             int damage = 10;
             //temp solution
             target.Health -= damage;
+            context.ModifiedDamage = damage;
         }
     }
 }

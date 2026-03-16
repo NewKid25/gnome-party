@@ -54,27 +54,29 @@ namespace GnomeParty.Combat
                 var context = new AttackContext(srcCharacter, action, targetCharacter);
                 action.ApplyEffect(srcCharacter, targetCharacter, context);         
                 // Removes an enemy that has been defeated and prints a message about it
-                var messages = RemoveDeadCharacters(encounter.GameState);
+                var deathEvents = RemoveDeadCharacters(encounter.GameState);
+                var damageEvents = new CombatEvent("damage", new DamageEventParams { DamageAmount = context.ModifiedDamage, TargetId = targetCharacter.Id, SourceId = srcCharacter.Id, TargetName = targetCharacter.Name});
                 var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy());
-                result.Messages.AddRange(messages);
+                result.Events.Add(damageEvents);
+                result.Events.AddRange(deathEvents);
                 combatRequestGameStateTuples.Add(result);
                 //combatRequestGameStateTuples.Add(new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy())); //make sure al the info is a copy so that character data is not changed in this states during future iterations of this loop
             }
             await new DatabaseService().SaveAsync(encounter);
             return combatRequestGameStateTuples;
         }
-        private List<CombatMessage> RemoveDeadCharacters(CombatEncounterGameState gameState)
+        private List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)
         {
-            var messages = new List<CombatMessage>();
+            var events = new List<CombatEvent>();
             var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
 
             foreach (var enemy in defeatedEnemies)
             {
-                messages.Add(new CombatMessage("defeated", new List<string> { enemy.Name }));
+                events.Add(new CombatEvent("defeated", new DefeatedEventParams {TargetId = enemy.Id, TargetName = enemy.Name}));
             }
 
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
-            return messages;
+            return events;
         }
     }
 }
