@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using GnomeParty.Models;
 using Models;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 
@@ -51,11 +52,29 @@ namespace GnomeParty.Combat
                 var srcCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId);
                 var targetCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
                 var context = new AttackContext(srcCharacter, action, targetCharacter);
-                action.ApplyEffect(srcCharacter, targetCharacter, context);
-                combatRequestGameStateTuples.Add(new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy())); //make sure al the info is a copy so that character data is not changed in this states during future iterations of this loop
+                action.ApplyEffect(srcCharacter, targetCharacter, context);         
+                // Removes an enemy that has been defeated and prints a message about it
+                var messages = RemoveDeadCharacters(encounter.GameState);
+                var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy());
+                result.Messages.AddRange(messages);
+                combatRequestGameStateTuples.Add(result);
+                //combatRequestGameStateTuples.Add(new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy())); //make sure al the info is a copy so that character data is not changed in this states during future iterations of this loop
             }
             await new DatabaseService().SaveAsync(encounter);
             return combatRequestGameStateTuples;
+        }
+        private List<string> RemoveDeadCharacters(CombatEncounterGameState gameState)
+        {
+            var messages = new List<string>();
+            var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
+
+            foreach (var enemy in defeatedEnemies)
+            {
+                messages.Add($"{enemy.Name} has been defeated!");
+            }
+
+            gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
+            return messages;
         }
     }
 }
