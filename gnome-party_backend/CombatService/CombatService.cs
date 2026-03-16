@@ -63,14 +63,14 @@ namespace GnomeParty.Combat
             await new DatabaseService().SaveAsync(encounter);
             return combatRequestGameStateTuples;
         }
-        private List<string> RemoveDeadCharacters(CombatEncounterGameState gameState)
+        private List<CombatMessage> RemoveDeadCharacters(CombatEncounterGameState gameState)
         {
-            var messages = new List<string>();
+            var messages = new List<CombatMessage>();
             var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
 
             foreach (var enemy in defeatedEnemies)
             {
-                messages.Add($"{enemy.Name} has been defeated!");
+                messages.Add(new CombatMessage("defeated", new List<string> { enemy.Name }));
             }
 
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
