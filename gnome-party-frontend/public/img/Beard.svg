@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 436 594" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g transform="matrix(1,0,0,1,-0.892086,-0.559872)">
+        <g transform="matrix(1,0,0,1,-983.289025,-177.458365)">
+            <g transform="matrix(1,0,0,1,-460.366839,-131.594968)">
+                <g transform="matrix(1,-0,-0,1,1444.54795,309.613205)">
+                </g>
+            </g>
+            <g id="Beard" transform="matrix(1,0,0,0.880944,922.892726,84.698733)">
+                <path d="M196.887,493.932C152.605,501.312 156.358,542.923 168.113,554.678C171.593,558.158 170.044,559.006 173.708,562.67C217.824,606.786 222.571,601.143 248.042,626.614C255.597,634.168 257.143,631.718 264.827,639.402C270.067,644.642 276.19,656.639 278.415,652.191C289.964,629.092 386.031,600.3 398.308,563.47C403.845,546.858 398.967,520.967 391.914,513.914C384.92,506.92 387.241,504.384 375.928,498.727C332.887,477.207 242.631,473.058 221.665,483.541C204.312,492.217 198.935,489.486 195.289,493.132" style="fill:rgb(231,233,233);stroke:black;stroke-width:6.05px;"/>
+            </g>
+        </g>
+    </g>
+</svg>
