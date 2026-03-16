@@ -1,10 +1,22 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/infra/">
+    <Project Path="CloudFormationTemplates/CloudFormationTemplates.cfproj" Type="22325025-cda3-4736-83cb-2d32d2fcc215" Id="6bc8bdef-3111-4d50-9b5d-90559eb406e8">
+      <Platform Project="x86" />
+    </Project>
+  </Folder>
   <Folder Name="/src/">
+    <Project Path="CombatService/CombatService.csproj" />
+    <Project Path="DatabaseService/DatabaseService.csproj" Id="4dae4404-baf9-4fa1-beeb-b62236a338fc" />
+    <Project Path="Models/Models.csproj" Id="4f7d15bc-8ac4-4efd-9806-3bbe2e5d429a" />
     <Project Path="SocketService/SocketService.csproj" />
-    <Project Path="TestFunc/TestFunc.csproj" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="CombatService.Tests/CombatService.Tests.csproj" />
+    <Project Path="Models.Tests/Models.Tests.csproj" Id="66b2285e-5330-4f79-a663-128061271a94" />
     <Project Path="SocketService.Tests/SocketService.Tests.csproj" />
-    <Project Path="TestFunc.Tests/TestFunc.Tests.csproj" />
   </Folder>
 </Solution>

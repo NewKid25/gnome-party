@@ -80,3 +80,7 @@ Deploy application
     cd "SocketService/src/SocketService"
     dotnet lambda deploy-serverless
 ```
+
+
+if you want to test join game run this command after you have connected to the websocket
+{"route":"join-game"}
