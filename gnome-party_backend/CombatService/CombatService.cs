@@ -39,7 +39,7 @@ namespace GnomeParty.Combat
             }
             // All players have readied up, so we can process all the combat requests
 
-           var CombatResult =   await ProcessCombatRequestsAsync(activeEncounter.CombatRequests, activeEncounter);
+           var CombatResult =   await ProcessCombatRequestsAsync(activeEncounter.CombatRequests.ToArray(), activeEncounter);
             return CombatResult;
         }
 

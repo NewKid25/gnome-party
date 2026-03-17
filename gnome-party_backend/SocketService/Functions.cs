@@ -165,11 +165,20 @@ public class Functions
         var gameSessionId = gameSessionIdElement.GetString() ?? "";
         var databaseService = new DatabaseService();
 
+        Console.WriteLine($"BeginCombatEncounterHandler reached for GameSessionId: {gameSessionId}");
         var gameSession = await databaseService.LoadAsync<GameSession>(gameSessionId);
+        Console.WriteLine($"After load");
+        Console.WriteLine($"Game session is {JsonSerializer.Serialize(gameSession)}");
+
         var connectionId = request.RequestContext.ConnectionId;
 
         var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, gameSession.Campaign.Encounters[0].Enemies);
+        Console.WriteLine($"Pre save");
+        Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
+
         await databaseService.SaveAsync(activeEncounter);
+        Console.WriteLine($"After save");
+
         await BroadcastToConnectionAsync(gameSession, request, activeEncounter);
 
 
@@ -363,7 +372,15 @@ public class Functions
                 }
             }));
         }
-        await Task.WhenAll(tasks);
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error broadcasting to connections: {ex.Message}");
+        }
+            //await Task.WhenAll(tasks);
         return true;
     }
 }
