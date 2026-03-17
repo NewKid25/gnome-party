@@ -16,7 +16,7 @@ public class CombatEncounter : Encounter
             Name = "skeleton_weak",
             MaxHealth = 10,
             Health = 10,
-            ActionsDescriptions = [new CharacterActionDescription("punch", "A weak punch")]
+            ActionsDescriptions = [new CharacterActionDescription("PunchA", "A weak punch")]
         };
         var skeleton_strong = new Character
         {
@@ -24,7 +24,7 @@ public class CombatEncounter : Encounter
             Name = "skeleton_strong",
             MaxHealth = 30,
             Health = 30,
-            ActionsDescriptions = [new CharacterActionDescription("punch", "A weak punch")]
+            ActionsDescriptions = [new CharacterActionDescription("PunchB", "A strong punch")]
         };
         Enemies = [skeleton_weak, skeleton_strong];
     }

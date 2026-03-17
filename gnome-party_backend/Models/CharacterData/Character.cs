@@ -12,9 +12,10 @@ public class Character
 
     public Character(string id)
     {
+        Random rnd = new Random();
         Id = id;
         Name = "Default Name";
-        Health = 10;
+        Health = rnd.Next(1,21);
         MaxHealth = Health;
         ActionsDescriptions = [];
         ActionsDescriptions.Add(new Slash().ActionDescription);
