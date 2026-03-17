@@ -170,7 +170,7 @@ public class Functions
 
         var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, gameSession.Campaign.Encounters[0].Enemies);
         await databaseService.SaveAsync(activeEncounter);
-        await SendToConnectionAsync(connectionId, request, activeEncounter);
+        await BroadcastToConnectionAsync(gameSession, request, activeEncounter);
 
 
         return new APIGatewayProxyResponse
@@ -212,6 +212,7 @@ public class Functions
             await databaseService.SaveAsync(gameSession);
             context.Logger.LogInformation("Saved game session");
 
+            await SendToConnectionAsync(connectionId, request, connection);
             await SendToConnectionAsync(connectionId, request, gameSession);
             context.Logger.LogInformation("Sent game session to connection");
 
@@ -339,7 +340,14 @@ public class Functions
     {
         var tasks = new List<Task>();
 
-        tasks.Add(SendToConnectionAsync(gameSession.Host.ConnectionId, request, data));
+        try
+        {
+            tasks.Add(SendToConnectionAsync(gameSession.Host.ConnectionId, request, data));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to send message to Host {gameSession.Host.ConnectionId}: {ex.Message}");
+        }
 
         foreach (var participant in gameSession.Participants)
         {
