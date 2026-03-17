@@ -33,7 +33,7 @@ class SlashAnimation implements AnimationStep
 				destination: enemyPuppet,
 				leapDuration: 1,
 				landingAnimation: new FunctionStep(() => {
-					enemyHealth.changeHealth(step.GameState.EnemyCharacters.find((v, i, o) => v.Id == step.Request.TargetCharacterId)?.Health ?? 20)
+					enemyHealth.changeHealth(step.GameState.EnemyCharacters.find((v, i, o) => v.Id == step.Request.TargetCharacterId)?.Health ?? 0)
 				})
 			})
 		} else throw TypeError

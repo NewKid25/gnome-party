@@ -8,4 +8,5 @@ interface TargetButtonModel {
     targetName:string
     characterImage: CharacterImageModel
     healthbar: HealthBarModel
+    targetId:string
 }

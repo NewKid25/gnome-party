@@ -12,9 +12,12 @@ import AnimationStep from "./interfaces/AnimationStep";
 import { TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
+import { useEncounterData } from "../../participant-view/stores/encounterData";
 
 export default
 class ViewManager {
+
+	socket:WebSocket
 
 	stage:Konva.Stage
 
@@ -24,8 +27,18 @@ class ViewManager {
 	playerVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 	enemyVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 
+	encounterData = useEncounterData();
 
 	constructor() {
+		this.socket = new WebSocket("wss://ws.gnome-party.com");
+
+		this.socket.addEventListener("message", (ev) => {
+			console.log("Message from server ", ev.data);
+  			let parsedJSON = JSON.parse(ev.data);
+			
+			this.handleMessage(parsedJSON);
+		});
+
 		const container:HTMLDivElement = document.getElementById("konva-container") as HTMLDivElement;
 	
 		// first we need to create a stage
@@ -42,11 +55,16 @@ class ViewManager {
 		// add layers to the stage
 		this.stage.add(this.mainLayer);
 		this.stage.add(this.uiLayer);
+
+		this.socket.onopen = (ev:Event) => {
+			this.socket.send(JSON.stringify({route: "host-game"}))
+		};
 	}
 	
-	loadEncounter()
+	loadEncounter(gameState:any)
 	{
 		// Load player characters
+		/*
 		var playerCharacters: Object[] = [
 			{},
 			{},
@@ -55,6 +73,9 @@ class ViewManager {
 			{},
 			{}
 		]
+		*/
+
+		var playerCharacters = gameState.PlayerCharacters;
 
 		for (let i = 0; i < playerCharacters.length; i++) {
 			// Create GnomePuppet
@@ -64,19 +85,22 @@ class ViewManager {
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(20, {x: 30, y: puppet.height() / 2})
+			let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
 			healthbar.x(puppet.x() - puppet.width() /2 - 50);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
 			this.uiLayer.add(healthbar);
 
-			this.playerVisualComponents.set(i.toString(), {puppet: puppet, healthbar: healthbar});
+			this.playerVisualComponents.set(playerCharacters[i].Id, {puppet: puppet, healthbar: healthbar});
 		}
 
 		// Load enemy characters
+		/*
 		var enemyCharacters: Object[] = [
 			{}
 		]
+		*/
+		var enemyCharacters = gameState.EnemyCharacters;
 
 		for (let i = 0; i < enemyCharacters.length; i++) {
 			// Create puppet of corresponding enemy (using GnomePuppet as placeholder)
@@ -86,18 +110,36 @@ class ViewManager {
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(20, {x: 30, y: puppet.height() / 2})
+			let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
 			healthbar.x(puppet.x() + puppet.width() /2 + 20);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
 			this.uiLayer.add(healthbar);
 
-			this.enemyVisualComponents.set("test-enemy", {puppet: puppet, healthbar: healthbar});
+			this.enemyVisualComponents.set(enemyCharacters[i].Id, {puppet: puppet, healthbar: healthbar});
 		}
 	}
 
-	gameLoop()
-	{
+	handleMessage(msg:any) {
+		if (msg.GameSessionId) {
+			this.encounterData.gameSessionId = msg.GameSessionId;
+		}
+		if (msg.UserId) {
+			this.encounterData.localPlayerId = msg.localPlayerId;
+		}
+		if (msg.EncounterId) {
+			this.encounterData.encounterId = msg.EncounterId;
+
+			this.loadEncounter(msg.GameState);
+		}
+		if (msg[0] && msg[0].Request)
+		{
+			console.log("yuh");
+			if (msg[0].Request) {
+				console.log("YUHHHH");
+				this.processTurn(msg);
+			}
+		}
 	}
 
 	processTurn(turn:TurnStep[])

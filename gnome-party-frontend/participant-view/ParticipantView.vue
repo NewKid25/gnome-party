@@ -18,6 +18,7 @@ import { TargetListModel } from "./Models/TargetListModel";
 import { useCombatFlow } from "./Composables/useCombatFlow";
 
 import "./styles.css";
+import { useEncounterData } from "./stores/encounterData";
 
 
 // Test data
@@ -71,13 +72,12 @@ const combatDeadMenuModel: MessageMenuModel = reactive({
   message: "You were defeated by Skeleton A!",
 });
 
-const combatFlow = useCombatFlow(playerStatusModel);
 
+const encounterData = useEncounterData();
 
 
 const socket = new WebSocket("wss://ws.gnome-party.com");
-
-var loadedActionData = new Promise(() => {});
+const combatFlow = useCombatFlow(playerStatusModel, socket);
 
 
 // Listen for messages
@@ -86,11 +86,17 @@ socket.addEventListener("message", (event) => {
 
   let parsedJSON = JSON.parse(event.data);
 
-  if (parsedJSON.Campaign) {
+  if (parsedJSON.ConnectionId) {
+    encounterData.localPlayerId = parsedJSON.UserId;
+  }
+  if (parsedJSON.GameSessionId) {
+    encounterData.gameSessionId = parsedJSON.GameSessionId;
+  }
 
-    console.log(parsedJSON.Campaign.PlayerCharacters.length, " players");
+  if (parsedJSON.EncounterId) {
+    encounterData.encounterId = parsedJSON.EncounterId;
 
-    let player:any = parsedJSON.Campaign.PlayerCharacters[0];
+    let player:any = parsedJSON.GameState.PlayerCharacters.find((pc:any) => {return pc.Id == encounterData.localPlayerId});
     
     // Load valid actions
     let actionButtonList:ActionButtonModel[] = [];
@@ -106,16 +112,16 @@ socket.addEventListener("message", (event) => {
     healthBarModel.value = player.Health;
 
     
-
     // Load enemies
     let enemyList:TargetButtonModel[] = [];
-    for (let enemy of parsedJSON.Campaign.Encounters[0].Enemies)
+    for (let enemy of parsedJSON.GameState.EnemyCharacters)
     {
       enemyList.push({
         selected: false,
         targetName: enemy.Name,
         healthbar: {value: enemy.Health, maxValue: enemy.MaxHealth},
-        characterImage: { source: "../placeholder_target_image.png", alt: enemy.Name }
+        characterImage: { source: "../placeholder_target_image.png", alt: enemy.Name },
+        targetId: enemy.Id
       });
     }
     targetListModel.targets = enemyList;
