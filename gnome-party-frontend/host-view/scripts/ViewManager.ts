@@ -13,6 +13,7 @@ import { TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
 import { useEncounterData } from "../../participant-view/stores/encounterData";
+import SkeletonPuppet from "./SkeletonPuppet";
 
 export default
 class ViewManager {
@@ -104,7 +105,7 @@ class ViewManager {
 
 		for (let i = 0; i < enemyCharacters.length; i++) {
 			// Create puppet of corresponding enemy (using GnomePuppet as placeholder)
-			let puppet:GnomePuppet = new GnomePuppet();
+			let puppet:SkeletonPuppet = new SkeletonPuppet();
 			puppet.x(this.stage.width() - 300);
 			puppet.y((i + 1) * this.stage.height() / (enemyCharacters.length + 1));
 
@@ -145,10 +146,48 @@ class ViewManager {
 	processTurn(turn:TurnStep[])
 	{
 		let animations:AnimationStep[] = [];
+		let finalStep:TurnStep|undefined;
 		for (let step of turn)
 		{
 			let animation:AnimationStep | undefined = this.instantiateActionAnimation(step);
 			if (animation) animations.push(animation);
+			finalStep = step;
+		}
+		
+		if (finalStep)
+		{
+			for (let event of finalStep.Events)
+			{
+				console.log(event);
+				if (event.event == "damage" && this.enemyVisualComponents.has(event.params.SourceId))
+				{
+					let sourceNode:Puppet | undefined = this.enemyVisualComponents.get(event.params.SourceId)?.puppet;
+					let target:CharacterVisualComponents | undefined = this.playerVisualComponents.get(event.params.TargetId);
+					if (sourceNode && target)
+					{
+						let animation:AnimationStep = new LeapAnimation({
+							leapingNode: sourceNode,
+							destination: target.puppet,
+							leapDuration: 1,
+							jumpHeight: 10,
+							landingAnimation: new FunctionStep(() => {
+								target.healthbar.changeHealth(target.healthbar.getHealth() - event.params.DamageAmount)
+							})
+						})
+
+						animations.push(animation);
+					}
+					else
+					{
+						console.log("SOMETHING'S MISSING")
+					}
+
+				}
+				else 
+				{
+					console.log("COULDN'T FIND ENEMY IN THE KEYS")
+				}
+			}
 		}
 
 		let sequence:AnimationSequence = new AnimationSequence(animations);

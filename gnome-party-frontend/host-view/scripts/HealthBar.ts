@@ -16,6 +16,10 @@ class HealthBar extends Konva.Group {
 
 	static lerp = (a:number, b:number, amount:number) => (1 - amount) * a + amount * b;
 
+	getHealth() {
+		return this.remainingHealth;
+	}
+
 	changeHealth(newHealth:number) {
 		const DMG_DURATION:number = .1
 		const LINGER_DURATION:number = .5
