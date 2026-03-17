@@ -15,7 +15,8 @@ public class DatabaseService
         DDBClient = new AmazonDynamoDBClient();
         var config = new DynamoDBContextConfig
         {
-            DisableFetchingTableMetadata = true
+            DisableFetchingTableMetadata = true,
+            Conversion = DynamoDBEntryConversion.V2
         };
 
         DBContext = new DynamoDBContext(DDBClient, config);

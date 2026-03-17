@@ -23,8 +23,11 @@ public class ActiveCombatEncounter
         EncounterId = Guid.NewGuid().ToString();
         GameState = new CombatEncounterGameState(playerCharacters, enemyCharacters);
         PlayerReadied = new List<bool>();
-        PlayerReadied.ForEach(_ => PlayerReadied.Add(false)); //initialize all players as not readied
+        playerCharacters.ForEach(_ => PlayerReadied.Add(false));
+        //PlayerReadied.ForEach(_ => PlayerReadied.Add(false)); //initialize all players as not readied
         //PlayerReadied = [playerCharacters.Count]; //should deafualt to all false
         CombatRequests = new List<CombatRequest>();
+        //CombatRequests.ForEach(_ => CombatRequests.Add(null)); //initialize all combat requests to default
+        playerCharacters.ForEach(_=> CombatRequests.Add(null));
     }
 }
