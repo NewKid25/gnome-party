@@ -14,7 +14,7 @@ public class Character
     {
         Id = id;
         Name = "Default Name";
-        Health = 1;
+        Health = 10;
         MaxHealth = Health;
         ActionsDescriptions = [];
         ActionsDescriptions.Add(new Slash().ActionDescription);

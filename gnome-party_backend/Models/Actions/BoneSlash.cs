@@ -8,8 +8,10 @@ namespace Models.Actions
         public BoneSlash() : base("Bone Slash") { }
         public override void ApplyEffect(Character user, Character target, AttackContext context)
         {
-            //int damage = 6;
-            //target.ReceiveDamage(damage, context);
+            int damage = 5;
+            //temp solution
+            target.Health -= damage;
+            context.ModifiedDamage = damage;
         }
     }
 }
