@@ -181,42 +181,6 @@ public class Functions
     }
 
     //{"route":"join-game"}
-    /*
-    public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
-    {
-        var connectionId = request.RequestContext.ConnectionId;
-        var databaseService = new DatabaseService();
-
-        GameSession gameSession;
-        var playerId = CreateNewPlayerId();
-        var connection = new GameConnection(connectionId, playerId);
-        try 
-        {
-            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0); //will throw exception if invite code not found
-            //await SendToConnectionAsync(connectionId, request, "joining existing game session...");
-        }
-        catch
-        {
-            // create new game session (this will eventually be in a route that just the host calls)
-            gameSession = new GameSession(connection); //in this case the new connection is also the host
-        }
-
-        gameSession.AddParticipant(connection);
-        var connectionSaveTask = databaseService.SaveAsync(connection);
-        var sessionSaveTask = databaseService.SaveAsync(gameSession);
-        var sendTask = SendToConnectionAsync(connectionId, request, gameSession);
-        //need to await all async code, otherwise the lambda will exit before the code has a chance to execute
-        await connectionSaveTask;
-        await sessionSaveTask;
-        await sendTask;
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = "all good"
-        };
-    }
-    */
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -316,19 +280,6 @@ public class Functions
     {
         return await SendToConnectionAsync(connectionId, request.RequestContext.DomainName, request.RequestContext.Stage, data);
     }
-
-    /* async Task<bool> SendToConnectionAsync(string connectionId, string domainName, string stage, object data)
-    {
-        var postConnectionRequest = new PostToConnectionRequest
-        {
-            ConnectionId = connectionId,
-            Data = new MemoryStream(UTF8Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)))
-        };
-        var endpoint = $"https://{domainName}/{stage}";
-        var apiClient = ApiGatewayManagementApiClientFactory(endpoint);
-        await apiClient.PostToConnectionAsync(postConnectionRequest);
-        return true;
-    } */
 
     async Task<bool> SendToConnectionAsync(string connectionId, string domainName, string stage, object data)
     {
