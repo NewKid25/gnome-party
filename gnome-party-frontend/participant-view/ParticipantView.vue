@@ -127,8 +127,31 @@ socket.addEventListener("message", (event) => {
     targetListModel.targets = enemyList;
 
     
-  } else {
-    console.log("OH NOOOOO")
+  }
+
+  if (parsedJSON instanceof Array && (parsedJSON as Array<any>).at(-1).Events.length > 0)
+  {
+      
+    
+    let playerHealth = (parsedJSON as Array<any>).at(-1).GameState.PlayerCharacters.find((pc:any) => {return pc.Id == encounterData.localPlayerId})?.Health ?? 0;
+    
+    // Load enemies
+    let enemyList:TargetButtonModel[] = [];
+    for (let enemy of parsedJSON.at(-1).GameState.EnemyCharacters)
+    {
+      enemyList.push({
+        selected: false,
+        targetName: enemy.Name,
+        healthbar: {value: enemy.Health, maxValue: enemy.MaxHealth},
+        characterImage: { source: "/img/Skeleton.svg", alt: enemy.Name },
+        targetId: enemy.Id
+      });
+    }
+    targetListModel.targets = enemyList;
+
+    combatFlow.onTurnUpdate({playerHealth: playerHealth})
+    
+
   }
 });
 
