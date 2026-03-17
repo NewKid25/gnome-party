@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using Models;
+using Models.Actions;
 using Models.CharacterData;
 using Models.CombatData;
 using System.Runtime.InteropServices;
@@ -49,19 +50,37 @@ namespace GnomeParty.Combat
             // so it that each result can be send back to the 
             foreach (var request in combatRequests)
             {
+                var roundEvents = new List<CombatEvent>();
                 var action = CharacterActionFactory.CreateCharacterAction(request.Action);
                 var srcCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId);
                 var targetCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
                 var context = new AttackContext(srcCharacter, action, targetCharacter);
-                action.ApplyEffect(srcCharacter, targetCharacter, context);         
+                action.ApplyEffect(srcCharacter, targetCharacter, context);
+                // record the damage event of Player attacking the enemy
+                roundEvents.Add(new CombatEvent("damage", new DamageEventParams {DamageAmount = context.ModifiedDamage, TargetId = targetCharacter.Id, SourceId = srcCharacter.Id, TargetName = targetCharacter.Name}));
+                foreach(var enemy in encounter.GameState.EnemyCharacters)
+                {
+                    if(enemy.Health <= 0)
+                    {
+                        continue;
+                    }
+                    if (!encounter.GameState.PlayerCharacters.Any(p => p.Health > 0))
+                    {
+                        break;
+                    }
+                    var enemyAction = new BoneSlash(); //hardcoded for now, but eventually will need to be determined by some sort of enemy AI system
+                    var enemyTarget = EnemyAI.SelectTarget(encounter.GameState.PlayerCharacters);
+                    var enemyContext = new AttackContext(enemy, enemyAction, enemyTarget);
+                    enemyAction.ApplyEffect(enemy, enemyTarget, enemyContext);
+                    // record the damage event of Enemy attacking the player
+                    roundEvents.Add(new CombatEvent("damage", new DamageEventParams { DamageAmount = enemyContext.ModifiedDamage, TargetId = enemyTarget.Id, SourceId = enemy.Id, TargetName = enemyTarget.Name }));
+                }
                 // Removes an enemy that has been defeated and prints a message about it
                 var deathEvents = RemoveDeadCharacters(encounter.GameState);
-                var damageEvents = new CombatEvent("damage", new DamageEventParams { DamageAmount = context.ModifiedDamage, TargetId = targetCharacter.Id, SourceId = srcCharacter.Id, TargetName = targetCharacter.Name});
+                roundEvents.AddRange(deathEvents);
                 var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy());
-                result.Events.Add(damageEvents);
-                result.Events.AddRange(deathEvents);
+                result.Events.AddRange(roundEvents);
                 combatRequestGameStateTuples.Add(result);
-                //combatRequestGameStateTuples.Add(new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy())); //make sure al the info is a copy so that character data is not changed in this states during future iterations of this loop
             }
             await new DatabaseService().SaveAsync(encounter);
             return combatRequestGameStateTuples;
