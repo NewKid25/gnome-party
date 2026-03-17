@@ -133,7 +133,7 @@ class ViewManager {
 
 			this.loadEncounter(msg.GameState);
 		}
-		if (msg[0] && msg[0].Request)
+		if (msg[0] && msg[0].Request && msg.length == this.playerVisualComponents.size)
 		{
 			console.log("yuh");
 			if (msg[0].Request) {

@@ -30,13 +30,13 @@ const actionListModel = reactive(new ActionListModel([
 ]));
 
 const healthBarModel: HealthBarModel = reactive({ value: 30, maxValue: 100 });
-const characterImageModel: CharacterImageModel = { source: "../placeholder_player_image.png", alt: "placeholder for player image" };
+const characterImageModel: CharacterImageModel = { source: "/img/GnomeFull.svg", alt: "placeholder for player image" };
 
 const targetAHealthBarModel: HealthBarModel = { value: 30, maxValue: 100 };
 const targetBHealthBarModel: HealthBarModel = { value: 50, maxValue: 100 };
 const targetCHealthBarModel: HealthBarModel = { value: 80, maxValue: 100 };
 
-const targetACharacterImageModel: CharacterImageModel = { source: "../placeholder_target_image.png", alt: "placeholder for target A image" };
+const targetACharacterImageModel: CharacterImageModel = { source: "/img/placeholder_target_image.png", alt: "placeholder for target A image" };
 const targetBCharacterImageModel: CharacterImageModel = { source: "../placeholder_target_image.png", alt: "placeholder for target B image" };
 const targetCCharacterImageModel: CharacterImageModel = { source: "../placeholder_target_image.png", alt: "placeholder for target C image" };
 
@@ -120,7 +120,7 @@ socket.addEventListener("message", (event) => {
         selected: false,
         targetName: enemy.Name,
         healthbar: {value: enemy.Health, maxValue: enemy.MaxHealth},
-        characterImage: { source: "../placeholder_target_image.png", alt: enemy.Name },
+        characterImage: { source: "/img/Skeleton.svg", alt: enemy.Name },
         targetId: enemy.Id
       });
     }
