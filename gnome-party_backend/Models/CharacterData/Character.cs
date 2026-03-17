@@ -1,4 +1,6 @@
-﻿namespace Models.CharacterData;
+﻿using Models.Actions;
+
+namespace Models.CharacterData;
 public class Character
 {
     public string Id { get; set; }
