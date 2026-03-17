@@ -61,4 +61,14 @@ public class DatabaseService
             return searchResponse[0]; //if we found anything that matches our condition, get the first one
         }
     }
+
+    public async Task DeleteAllEntriesFromTableAsync<T>()
+    {
+        var search = DBContext.FromScanAsync<T>(new ScanOperationConfig());
+        var searchResponse = await search.GetRemainingAsync();
+        foreach (var item in searchResponse)
+        {
+            await DBContext.DeleteAsync(item);
+        }
+    }
 }

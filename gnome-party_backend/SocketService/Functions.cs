@@ -201,16 +201,8 @@ public class Functions
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
 
-            try
-            {
-                gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
-                context.Logger.LogInformation("Loaded existing game session");
-            }
-            catch (Exception ex)
-            {
-                context.Logger.LogInformation($"GetGameSessionByInviteCodeAsync failed, creating new session: {ex.Message}");
-                gameSession = new GameSession(connection);
-            }
+            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
+            context.Logger.LogInformation("Loaded existing game session");
 
             gameSession.AddParticipant(connection);
 
@@ -250,6 +242,10 @@ public class Functions
             var connectionId = request.RequestContext.ConnectionId;
 
             var databaseService = new DatabaseService();
+
+            //deleting all the game sessions is temporary, because all games have the same invite code
+            //and we want keep it that way for now so participants can easily find the host. In the future we will want to generate unique invite codes for each game and remove this line
+            await databaseService.DeleteAllEntriesFromTableAsync<GameSession>();
 
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
