@@ -1,9 +1,8 @@
-﻿using GnomeParty.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models;
+namespace Models.CombatData;
 
 public class CombatResult
 {

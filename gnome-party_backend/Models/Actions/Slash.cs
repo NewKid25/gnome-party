@@ -1,4 +1,7 @@
-﻿namespace GnomeParty.Models
+﻿using GnomeParty.Models;
+using Models.CharacterData;
+
+namespace Models.Actions
 {
     public class Slash : CharacterAction
     {

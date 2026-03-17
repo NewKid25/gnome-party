@@ -1,9 +1,9 @@
-﻿using GnomeParty.Models;
+﻿using Models.CharacterData;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models;
+namespace Models.CombatData;
 
 public class CombatEncounterGameState
 {

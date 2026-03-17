@@ -1,4 +1,7 @@
-﻿namespace GnomeParty.Models;
+﻿using GnomeParty.Models;
+using Models.CharacterData;
+
+namespace Models.CombatData;
 
 public class CombatEncounter : Encounter
 {

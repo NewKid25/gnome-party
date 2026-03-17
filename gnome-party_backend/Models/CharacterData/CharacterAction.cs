@@ -1,4 +1,6 @@
-﻿namespace GnomeParty.Models
+﻿using GnomeParty.Models;
+
+namespace Models.CharacterData
 {
     public abstract class CharacterAction
     {

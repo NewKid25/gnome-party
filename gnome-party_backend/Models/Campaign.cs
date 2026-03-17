@@ -1,4 +1,7 @@
-﻿namespace GnomeParty.Models;
+﻿using Models.CharacterData;
+using Models.CombatData;
+
+namespace GnomeParty.Models;
 
 public class Campaign
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GnomeParty.Models;
+namespace Models.CharacterData;
 
 public class CharacterActionFactory
 {
