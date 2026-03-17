@@ -3,7 +3,7 @@ using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using GnomeParty.Models;
+using Models;
 using System.Net;
 using System.Text;
 using System.Text.Json;

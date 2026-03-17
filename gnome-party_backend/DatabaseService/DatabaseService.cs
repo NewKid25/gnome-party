@@ -2,7 +2,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
-using GnomeParty.Models;
+using Models;
 
 namespace GnomeParty.Database;
 public class DatabaseService

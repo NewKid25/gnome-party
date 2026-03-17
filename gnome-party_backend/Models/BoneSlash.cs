@@ -1,4 +1,4 @@
-﻿namespace GnomeParty.Models
+﻿namespace Models
 {
     public sealed class BoneSlash : CharacterAction
     {

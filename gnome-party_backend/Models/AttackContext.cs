@@ -2,7 +2,7 @@
 using System.Diagnostics.Contracts;
 using Models.CharacterData;
 
-namespace GnomeParty.Models
+namespace Models
 {
     public sealed class AttackContext
     {

@@ -1,8 +1,8 @@
-﻿using GnomeParty.Models;
+﻿using Models;
 using Moq;
 
 
-namespace GnomeParty.Models.Tests
+namespace Models.Tests
 {
     public class GameSessionTest
     {

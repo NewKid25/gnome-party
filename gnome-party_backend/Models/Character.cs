@@ -1,4 +1,4 @@
-﻿namespace GnomeParty.Models;
+﻿namespace Models;
 public class Character
 {
     public string Id { get; set; }
