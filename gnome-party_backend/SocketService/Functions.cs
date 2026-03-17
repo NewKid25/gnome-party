@@ -242,6 +242,41 @@ public class Functions
         }
     }
 
+    //{"route":"join-game"}
+    public async Task<APIGatewayProxyResponse> HostGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            var playerId = CreateNewPlayerId();
+            var connection = new GameConnection(connectionId, playerId);
+            var gameSession = new GameSession(connection);
+
+            await databaseService.SaveAsync(connection);
+            await databaseService.SaveAsync(gameSession);
+            await SendToConnectionAsync(connectionId, request, gameSession);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("JoinGameSessionHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to join game: {e.Message}"
+            };
+        }
+    }
+
+
     public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
