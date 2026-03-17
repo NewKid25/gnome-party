@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Models.CharacterData;
 
 namespace GnomeParty.Models;
 

@@ -1,0 +1,311 @@
+@font-face {
+    font-family: "Mystorica";
+    src: url(../DS_Mystorica.ttf) format("truetype");
+}
+
+html, body, #app {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100dvh;
+    overflow: hidden;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.participant-view {
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eaf6fc;
+    padding: clamp(12px, 2vw, 28px);
+}
+
+.participant-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(92vw, 38rem);
+    min-height: 420px;
+    position: relative;
+    gap: clamp(0.9rem, 2.2vh, 1.6rem);
+}
+
+.action-button {
+	border-radius: clamp(8px, 1vw, 14px);
+    border: 2px solid #2f2f2f;
+    padding: clamp(0.75rem, 1.6vh, 1rem);
+    width: 88%;
+    margin: clamp(0.3rem, 0.8vh, 0.6rem) 0;
+    background-color: #bfe5f7;
+    color: #3a3a3a;
+    font-weight: bold;
+    font-family: "Amasis MT Pro", serif;
+    text-transform: uppercase;
+    font-size: clamp(1.25rem, 2.5vw, 1.45rem);
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-button:hover {
+    background-color: #a0d0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.action-button:active {
+    transform: scale(0.98);
+}
+
+.action-button.selected {
+    background-color: #a0d0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+h1 {
+    font-family: "Amasis MT Pro", serif;
+    color: #2f2f2f;
+    font-weight: normal;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.player-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: clamp(0.9rem, 2.5vh, 1.6rem);
+}
+
+.character-image {
+    width: min(72%, 20rem);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #dfeaf1;
+    border-radius: clamp(18px, 3vw, 28px);
+    padding: clamp(3px, 0.5vw, 8px);
+    border: 2px solid black;
+}
+
+.character-image img {
+    width: 85%;
+    height: 85%;
+    display: block;
+    object-fit: contain;
+}
+
+hr {
+    width: 97%;
+    border: none;
+    border-top: 1px solid #b4b5b5;
+    margin: clamp(0.8rem, 2vh, 1.2rem) 0 clamp(0.5rem, 1vh, 0.8rem) 0;
+}
+
+.healthbar {
+    width: 91%;
+    height: clamp(1.8rem, 4.2vh, 2.6rem);
+    background-color: #747474;
+    border: 2px solid #2f2f2f;
+    overflow: hidden;
+}
+
+.healthbar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: #da7842;
+}
+
+.target-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2vh, 1.5rem);
+    width: 100%;
+    margin-top: clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.target-list > :nth-child(3) {
+    grid-column: 1 / span 2;
+    justify-self: center;
+    width: 48%;
+}
+
+.target-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.5rem, 1.2vh, 1rem);
+    width: 100%;
+    padding: clamp(0.5rem, 1.2vh, 1rem);
+    border-radius: clamp(12px, 2vw, 18px);
+    border: 2px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.target-button:hover {
+    background-color: #dfeaf1;
+}
+
+.target-button:active {
+    transform: scale(0.98);
+}
+
+.target-button.selected {
+    background-color: #dfeaf1;
+    border-color: #2f2f2f;
+    transform: translateY(-2px);
+}
+
+.target-button .healthbar {
+    width: 90%;
+    height: clamp(1.5rem, 3.5vh, 2.2rem);
+}
+
+.target-button .character-image {
+    width: min(100%, 7rem);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+.target-button .character-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.target-name {
+    font-family: "Amasis MT Pro", serif;
+    color: #3a3a3a;
+    font-weight: bold;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    text-align: center;
+}
+
+.target-menu-title {
+    font-family: "Mystorica", serif;
+    color: #2f2f2f;
+    font-size: clamp(2.3rem, 7vw, 3.6rem);
+    line-height: 1;
+    margin: 0 0 clamp(0.2rem, 0.8vh, 0.5rem) 0;
+    text-align: center;
+}
+
+.combat-waiting-menu, .combat-dead-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.9rem, 2.2vh, 1.6rem);
+
+    width: 100%;
+    padding: clamp(1.5rem, 4vh, 2.5rem);
+
+    background-color: #dfeaf1;
+    border: 2px solid #2f2f2f;
+    border-radius: clamp(12px, 2vw, 18px);
+
+    text-align: center;
+}
+
+.combat-waiting-menu-title, .combat-dead-menu-title {
+    font-family: "Mystorica", serif;
+    color: #2f2f2f;
+    font-size: clamp(2.3rem, 7vw, 3.6rem);
+    line-height: 1;
+    margin: 0;
+}
+
+.combat-waiting-menu-message, .combat-dead-menu-message {
+    font-family: "Amasis MT Pro", serif;
+    color: #3a3a3a;
+    font-size: clamp(1.1rem, 2.6vw, 1.4rem);
+    max-width: 28rem;
+    margin: 0;
+}
+
+.combat-dead-menu {
+    background-color: #f2d6d6;
+    border-color: #5a1d1d;
+}
+
+.combat-dead-menu-title {
+    color: #5a1d1d;
+}
+
+.combat-waiting-menu-title.waiting-dots {
+    position: relative;
+}
+
+.combat-waiting-menu-title.waiting-dots::after {
+    position: absolute;
+    left: 100%;
+    margin-left: 0.4rem;
+
+    content: "...";
+    animation: waiting-dots 1.2s steps(3, end) infinite;
+}
+
+@keyframes waiting-dots {
+    0%   { content: ""; }
+    33%  { content: "."; }
+    66%  { content: ".."; }
+    100% { content: "..."; }
+}
+
+.combat-menu-enter-active,
+.combat-menu-leave-active {
+    transition:
+        transform 0.20s cubic-bezier(.2,.8,.2,1),
+        opacity 0.20s ease;
+}
+
+.combat-menu-enter-from {
+    opacity: 0;
+    transform: translateX(24px) scale(0.98);
+}
+
+.combat-menu-enter-to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.combat-menu-leave-from {
+    opacity: 1;
+}
+
+.combat-menu-leave-to {
+    opacity: 0;
+    transform: translateX(-24px) scale(0.98);
+}
+
+.combat-menu-panel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.9rem, 2.2vh, 1.6rem);
+}
+
+/* Made by James */
+feComponentTransfer :indeterminate function table
+{}

@@ -1,7 +1,8 @@
 using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using GnomeParty.Models;
-using Models;
+using Models.CharacterData;
+using Models.CombatData;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 

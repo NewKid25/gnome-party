@@ -1,0 +1,17 @@
+﻿using GnomeParty.Models;
+using Models.CharacterData;
+
+namespace Models.Actions
+{
+    public class Slash : CharacterAction
+    {
+        public Slash() : base("Slash") { }
+        public override void ApplyEffect(Character user, Character target, AttackContext context)
+        {
+            int damage = 10;
+            //temp solution
+            target.Health -= damage;
+            context.ModifiedDamage = damage;
+        }
+    }
+}

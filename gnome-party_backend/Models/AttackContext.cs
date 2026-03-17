@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using Models.CharacterData;
 
 namespace GnomeParty.Models
 {
