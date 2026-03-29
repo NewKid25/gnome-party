@@ -116,16 +116,20 @@ public class Functions
     {
         try
         {
-            await SendToConnectionAsync(request.RequestContext.ConnectionId, request, "player handler reached...");
             var databaseService = new DatabaseService();
             JsonDocument message = JsonDocument.Parse(request.Body);
             var combatRequest = message.Deserialize<CombatRequest>();
             var combatService = new CombatService.CombatService();
             var response = await combatService.CombatRequestHandlerAsync(combatRequest);
-
-            var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
-            //Console.WriteLine($"Game session {JsonSerializer.Serialize(gameSession)}");
-            await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", response));
+            if (response.Count == 0)
+            {
+               await SendToConnectionAsync(request.RequestContext.ConnectionId, request, new ConnectionMessage("combat-request-recieved-no-action",""));
+            }
+            else
+            {
+                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
+                await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", response));
+            }
 
             return new APIGatewayProxyResponse
             {

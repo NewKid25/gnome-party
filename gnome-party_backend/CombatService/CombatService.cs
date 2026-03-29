@@ -44,7 +44,7 @@ namespace CombatService
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return [new CombatResult(request, activeEncounter.GameState, [])];
+                    return [];
                 }
             }
             // All players have readied up, so we can process all the combat requests
