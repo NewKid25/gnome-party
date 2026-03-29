@@ -2,10 +2,10 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
-using GnomeParty.Models;
+using Models;
 
 namespace GnomeParty.Database;
-public class DatabaseService
+public class DatabaseService : IDatabaseService
 {
     IAmazonDynamoDB DDBClient { get; }
     IDynamoDBContext DBContext { get; }
@@ -15,7 +15,8 @@ public class DatabaseService
         DDBClient = new AmazonDynamoDBClient();
         var config = new DynamoDBContextConfig
         {
-            DisableFetchingTableMetadata = true
+            DisableFetchingTableMetadata = true,
+            Conversion = DynamoDBEntryConversion.V2
         };
 
         DBContext = new DynamoDBContext(DDBClient, config);
@@ -59,6 +60,16 @@ public class DatabaseService
         else
         {
             return searchResponse[0]; //if we found anything that matches our condition, get the first one
+        }
+    }
+
+    public async Task DeleteAllEntriesFromTableAsync<T>()
+    {
+        var search = DBContext.FromScanAsync<T>(new ScanOperationConfig());
+        var searchResponse = await search.GetRemainingAsync();
+        foreach (var item in searchResponse)
+        {
+            await DBContext.DeleteAsync(item);
         }
     }
 }

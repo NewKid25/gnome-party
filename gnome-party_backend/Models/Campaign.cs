@@ -1,7 +1,7 @@
 ﻿using Models.CharacterData;
 using Models.CombatData;
 
-namespace GnomeParty.Models;
+namespace Models;
 
 public class Campaign
 {

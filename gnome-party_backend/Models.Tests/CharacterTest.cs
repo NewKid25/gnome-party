@@ -1,7 +1,7 @@
-﻿using GnomeParty.Models;
+﻿using Models;
 using Models.CharacterData;
 
-namespace GnomeParty.Models.Tests
+namespace Models.Tests
 {
     public class CharacterTest
     {

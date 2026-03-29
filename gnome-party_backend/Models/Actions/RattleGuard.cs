@@ -1,4 +1,4 @@
-﻿using GnomeParty.Models;
+﻿using Models;
 using Models.CharacterData;
 
 namespace Models.Actions

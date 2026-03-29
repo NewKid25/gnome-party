@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GnomeParty.Models;
+namespace Models;
 
 [DynamoDBTable("ActiveEncounterTable")]
 public class ActiveCombatEncounter
@@ -13,8 +13,8 @@ public class ActiveCombatEncounter
     [DynamoDBHashKey]
     public string EncounterId { get; set; }
     public CombatEncounterGameState GameState { get; set; }
-    public bool[] PlayerReadied { get; set; }
-    public CombatRequest[] CombatRequests { get; set; }
+    public List<bool> PlayerReadied { get; set; }
+    public List<CombatRequest> CombatRequests { get; set; }
 
     public ActiveCombatEncounter() : this([], []) { }
 
@@ -22,7 +22,12 @@ public class ActiveCombatEncounter
     {
         EncounterId = Guid.NewGuid().ToString();
         GameState = new CombatEncounterGameState(playerCharacters, enemyCharacters);
-        PlayerReadied = new bool[playerCharacters.Count]; //should deafualt to all false
-        CombatRequests = new CombatRequest[playerCharacters.Count];
+        PlayerReadied = new List<bool>();
+        playerCharacters.ForEach(_ => PlayerReadied.Add(false));
+        //PlayerReadied.ForEach(_ => PlayerReadied.Add(false)); //initialize all players as not readied
+        //PlayerReadied = [playerCharacters.Count]; //should deafualt to all false
+        CombatRequests = new List<CombatRequest>();
+        //CombatRequests.ForEach(_ => CombatRequests.Add(null)); //initialize all combat requests to default
+        playerCharacters.ForEach(_=> CombatRequests.Add(null));
     }
 }

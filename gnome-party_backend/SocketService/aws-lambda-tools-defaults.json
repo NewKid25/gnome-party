@@ -5,12 +5,12 @@
     "dotnet lambda help",
     "All the command line options for the Lambda command can be specified in this file."
   ],
-  "profile": "Ahmad",
+  "profile": "default",
   "region": "us-east-2",
   "configuration": "Release",
   "s3-prefix": "SocketService/",
   "template": "serverless.template",
   "template-parameters": "\u0022ConnectionMappingTableName\u0022=\u0022ConnectionsTable\u0022;\u0022StageName\u0022=\u0022Prod\u0022",
   "s3-bucket": "gp-backend-bucket1",
-  "stack-name": "SocketService"
+  "stack-name": "SocketServiceTemp"
 }
