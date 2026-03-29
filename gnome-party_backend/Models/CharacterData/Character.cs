@@ -29,6 +29,7 @@ public class Character
         var copy = new Character(Id)
         {
             Name = Name,
+            CharacterType = CharacterType,
             Health = Health,
             MaxHealth = MaxHealth,
             ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions)
