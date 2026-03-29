@@ -125,7 +125,7 @@ public class Functions
 
             var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
             //Console.WriteLine($"Game session {JsonSerializer.Serialize(gameSession)}");
-            await BroadcastToConnectionAsync(gameSession, request, response);
+            await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", response));
 
             return new APIGatewayProxyResponse
             {
@@ -179,7 +179,7 @@ public class Functions
         await databaseService.SaveAsync(activeEncounter);
         Console.WriteLine($"After save");
 
-        await BroadcastToConnectionAsync(gameSession, request, activeEncounter);
+        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter));
 
 
         return new APIGatewayProxyResponse
@@ -221,8 +221,8 @@ public class Functions
             await databaseService.SaveAsync(gameSession);
             context.Logger.LogInformation("Saved game session");
 
-            await SendToConnectionAsync(connectionId, request, connection);
-            await SendToConnectionAsync(connectionId, request, gameSession);
+            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-connection", connection));
+            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session", gameSession));
             context.Logger.LogInformation("Sent game session to connection");
 
             return new APIGatewayProxyResponse
@@ -263,7 +263,7 @@ public class Functions
 
             await databaseService.SaveAsync(connection);
             await databaseService.SaveAsync(gameSession);
-            await SendToConnectionAsync(connectionId, request, gameSession);
+            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("host-game", gameSession));
 
             return new APIGatewayProxyResponse
             {
