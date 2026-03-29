@@ -10,22 +10,13 @@ public class CombatEncounter : Encounter
 
     public CombatEncounter()
     {
-        var skeleton_weak = new Character
+        var skeleton_weak = new Skeleton()
         {
-            Id = "test-enemy-1",
-            Name = "skeleton_weak",
-            MaxHealth = 10,
+            //half normal health
             Health = 10,
-            ActionsDescriptions = [new CharacterActionDescription("PunchA", "A weak punch")]
+            MaxHealth = 10,
         };
-        var skeleton_strong = new Character
-        {
-            Id = "test-enemy-2",
-            Name = "skeleton_strong",
-            MaxHealth = 30,
-            Health = 30,
-            ActionsDescriptions = [new CharacterActionDescription("PunchB", "A strong punch")]
-        };
+        var skeleton_strong = new Skeleton();
         Enemies = [skeleton_weak, skeleton_strong];
     }
 
