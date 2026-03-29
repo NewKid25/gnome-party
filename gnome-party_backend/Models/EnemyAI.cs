@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Models;
 using Models.CharacterData;
 
 namespace Models

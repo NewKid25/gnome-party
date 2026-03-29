@@ -5,6 +5,7 @@ public class Character
 {
     public string Id { get; set; }
     public string Name { get; set; }
+    public string CharacterType { get; set; }
     public int Health { get; set; }
     public int MaxHealth { get; set; }
     public List<CharacterActionDescription> ActionsDescriptions { get; set; }
@@ -15,6 +16,7 @@ public class Character
         Random rnd = new Random();
         Id = id;
         Name = "Default Name";
+        CharacterType = "Default Character Type";
         Health = rnd.Next(1,21);
         MaxHealth = Health;
         ActionsDescriptions = [];
