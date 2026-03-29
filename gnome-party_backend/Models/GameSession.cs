@@ -28,7 +28,7 @@ public class GameSession
 
     public void AddParticipant(string connectionId, string userId)
     {
-        var connection = new GameConnection(connectionId, userId);
+        var connection = new GameConnection(connectionId, userId, GameSessionId);
         AddParticipant(connection);
     }
 
@@ -37,5 +37,19 @@ public class GameSession
         Participants.Add(connection);
         var character = new Character(connection.UserId);
         Campaign.PlayerCharacters.Add(character);
+    }
+
+    public void RemoveParticipant(string connectionId)
+    {
+        var connection = Participants.FirstOrDefault(c => c.ConnectionId == connectionId);
+        if (connection != null)
+        {
+            Participants.Remove(connection);
+            var character = Campaign.PlayerCharacters.FirstOrDefault(pc => pc.Id == connection.UserId);
+            if (character != null)
+            {
+                Campaign.PlayerCharacters.Remove(character);
+            }
+        }
     }
 }

@@ -96,6 +96,18 @@
                 "Ref": "ConnectionMappingTableName"
               }
             }
+          },
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+          {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
           }
         ],
         "Environment": {

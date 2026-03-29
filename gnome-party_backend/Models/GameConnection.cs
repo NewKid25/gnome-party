@@ -11,16 +11,16 @@ public class GameConnection
     [DynamoDBHashKey]
     public string ConnectionId { get; set; }
     public string UserId { get; set; }
-
-    public GameConnection() 
-    {
-        ConnectionId = "uninitialized_connection_id";
-        UserId = "not_inited";
-    }
-
-    public GameConnection(string connectionId, string userId = "not_inited")
+    public string GameSessionId { get; set; }
+    public GameConnection(string connectionId, string userId="not_inited", string gameSessionId = "not_inited")
     {
         ConnectionId = connectionId;
         UserId = userId;
+        GameSessionId = gameSessionId;
     }
+
+    public GameConnection(string connectionId, string userId, GameSession session): this (connectionId, userId, session.GameSessionId) { }
+
+    public GameConnection() : this ("uninitialized_connection_id") { }
+
 }

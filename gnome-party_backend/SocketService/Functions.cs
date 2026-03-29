@@ -207,11 +207,10 @@ public class Functions
             var databaseService = new DatabaseService();
 
             GameSession gameSession;
-            var playerId = CreateNewPlayerId();
-            var connection = new GameConnection(connectionId, playerId);
-
             gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
             context.Logger.LogInformation("Loaded existing game session");
+            var playerId = CreateNewPlayerId();
+            var connection = new GameConnection(connectionId, playerId, gameSession);
 
             gameSession.AddParticipant(connection);
 
@@ -260,6 +259,7 @@ public class Functions
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
             var gameSession = new GameSession(connection);
+            connection.GameSessionId = gameSession.GameSessionId;
 
             await databaseService.SaveAsync(connection);
             await databaseService.SaveAsync(gameSession);
@@ -294,6 +294,16 @@ public class Functions
             var connection = await databaseClient.LoadAsync<GameConnection>(connectionId);
             await databaseClient.DeleteAsync(connection);
 
+            if (connection.GameSessionId != "not_inited")
+            {
+                var gameSession = await databaseClient.LoadAsync<GameSession>(connection.GameSessionId);
+                if (gameSession != null)
+                {
+                    gameSession.RemoveParticipant(connection.ConnectionId);
+                    await databaseClient.SaveAsync(gameSession);
+                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                }
+            }
             return new APIGatewayProxyResponse
             {
                 StatusCode = 200,
