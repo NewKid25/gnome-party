@@ -18,6 +18,7 @@ public class CombatServiceTests
     {
 
     }
+    //this test is just for debugging and should be replaced with more specific tests
     [Fact]
     public async Task TestCombatRequestHandlerAsync()
     {
