@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using GnomeParty.Database;
-using GnomeParty.Combat;
+using CombatService;
 using Amazon;
 using Models.CombatData;
 
@@ -120,7 +120,7 @@ public class Functions
             var databaseService = new DatabaseService();
             JsonDocument message = JsonDocument.Parse(request.Body);
             var combatRequest = message.Deserialize<CombatRequest>();
-            var combatService = new CombatService();
+            var combatService = new CombatService.CombatService();
             var response = await combatService.CombatRequestHandlerAsync(combatRequest);
 
             var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()

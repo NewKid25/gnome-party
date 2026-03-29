@@ -8,13 +8,23 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 
 
-namespace GnomeParty.Combat
+namespace CombatService
 {
     public class CombatService
     {
+        IDatabaseService databaseService;
+        public CombatService() 
+        {
+           databaseService = new DatabaseService();
+        }
+        public CombatService(IDatabaseService databaseService)
+        {
+            this.databaseService = databaseService;
+        }   
+
         public async Task<List<CombatResult>>  CombatRequestHandlerAsync(CombatRequest request)
         {
-            var databaseService = new DatabaseService();
+            
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
 
             //// Mark the source character as readied
@@ -82,7 +92,7 @@ namespace GnomeParty.Combat
                 result.Events.AddRange(roundEvents);
                 combatRequestGameStateTuples.Add(result);
             }
-            await new DatabaseService().SaveAsync(encounter);
+            await databaseService.SaveAsync(encounter);
             return combatRequestGameStateTuples;
         }
         private List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)

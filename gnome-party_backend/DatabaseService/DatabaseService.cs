@@ -5,7 +5,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Models;
 
 namespace GnomeParty.Database;
-public class DatabaseService
+public class DatabaseService : IDatabaseService
 {
     IAmazonDynamoDB DDBClient { get; }
     IDynamoDBContext DBContext { get; }
