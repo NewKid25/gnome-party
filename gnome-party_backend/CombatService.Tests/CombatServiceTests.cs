@@ -22,34 +22,45 @@ public class CombatServiceTests
     public async Task TestCombatRequestHandlerAsync()
     {
         // Arrange
-        var playerCharacter = new Character("test-source-character-id");
-        var enemyCharacter = new Character("test-target-character-id");
-        enemyCharacter.Health = 1;
-        var encounter = new ActiveCombatEncounter([playerCharacter], [enemyCharacter]);
+        var encounter = new ActiveCombatEncounter(
+            new List<Character>
+            {
+                new Character("test-source-character-id"),
+                new Character("test-source-character-id-2")
+            },
+            new List<Character>
+            {
+                new Skeleton { Id = "test-target-character-id" },
+                new Skeleton()
+            }
+        );
+
         var mockDBService = new Mock<IDatabaseService>();
-        mockDBService.Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
+        mockDBService
+            .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
             .ReturnsAsync(encounter);
+
         var combatService = new CombatService(mockDBService.Object);
-        var request = new CombatRequest
+
+        // Act
+        var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = "test-encounter-id",
             SourceCharacterId = "test-source-character-id",
             TargetCharacterId = "test-target-character-id",
             Action = "Slash",
-        };
-        // Act
-        var result = await combatService.CombatRequestHandlerAsync(request);
+        });
+
+        var result2 = await combatService.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = "test-encounter-id",
+            SourceCharacterId = "test-source-character-id-2",
+            TargetCharacterId = "test-target-character-id",
+            Action = "Slash",
+        });
+
         // Assert
-        Assert.NotNull(result);
-        Assert.IsType<List<CombatResult>>(result);
-    }
-
-    [Fact]
-    public async Task TestProcessCombatRequestsAsync()
-    {
-        var mockDBService = new Mock<IDatabaseService>();
-        var combatService = new CombatService(mockDBService.Object);
-
-
+        Assert.NotNull(result1);
+        Assert.IsType<List<CombatResult>>(result1);
     }
 }

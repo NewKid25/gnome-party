@@ -44,13 +44,21 @@ namespace CombatService
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return [new CombatResult(request, activeEncounter.GameState)];
+                    return [new CombatResult(request, activeEncounter.GameState, [])];
                 }
             }
             // All players have readied up, so we can process all the combat requests
 
-           var CombatResult =   await ProcessCombatRequestsAsync(activeEncounter.CombatRequests.ToArray(), activeEncounter);
-           return CombatResult;
+            var combatResults =   await ProcessCombatRequestsAsync(activeEncounter.CombatRequests.ToArray(), activeEncounter);
+            var enemyCombatResquests = new List<CombatRequest>();
+            foreach (var enemyCharacter in activeEncounter.GameState.EnemyCharacters)
+            {
+                var combatRequest = new Enemy(enemyCharacter).ChooseAction(activeEncounter.GameState.PlayerCharacters, activeEncounter.GameState.EnemyCharacters);
+                enemyCombatResquests.Add(combatRequest);
+            }
+            var enemyCombatResults = await ProcessCombatRequestsAsync(enemyCombatResquests.ToArray(), activeEncounter);
+            combatResults.AddRange(enemyCombatResults);
+            return combatResults;
         }
 
         async Task<List<CombatResult>> ProcessCombatRequestsAsync(CombatRequest[] combatRequests, ActiveCombatEncounter encounter)
@@ -67,30 +75,13 @@ namespace CombatService
                 var targetCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
                 var context = new AttackContext(srcCharacter, action, targetCharacter);
                 action.ApplyEffect(srcCharacter, targetCharacter, context);
+
                 // record the damage event of Player attacking the enemy
                 roundEvents.Add(new CombatEvent("damage", new DamageEventParams {DamageAmount = context.ModifiedDamage, TargetId = targetCharacter.Id, SourceId = srcCharacter.Id, TargetName = targetCharacter.Name}));
-                //foreach(var enemy in encounter.GameState.EnemyCharacters)
-                //{
-                //    if(enemy.Health <= 0)
-                //    {
-                //        continue;
-                //    }
-                //    if (!encounter.GameState.PlayerCharacters.Any(p => p.Health > 0))
-                //    {
-                //        break;
-                //    }
-                //    var enemyAction = new BoneSlash(); //hardcoded for now, but eventually will need to be determined by some sort of enemy AI system
-                //    var enemyTarget = EnemyAI.SelectTarget(encounter.GameState.PlayerCharacters);
-                //    var enemyContext = new AttackContext(enemy, enemyAction, enemyTarget);
-                //    enemyAction.ApplyEffect(enemy, enemyTarget, enemyContext);
-                //    // record the damage event of Enemy attacking the player
-                //    roundEvents.Add(new CombatEvent("damage", new DamageEventParams { DamageAmount = enemyContext.ModifiedDamage, TargetId = enemyTarget.Id, SourceId = enemy.Id, TargetName = enemyTarget.Name }));
-                //}
                 // Removes an enemy that has been defeated and prints a message about it
                 var deathEvents = RemoveDeadCharacters(encounter.GameState);
                 roundEvents.AddRange(deathEvents);
-                var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy());
-                result.Events.AddRange(roundEvents);
+                var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
                 combatResults.Add(result);
             }
             await databaseService.SaveAsync(encounter);

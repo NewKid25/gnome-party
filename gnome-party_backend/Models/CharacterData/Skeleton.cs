@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Models.CharacterData;
-internal class Skeleton :Character
+public class Skeleton :Character
 {
     public Skeleton()
     {
