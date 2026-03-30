@@ -12,6 +12,7 @@ import AnimationStep from "./interfaces/AnimationStep";
 import { TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
+import BoneSlashAnimation from "./animations/BoneSlashAnimation";
 import { useEncounterData } from "../../participant-view/stores/encounterData";
 import SkeletonPuppet from "./SkeletonPuppet";
 
@@ -122,6 +123,22 @@ class ViewManager {
 	}
 
 	handleMessage(msg:any) {
+		if (msg.Subject == "host-game")
+		{
+			this.encounterData.gameSessionId = msg.Message.GameSessionId;
+			this.encounterData.localPlayerId = msg.Message.Host.UserId;
+		}
+		if (msg.Subject == "begin-combat-encounter")
+		{
+			this.encounterData.encounterId = msg.Message.EncounterId;
+			this.loadEncounter(msg.Message.GameState);
+		}
+		if (msg.Subject == "action-handler")
+		{
+			this.processTurn(msg.Message);
+		}
+
+		/*
 		if (msg.GameSessionId) {
 			this.encounterData.gameSessionId = msg.GameSessionId;
 		}
@@ -141,19 +158,21 @@ class ViewManager {
 				this.processTurn(msg);
 			}
 		}
+			*/
 	}
 
 	processTurn(turn:TurnStep[])
 	{
 		let animations:AnimationStep[] = [];
-		let finalStep:TurnStep|undefined;
+		// let finalStep:TurnStep|undefined;
 		for (let step of turn)
 		{
 			let animation:AnimationStep | undefined = this.instantiateActionAnimation(step);
 			if (animation) animations.push(animation);
-			finalStep = step;
+			// finalStep = step;
 		}
 		
+		/*
 		if (finalStep)
 		{
 			for (let event of finalStep.Events)
@@ -189,6 +208,7 @@ class ViewManager {
 				}
 			}
 		}
+		*/
 
 		let sequence:AnimationSequence = new AnimationSequence(animations);
 		sequence.play();
@@ -344,6 +364,8 @@ class ViewManager {
 		switch(actionName) {
 			case "Slash":
 				return new SlashAnimation(step, this);
+			case "Bone Slash":
+				return new BoneSlashAnimation(step, this);
 		}
 	}
 }

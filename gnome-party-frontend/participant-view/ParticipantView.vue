@@ -86,17 +86,17 @@ socket.addEventListener("message", (event) => {
 
   let parsedJSON = JSON.parse(event.data);
 
-  if (parsedJSON.ConnectionId) {
-    encounterData.localPlayerId = parsedJSON.UserId;
+  if (parsedJSON.Subject == "join-game-connection") {
+    encounterData.localPlayerId = parsedJSON.Message.UserId;
   }
-  if (parsedJSON.GameSessionId) {
-    encounterData.gameSessionId = parsedJSON.GameSessionId;
+  if (parsedJSON.Subject == "join-game-session") {
+    encounterData.gameSessionId = parsedJSON.Message.GameSessionId;
   }
 
-  if (parsedJSON.EncounterId) {
-    encounterData.encounterId = parsedJSON.EncounterId;
+  if (parsedJSON.Subject == "begin-combat-encounter") {
+    encounterData.encounterId = parsedJSON.Message.EncounterId;
 
-    let player:any = parsedJSON.GameState.PlayerCharacters.find((pc:any) => {return pc.Id == encounterData.localPlayerId});
+    let player:any = parsedJSON.Message.GameState.PlayerCharacters.find((pc:any) => {return pc.Id == encounterData.localPlayerId});
     
     // Load valid actions
     let actionButtonList:ActionButtonModel[] = [];
@@ -114,7 +114,7 @@ socket.addEventListener("message", (event) => {
     
     // Load enemies
     let enemyList:TargetButtonModel[] = [];
-    for (let enemy of parsedJSON.GameState.EnemyCharacters)
+    for (let enemy of parsedJSON.Message.GameState.EnemyCharacters)
     {
       enemyList.push({
         selected: false,
@@ -129,15 +129,13 @@ socket.addEventListener("message", (event) => {
     
   }
 
-  if (parsedJSON instanceof Array && (parsedJSON as Array<any>).at(-1).Events.length > 0)
+  if (parsedJSON.Subject == "action-handler")
   {
-      
-    
-    let playerHealth = (parsedJSON as Array<any>).at(-1).GameState.PlayerCharacters.find((pc:any) => {return pc.Id == encounterData.localPlayerId})?.Health ?? 0;
+    let playerHealth = (parsedJSON.Message as Array<any>).at(-1).GameState.PlayerCharacters.find((pc:any) => {return pc.Id == encounterData.localPlayerId})?.Health ?? 0;
     
     // Load enemies
     let enemyList:TargetButtonModel[] = [];
-    for (let enemy of parsedJSON.at(-1).GameState.EnemyCharacters)
+    for (let enemy of parsedJSON.Message.at(-1).GameState.EnemyCharacters)
     {
       enemyList.push({
         selected: false,
@@ -151,7 +149,6 @@ socket.addEventListener("message", (event) => {
 
     combatFlow.onTurnUpdate({playerHealth: playerHealth})
     
-
   }
 });
 
