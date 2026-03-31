@@ -1,5 +1,6 @@
-﻿using Models;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
+using Models.CombatData;
 
 namespace Models.Actions
 {
@@ -11,6 +12,11 @@ namespace Models.Actions
             int rounds = 2; // for testing 2. In practice 1
             double multipier = 0.5;
             //user.AddStatus(new DamageReduction_Status(multipier, rounds));
+        }
+
+        public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models;
+namespace Models.EncounterData;
 
 [DynamoDBTable("ActiveEncounterTable")]
 public class ActiveCombatEncounter

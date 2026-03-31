@@ -2,9 +2,9 @@ using Amazon.DynamoDBv2;
 using Amazon.Lambda.TestUtilities;
 using CombatService;
 using GnomeParty.Database;
-using Models;
 using Models.CharacterData;
 using Models.CombatData;
+using Models.EncounterData;
 using Moq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -63,5 +63,18 @@ public class CombatServiceTests
         // Assert
         Assert.NotNull(result1);
         Assert.IsType<List<CombatResult>>(result1);
+    }
+
+    private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter)
+    {
+        var mockDb = new Mock<IDatabaseService>();
+
+        mockDb.Setup(db => db.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
+              .ReturnsAsync(encounter);
+
+        mockDb.Setup(db => db.SaveAsync(It.IsAny<ActiveCombatEncounter>()))
+              .Returns(Task.CompletedTask);
+
+        return mockDb;
     }
 }

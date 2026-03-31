@@ -1,7 +1,7 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using Models.CharacterData;
 
-namespace Models;
+namespace Models.GameMetaData;
 
 [DynamoDBTable("GameTable")]
 public class GameSession

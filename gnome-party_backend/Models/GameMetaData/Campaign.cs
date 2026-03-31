@@ -1,7 +1,7 @@
 ﻿using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models;
+namespace Models.GameMetaData;
 
 public class Campaign
 {

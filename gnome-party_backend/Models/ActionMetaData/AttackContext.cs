@@ -2,7 +2,7 @@
 using System.Diagnostics.Contracts;
 using Models.CharacterData;
 
-namespace Models
+namespace Models.ActionMetaData
 {
     public sealed class AttackContext
     {

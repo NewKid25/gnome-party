@@ -1,5 +1,5 @@
-﻿using Models;
-using Models.CharacterData;
+﻿using Models.CharacterData;
+using Models.EncounterData;
 
 namespace Models.CombatData;
 

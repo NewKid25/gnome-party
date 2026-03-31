@@ -2,7 +2,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
-using Models;
+using Models.GameMetaData;
 
 namespace GnomeParty.Database;
 public class DatabaseService : IDatabaseService

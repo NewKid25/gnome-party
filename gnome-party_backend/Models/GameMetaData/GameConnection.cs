@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models;
+namespace Models.GameMetaData;
 
 [DynamoDBTable("ConnectionsTable")]
 public class GameConnection

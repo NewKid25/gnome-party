@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models
+namespace Models.GameMetaData
 {
     public class ConnectionMessage
     {

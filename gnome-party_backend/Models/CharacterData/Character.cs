@@ -1,4 +1,5 @@
 ﻿using Models.Actions;
+using Models.Status;
 
 namespace Models.CharacterData;
 public class Character
@@ -9,6 +10,7 @@ public class Character
     public int Health { get; set; }
     public int MaxHealth { get; set; }
     public List<CharacterActionDescription> ActionsDescriptions { get; set; }
+    public List<StatusEffect> StatusEffects { get; set; } = new();
     public Character() : this(Guid.NewGuid().ToString()) { }
 
     public Character(string id)
@@ -32,7 +34,8 @@ public class Character
             CharacterType = CharacterType,
             Health = Health,
             MaxHealth = MaxHealth,
-            ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions)
+            ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions),
+            StatusEffects = new List<StatusEffect>()
         };
         return copy;
 

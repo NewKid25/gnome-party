@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Models.ActionMetaData;
+using Models.CombatData;
 
 namespace Models.CharacterData
 {
@@ -15,5 +16,6 @@ namespace Models.CharacterData
         }
         protected CharacterAction(string attackName) : this(attackName, false) { }
         public abstract void ApplyEffect(Character user, Character target, AttackContext context);
+        public abstract AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false);
     }
 }

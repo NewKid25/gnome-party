@@ -3,7 +3,6 @@ using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using Models;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +10,8 @@ using GnomeParty.Database;
 using CombatService;
 using Amazon;
 using Models.CombatData;
+using Models.GameMetaData;
+using Models.EncounterData;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
