@@ -137,28 +137,6 @@ class ViewManager {
 		{
 			this.processTurn(msg.Message);
 		}
-
-		/*
-		if (msg.GameSessionId) {
-			this.encounterData.gameSessionId = msg.GameSessionId;
-		}
-		if (msg.UserId) {
-			this.encounterData.localPlayerId = msg.localPlayerId;
-		}
-		if (msg.EncounterId) {
-			this.encounterData.encounterId = msg.EncounterId;
-
-			this.loadEncounter(msg.GameState);
-		}
-		if (msg[0] && msg[0].Request && msg.length == this.playerVisualComponents.size)
-		{
-			console.log("yuh");
-			if (msg[0].Request) {
-				console.log("YUHHHH");
-				this.processTurn(msg);
-			}
-		}
-			*/
 	}
 
 	processTurn(turn:TurnStep[])
@@ -171,44 +149,6 @@ class ViewManager {
 			if (animation) animations.push(animation);
 			// finalStep = step;
 		}
-		
-		/*
-		if (finalStep)
-		{
-			for (let event of finalStep.Events)
-			{
-				console.log(event);
-				if (event.event == "damage" && this.enemyVisualComponents.has(event.params.SourceId))
-				{
-					let sourceNode:Puppet | undefined = this.enemyVisualComponents.get(event.params.SourceId)?.puppet;
-					let target:CharacterVisualComponents | undefined = this.playerVisualComponents.get(event.params.TargetId);
-					if (sourceNode && target)
-					{
-						let animation:AnimationStep = new LeapAnimation({
-							leapingNode: sourceNode,
-							destination: target.puppet,
-							leapDuration: 1,
-							jumpHeight: 10,
-							landingAnimation: new FunctionStep(() => {
-								target.healthbar.changeHealth(target.healthbar.getHealth() - event.params.DamageAmount)
-							})
-						})
-
-						animations.push(animation);
-					}
-					else
-					{
-						console.log("SOMETHING'S MISSING")
-					}
-
-				}
-				else 
-				{
-					console.log("COULDN'T FIND ENEMY IN THE KEYS")
-				}
-			}
-		}
-		*/
 
 		let sequence:AnimationSequence = new AnimationSequence(animations);
 		sequence.play();

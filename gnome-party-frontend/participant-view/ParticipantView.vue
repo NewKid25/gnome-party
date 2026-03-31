@@ -125,8 +125,6 @@ socket.addEventListener("message", (event) => {
       });
     }
     targetListModel.targets = enemyList;
-
-    
   }
 
   if (parsedJSON.Subject == "action-handler")
