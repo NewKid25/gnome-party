@@ -39,8 +39,8 @@ internal class SkeletonAI : CharacterAI
         var target = aliveEnemies.OrderBy(e => (double)e.Health / Math.Max(1, e.MaxHealth)).ThenBy(e => e.Health).ThenByDescending(e => e.MaxHealth).First();
         return new CombatRequest
         {
-            Action = actions.Contains("Bone Slash") ? "Bone Slash" : GetDefaultAction(actions),
-            TargetCharacterId = enemies[0].Id
+            Action = action,
+            TargetCharacterId = target.Id
         };
     }
     protected override string ChooseActionName(Character self, List<string> actions, List<Character> enemies, List<Character> allies)
