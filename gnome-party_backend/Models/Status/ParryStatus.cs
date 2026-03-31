@@ -29,7 +29,7 @@ namespace Models.Status
                 DurationUnit = DurationUnit,
                 ModifierValues = new Dictionary<string, double>(ModifierValues),
                 SourceCharacterId = SourceCharacterId,
-                StatusDescription = new Dictionary<string, string>(StatusDescription)
+                StatusDescription = new Dictionary<string, string>(StatusDescription),
                 StatusId = StatusId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
                 StatusType = StatusType,

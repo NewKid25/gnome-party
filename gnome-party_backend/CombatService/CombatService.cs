@@ -16,12 +16,10 @@ namespace CombatService
         public CombatService()
         {
             databaseService = new DatabaseService();
-            statusTriggerHandlers = BuildStatusTriggerHandlers();
         }
         public CombatService(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
-            statusTriggerHandlers = BuildStatusTriggerHandlers();
         }
         private void ApplyStatusEffects(Character character, StatusEffect newStatus)
         {
@@ -37,13 +35,6 @@ namespace CombatService
             existingStatus.AffectedCharacterIds = new List<string>(newStatus.AffectedCharacterIds);
             existingStatus.ModifierValues = new Dictionary<string, double>(newStatus.ModifierValues);
             existingStatus.StatusDescription = new Dictionary<string, string>(newStatus.StatusDescription);
-        }
-        private Dictionary<string, IStatusTriggerHandler> BuildStatusTriggerHandlers()
-        {
-            return new Dictionary<string, IStatusTriggerHandler>
-            {
-                [StatusTypes.Burn] = new BurnStatusHandler(),
-            };
         }
         public async Task<List<CombatResult>> CombatRequestHandlerAsync(CombatRequest request)
         {
