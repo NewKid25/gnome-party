@@ -148,7 +148,6 @@ namespace CombatService
                 var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
                 combatResults.Add(result);
             }
-
             await databaseService.SaveAsync(encounter);
             return combatResults;
         }
@@ -190,22 +189,6 @@ namespace CombatService
             character = gameState.EnemyCharacters.FirstOrDefault(c => c.Id == id);
             return character;
         }
-        private List<Character> GetEnemyTeam(CombatEncounterGameState gameState, Character character)
-        {
-            if (gameState.PlayerCharacters.Any(c => c.Id == character.Id))
-            {
-                return gameState.EnemyCharacters;
-            }
-            return gameState.PlayerCharacters;
-        }
-        private List<Character> GetPlayerTeam(CombatEncounterGameState gameState, Character character)
-        {
-            if (gameState.PlayerCharacters.Any(c => c.Id == character.Id))
-            {
-                return gameState.PlayerCharacters;
-            }
-            return gameState.EnemyCharacters;
-        }
         private void ApplyStatusEffects(Character character, StatusEffect newStatus)
         {
             var existingStatus = character.StatusEffects.FirstOrDefault(s => s.StatusType == newStatus.StatusType && s.StatusOwnerCharacterId == newStatus.StatusOwnerCharacterId);
@@ -231,7 +214,6 @@ namespace CombatService
             {
                 return originalTarget;
             }
-
             return ResolveRedirectTarget(gameState, originalTarget);
         }
         private Character ResolveRedirectTarget(CombatEncounterGameState gameState, Character originalTarget)
@@ -247,7 +229,6 @@ namespace CombatService
             {
                 return guardian;
             }
-
             return originalTarget;
         }
         private double GetIncomingDamageMultiplier(Character target)
@@ -261,7 +242,6 @@ namespace CombatService
                     multiplier *= value;
                 }
             }
-
             return multiplier;
         }
         private double GetDamageReduction(Character target)
@@ -289,7 +269,6 @@ namespace CombatService
                     multiplier *= value;
                 }
             }
-
             return multiplier;
         }
         private Dictionary<string, IStatusTriggerHandler> BuildStatusTriggerHandlers()

@@ -22,7 +22,6 @@ namespace Models.Status
             {
                 [StatusModifierKeys.TickDamage] = tickDamage
             };
-
         }
         public override StatusEffect DeepCopy()
         {
