@@ -1,13 +1,12 @@
 ﻿using Models.CharacterData;
 using Models.CombatData;
 
-namespace GnomeParty.Models;
+namespace Models.GameMetaData;
 
 public class Campaign
 {
-    public List<Character> PlayerCharacters { get; set; }
     public List<CombatEncounter> Encounters { get; set; }
-
+    public List<Character> PlayerCharacters { get; set; }
     public Campaign()
     {
         PlayerCharacters = new List<Character>();

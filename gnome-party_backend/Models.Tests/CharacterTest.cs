@@ -1,7 +1,7 @@
-﻿using GnomeParty.Models;
+﻿using Models;
 using Models.CharacterData;
 
-namespace GnomeParty.Models.Tests
+namespace Models.Tests
 {
     public class CharacterTest
     {
@@ -11,7 +11,7 @@ namespace GnomeParty.Models.Tests
             var characterModel = new Character();
             //temporary test to make sure the constructor is working as expected
             Assert.Equal("Default Name", characterModel.Name);
-            Assert.Equal(1, characterModel.Health);
+            Assert.Equal(30, characterModel.Health);
         }
     }
 }

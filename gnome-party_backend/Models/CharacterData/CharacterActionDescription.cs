@@ -5,8 +5,8 @@ using System.Text;
 namespace Models.CharacterData;
 public class CharacterActionDescription
 {
-    public string Name { get; set; }
     public string Description { get; set; }
+    public string Name { get; set; }
 
     public CharacterActionDescription() 
     {

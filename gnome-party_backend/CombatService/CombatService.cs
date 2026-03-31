@@ -1,21 +1,53 @@
 using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
-using GnomeParty.Models;
 using Models;
-using Models.Actions;
 using Models.CharacterData;
 using Models.CombatData;
-using System.Runtime.InteropServices;
-using System.Text.Json;
+using Models.EncounterData;
+using Models.Status;
 
 
-namespace GnomeParty.Combat
+namespace CombatService
 {
     public class CombatService
     {
-        public async Task<List<CombatResult>>  CombatRequestHandlerAsync(CombatRequest request)
+        private readonly Dictionary<string, IStatusTriggerHandler> statusTriggerHandlers;
+        IDatabaseService databaseService;
+        public CombatService()
         {
-            var databaseService = new DatabaseService();
+            databaseService = new DatabaseService();
+            statusTriggerHandlers = BuildStatusTriggerHandlers();
+        }
+        public CombatService(IDatabaseService databaseService)
+        {
+            this.databaseService = databaseService;
+            statusTriggerHandlers = BuildStatusTriggerHandlers();
+        }
+        private void ApplyStatusEffects(Character character, StatusEffect newStatus)
+        {
+            var existingStatus = character.StatusEffects.FirstOrDefault(s => s.StatusType == newStatus.StatusType && s.StatusOwnerCharacterId == newStatus.StatusOwnerCharacterId);
+            if (existingStatus == null)
+            {
+                character.StatusEffects.Add(newStatus);
+                return;
+            }
+            existingStatus.SourceCharacterId = newStatus.SourceCharacterId;
+            existingStatus.Duration = newStatus.Duration;
+            existingStatus.DurationUnit = newStatus.DurationUnit;
+            existingStatus.AffectedCharacterIds = new List<string>(newStatus.AffectedCharacterIds);
+            existingStatus.ModifierValues = new Dictionary<string, double>(newStatus.ModifierValues);
+            existingStatus.StatusDescription = new Dictionary<string, string>(newStatus.StatusDescription);
+        }
+        private Dictionary<string, IStatusTriggerHandler> BuildStatusTriggerHandlers()
+        {
+            return new Dictionary<string, IStatusTriggerHandler>
+            {
+                [StatusTypes.Burn] = new BurnStatusHandler(),
+            };
+        }
+        public async Task<List<CombatResult>> CombatRequestHandlerAsync(CombatRequest request)
+        {
+
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
 
             //// Mark the source character as readied
@@ -35,69 +67,229 @@ namespace GnomeParty.Combat
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return [new CombatResult(request, activeEncounter.GameState)];
+                    return [];
                 }
             }
             // All players have readied up, so we can process all the combat requests
 
-           var CombatResult =   await ProcessCombatRequestsAsync(activeEncounter.CombatRequests, activeEncounter);
-            return CombatResult;
+            var combatResults = await ProcessCombatRequestsAsync(activeEncounter.CombatRequests.ToArray(), activeEncounter);
+            var enemyCombatResquests = new List<CombatRequest>();
+            foreach (var enemyCharacter in activeEncounter.GameState.EnemyCharacters)
+            {
+                var combatRequest = new Enemy(enemyCharacter).ChooseAction(activeEncounter.GameState.PlayerCharacters, activeEncounter.GameState.EnemyCharacters);
+                enemyCombatResquests.Add(combatRequest);
+            }
+            var enemyCombatResults = await ProcessCombatRequestsAsync(enemyCombatResquests.ToArray(), activeEncounter);
+            combatResults.AddRange(enemyCombatResults);
+            return combatResults;
         }
+        private Character FindCharacter(CombatEncounterGameState gameState, string id)
+        {
+            Character character = gameState.PlayerCharacters.FirstOrDefault(c => c.Id == id);
+            if (character != null)
+            {
+                return character;
+            }
+            character = gameState.EnemyCharacters.FirstOrDefault(c => c.Id == id);
+            return character;
+        }
+        private IEnumerable<Character> GetAllCharacters(CombatEncounterGameState gameState)
+        {
+            return gameState.PlayerCharacters.Concat(gameState.EnemyCharacters);
+        }
+        private double GetDamageReduction(Character target, bool isUnblockable = false)
+        {
+            double reduction = 0.0;
+            if (isUnblockable == true)
+            {
+                reduction = 0.0;
+            }
+            else
+            {
+                foreach (var status in target.StatusEffects)
+                {
+                    if (status.ModifierValues.TryGetValue(StatusModifierKeys.DamageReduction, out var value))
+                    {
+                        reduction += value;
+                    }
+                }
+            }
+            return Math.Min(reduction, 1);
+        }
+        private double GetIncomingDamageMultiplier(Character source, Character target)
+        {
+            double multiplier = 1.0;
 
+            foreach (var status in target.StatusEffects)
+            {
+                if (status.StatusType == StatusTypes.Parry && status.AffectedCharacterIds.Contains(source.Id))
+                {
+                    multiplier *= 0;
+                    continue;
+                }
+                if (status.ModifierValues.TryGetValue(StatusModifierKeys.IncomingDamageMultiplier, out var value))
+                {
+                    multiplier *= value;
+                }
+            }
+            return multiplier;
+        }
+        private double GetOutgoingDamageMultiplier(Character source)
+        {
+            double multiplier = 1.0;
+
+            foreach (var status in source.StatusEffects)
+            {
+                if (status.ModifierValues.TryGetValue(StatusModifierKeys.OutgoingDamageMultiplier, out var value))
+                {
+                    multiplier *= value;
+                }
+            }
+            return multiplier;
+        }
         async Task<List<CombatResult>> ProcessCombatRequestsAsync(CombatRequest[] combatRequests, ActiveCombatEncounter encounter)
         {
-            var combatRequestGameStateTuples = new List<CombatResult>();
+            var combatResults = new List<CombatResult>();
             //save off the result of each combat request to the encounter, 
-            // so it that each result can be send back to the 
+            // so it that each result can be sent back to the frontend
             foreach (var request in combatRequests)
             {
+                if(request == null)
+                {
+                    continue;
+                }
                 var roundEvents = new List<CombatEvent>();
                 var action = CharacterActionFactory.CreateCharacterAction(request.Action);
-                var srcCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.SourceCharacterId);
-                var targetCharacter = encounter.GameState.PlayerCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId) ?? encounter.GameState.EnemyCharacters.FirstOrDefault(c => c.Id == request.TargetCharacterId);
-                var context = new AttackContext(srcCharacter, action, targetCharacter);
-                action.ApplyEffect(srcCharacter, targetCharacter, context);
-                // record the damage event of Player attacking the enemy
-                roundEvents.Add(new CombatEvent("damage", new DamageEventParams {DamageAmount = context.ModifiedDamage, TargetId = targetCharacter.Id, SourceId = srcCharacter.Id, TargetName = targetCharacter.Name}));
-                foreach(var enemy in encounter.GameState.EnemyCharacters)
+                //looks for character in            
+                var srcCharacter = FindCharacter(encounter.GameState, request.SourceCharacterId);
+                var originalTargetCharacter = FindCharacter(encounter.GameState, request.TargetCharacterId);
+                if (srcCharacter == null)
                 {
-                    if(enemy.Health <= 0)
-                    {
-                        continue;
-                    }
-                    if (!encounter.GameState.PlayerCharacters.Any(p => p.Health > 0))
-                    {
-                        break;
-                    }
-                    var enemyAction = new BoneSlash(); //hardcoded for now, but eventually will need to be determined by some sort of enemy AI system
-                    var enemyTarget = EnemyAI.SelectTarget(encounter.GameState.PlayerCharacters);
-                    var enemyContext = new AttackContext(enemy, enemyAction, enemyTarget);
-                    enemyAction.ApplyEffect(enemy, enemyTarget, enemyContext);
-                    // record the damage event of Enemy attacking the player
-                    roundEvents.Add(new CombatEvent("damage", new DamageEventParams { DamageAmount = enemyContext.ModifiedDamage, TargetId = enemyTarget.Id, SourceId = enemy.Id, TargetName = enemyTarget.Name }));
+                    throw new InvalidOperationException($"Source character '{request.SourceCharacterId}' was not found.");
                 }
-                // Removes an enemy that has been defeated and prints a message about it
-                var deathEvents = RemoveDeadCharacters(encounter.GameState);
-                roundEvents.AddRange(deathEvents);
-                var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy());
-                result.Events.AddRange(roundEvents);
-                combatRequestGameStateTuples.Add(result);
+                if (originalTargetCharacter == null)
+                {
+                    throw new InvalidOperationException($"Target character '{request.TargetCharacterId}' was not found.");
+                }
+                ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents);
+                var resolvedTarget = ResolveActionTarget(action, encounter.GameState, originalTargetCharacter);
+                var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id;
+                var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected);
+                foreach (var attack in resolution.AttackInstances)
+                {
+                    var attackSource = FindCharacter(encounter.GameState, attack.SourceCharacterId);
+                    var finalTarget = FindCharacter(encounter.GameState, attack.TargetCharacterId);
+                    if (attackSource == null)
+                    {
+                        throw new InvalidOperationException("Attack source was not found.");
+                    }
+                    if (finalTarget == null)
+                    {
+                        throw new InvalidOperationException("Attack target was not found.");
+                    }
+                    var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource);
+                    var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget);
+                    var damageReduction = GetDamageReduction(finalTarget);
+                    var finalDamage = (int)Math.Floor(
+                        attack.BaseDamage *
+                        outgoingMultiplier *
+                        incomingMultiplier *
+                        (1.0 - damageReduction)
+                    );
+                    if (finalDamage < 0)
+                    {
+                        finalDamage = 0;
+                    }
+                    attack.IsRedirected = isRedirected;
+                    attack.FinalDamage = finalDamage;
+                    attack.IsBlocked = damageReduction > 0;
+                    finalTarget.Health -= finalDamage;
+                    roundEvents.Add(new CombatEvent("damage", new DamageEventParams
+                    {
+                        DamageAmount = finalDamage,
+                        TargetId = finalTarget.Id,
+                        SourceId = attackSource.Id,
+                        TargetName = finalTarget.Name
+                    }));
+                }
+                foreach (var status in resolution.StatusEffectsToApply)
+                {
+                    var owner = FindCharacter(encounter.GameState, status.StatusOwnerCharacterId);
+                    if (owner == null)
+                    {
+                        throw new InvalidOperationException("Status owner was not found.");
+                    }
+                    ApplyStatusEffects(owner, status);
+                }
+                roundEvents.AddRange(resolution.Events);
+                roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState));
+                ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents);
+                var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
+                combatResults.Add(result);
             }
-            await new DatabaseService().SaveAsync(encounter);
-            return combatRequestGameStateTuples;
+            await databaseService.SaveAsync(encounter);
+            return combatResults;
         }
-        private List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)
+        public void ProcessStatusTriggers(CombatEncounterGameState gameState, Character character, DurationUnit trigger, List<CombatEvent> events)
+        {
+            var expiredStatuses = new List<StatusEffect>();
+            foreach (var status in character.StatusEffects.Where(s => s.DurationUnit == trigger).ToList())
+            {
+                if (statusTriggerHandlers.TryGetValue(status.StatusType, out var handler))
+                {
+                    handler.Process(status, character, events);
+                }
+                status.Duration--;
+                if (status.Duration <= 0)
+                {
+                    expiredStatuses.Add(status);
+                }
+            }
+            foreach (var expiredStatus in expiredStatuses)
+            {
+                character.StatusEffects.Remove(expiredStatus);
+                events.Add(new CombatEvent("StatusExpired", new StatusExpiredEventParams
+                {
+                    StatusType = expiredStatus.StatusType,
+                    OwnerId = character.Id
+                }));
+            }
+        }
+        List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)
         {
             var events = new List<CombatEvent>();
             var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
 
             foreach (var enemy in defeatedEnemies)
             {
-                events.Add(new CombatEvent("defeated", new DefeatedEventParams {TargetId = enemy.Id, TargetName = enemy.Name}));
+                events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = enemy.Id, TargetName = enemy.Name }));
             }
 
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
             return events;
+        }
+        private Character ResolveActionTarget(CharacterAction action, CombatEncounterGameState gameState, Character originalTarget)
+        {
+            if (action.Unblockable)
+            {
+                return originalTarget;
+            }
+            return ResolveRedirectTarget(gameState, originalTarget);
+        }
+        private Character ResolveRedirectTarget(CombatEncounterGameState gameState, Character originalTarget)
+        {
+            var guardian = GetAllCharacters(gameState).FirstOrDefault(c =>
+                c.Health > 0 &&
+                c.StatusEffects.Any(s =>
+                    s.StatusType == StatusTypes.Block &&
+                    s.StatusOwnerCharacterId == c.Id &&
+                    s.AffectedCharacterIds.Contains(originalTarget.Id)));
+
+            if (guardian != null)
+            {
+                return guardian;
+            }
+            return originalTarget;
         }
     }
 }

@@ -2,10 +2,10 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
-using GnomeParty.Models;
+using Models.GameMetaData;
 
 namespace GnomeParty.Database;
-public class DatabaseService
+public class DatabaseService : IDatabaseService
 {
     IAmazonDynamoDB DDBClient { get; }
     IDynamoDBContext DBContext { get; }
@@ -15,12 +15,12 @@ public class DatabaseService
         DDBClient = new AmazonDynamoDBClient();
         var config = new DynamoDBContextConfig
         {
-            DisableFetchingTableMetadata = true
+            DisableFetchingTableMetadata = true,
+            Conversion = DynamoDBEntryConversion.V2
         };
 
         DBContext = new DynamoDBContext(DDBClient, config);
     }
-
     /// <summary>
     /// constructor that can be used to inject dependencies, for testing.
     /// </summary>
@@ -29,15 +29,14 @@ public class DatabaseService
         DDBClient = ddbClient;
         DBContext = dbContext;
     }
-
-    public async Task SaveAsync<T>(T item)
+    public async Task DeleteAllEntriesFromTableAsync<T>()
     {
-        await DBContext.SaveAsync(item);
-        return;
-    }
-    public async Task<T> LoadAsync<T>(Object hashKey)
-    {
-        return await DBContext.LoadAsync<T>(hashKey);
+        var search = DBContext.FromScanAsync<T>(new ScanOperationConfig());
+        var searchResponse = await search.GetRemainingAsync();
+        foreach (var item in searchResponse)
+        {
+            await DBContext.DeleteAsync(item);
+        }
     }
      public async Task DeleteAsync<T>(T item)
     {
@@ -60,5 +59,14 @@ public class DatabaseService
         {
             return searchResponse[0]; //if we found anything that matches our condition, get the first one
         }
+    }
+    public async Task<T> LoadAsync<T>(Object hashKey)
+    {
+        return await DBContext.LoadAsync<T>(hashKey);
+    }
+    public async Task SaveAsync<T>(T item)
+    {
+        await DBContext.SaveAsync(item);
+        return;
     }
 }

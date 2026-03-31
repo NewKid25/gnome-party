@@ -96,6 +96,18 @@
                 "Ref": "ConnectionMappingTableName"
               }
             }
+          },
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+          {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
           }
         ],
         "Environment": {
@@ -155,6 +167,45 @@
       "Type": "AWS::Serverless::Function",
       "Properties": {
         "Handler": "SocketService::SocketService.Functions::JoinGameSessionHandler",
+        "Runtime": "dotnet10",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": {
+                "Ref": "ConnectionMappingTableName"
+              }
+            }
+          }, 
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+                    {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
+          }
+       ],
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ConnectionMappingTableName"
+            }
+          }
+        }
+      }
+    },
+    "HostGameSessionFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "SocketService::SocketService.Functions::HostGameSessionHandler",
         "Runtime": "dotnet10",
         "CodeUri": "",
         "MemorySize": 512,
@@ -297,7 +348,7 @@
         },
         "RouteKey": "$disconnect",
         "AuthorizationType": "NONE",
-        "OperationName": "ConnectRoute",
+        "OperationName": "DisconnectRoute",
         "Target": {
           "Fn::Join": [
             "/",
@@ -375,6 +426,53 @@
               "function": {
                 "Fn::GetAtt": [
                   "JoinGameSessionFunction",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "HostGameSessionRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "RouteKey": "host-game",
+        "AuthorizationType": "NONE",
+        "OperationName": "HostGameSessionRoute",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "HostGameSessionInteg"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "HostGameSessionInteg": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Sub": [
+            "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${function}/invocations",
+            {
+              "region": {
+                "Ref": "AWS::Region"
+              },
+              "function": {
+                "Fn::GetAtt": [
+                  "HostGameSessionFunction",
                   "Arn"
                 ]
               }
@@ -484,6 +582,7 @@
         "PlayerActionRoute",
         "DisconnectRoute",
         "JoinGameSessionRoute",
+        "HostGameSessionRoute",
         "BeginCombatEncounterRoute"
       ],
       "Properties": {
@@ -558,6 +657,20 @@
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Ref": "JoinGameSessionFunction"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "HostGameSessionPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "HostGameSessionFunction",
+        "GPWebSocketApi"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "HostGameSessionFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }
