@@ -19,6 +19,7 @@
     <Using Include="Xunit" />
   </ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\CombatService\CombatService.csproj" />
 		<ProjectReference Include="..\Models\Models.csproj" />
 	</ItemGroup>
 

@@ -11,7 +11,7 @@ namespace Models.Tests
             var characterModel = new Character();
             //temporary test to make sure the constructor is working as expected
             Assert.Equal("Default Name", characterModel.Name);
-            Assert.Equal(1, characterModel.Health);
+            Assert.Equal(30, characterModel.Health);
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CombatService;
 using Models.Actions;
 using Models.CharacterData;
 using Models.CombatData;
+using Models.EncounterData;
 using Models.Status;
 
 namespace Models.Tests
@@ -204,5 +203,6 @@ namespace Models.Tests
             Assert.Equal(3, burn.Duration);
             Assert.Equal(2, (int)burn.ModifierValues[StatusModifierKeys.TickDamage]);
         }
+        
     }
 }
