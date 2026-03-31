@@ -54,7 +54,7 @@ namespace Models.Actions
                 resolution.StatusEffectsToApply.Add(new BurnStatus(user, burnTarget, burnDuration, burnTickDamage));
                 resolution.Events.Add(new CombatEvent("status_applied", new StatusAppliedEventParams
                 {
-                    OwnerId = burnTarget.Id
+                    OwnerId = burnTarget.Id,
                     StatusType = StatusTypes.Burn,
                     SourceId = user.Id,
                 }));

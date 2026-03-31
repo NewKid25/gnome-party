@@ -43,7 +43,7 @@ namespace Models.Actions
                     ActionName = AttackName,
                     BaseDamage = 5,
                     FinalDamage = 5,
-                    IsRedirected = isRedirected
+                    IsRedirected = isRedirected,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 });

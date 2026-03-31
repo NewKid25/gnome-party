@@ -26,7 +26,7 @@ namespace Models.Actions
                     {
                         ActionName = AttackName,
                         BaseDamage = 10,
-                        FinalDamage = 10
+                        FinalDamage = 10,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }
