@@ -14,7 +14,7 @@ namespace Models.Actions
         {
             throw new NotImplementedException();
         }
-        public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false)
+        public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false, bool isUnblockable = false)
         {
             if (user == null) throw new ArgumentNullException(nameof(user));
             if (target == null) throw new ArgumentNullException(nameof(target));

@@ -8,9 +8,9 @@ using Models.Status;
 
 namespace Models.Actions
 {
-    public sealed class SpecialFireball : CharacterAction
+    public sealed class Fireball : CharacterAction
     {
-        public SpecialFireball() : base("Special Fireball")
+        public Fireball() : base("Special Fireball")
         {
             ActionDescription = new CharacterActionDescription("Special Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns");
         }
@@ -18,7 +18,12 @@ namespace Models.Actions
         {
             throw new NotImplementedException();
         }
-        public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false)
+        public override AttackResolution ResolveAttack(
+            Character user, 
+            Character target, 
+            CombatEncounterGameState gameState, 
+            bool isRedirected = false, 
+            bool isUnblockable = false)
         {
             const int burnTickDamage = 2;
             const int burnDuration = 3;

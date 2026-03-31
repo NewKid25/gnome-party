@@ -12,7 +12,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             MaxHealth = 20;
             ActionsDescriptions = new List<CharacterActionDescription>
             {
-                new SpecialFireball().ActionDescription,
+                new Fireball().ActionDescription,
             };
         }
         public Mage(string id) : base(id)
@@ -23,7 +23,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             MaxHealth = 20;
             ActionsDescriptions = new List<CharacterActionDescription>
             {
-                new SpecialFireball().ActionDescription,
+                new Fireball().ActionDescription,
             };
         }
     }

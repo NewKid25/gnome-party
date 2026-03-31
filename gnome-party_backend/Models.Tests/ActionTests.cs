@@ -144,7 +144,7 @@ namespace Models.Tests
                 new List<Character> { caster },
                 new List<Character> { enemy1, enemy2, enemy3 });
 
-            var action = new SpecialFireball();
+            var action = new Fireball();
             var resolution = action.ResolveAttack(caster, enemy2, gameState, false);
 
             Assert.Single(resolution.AttackInstances);
@@ -187,7 +187,7 @@ namespace Models.Tests
                 new List<Character> { blocker, ally1, ally2, caster },
                 new List<Character>());
 
-            var action = new SpecialFireball();
+            var action = new Fireball();
             var resolution = action.ResolveAttack(caster, blocker, gameState, true);
 
             Assert.Single(resolution.AttackInstances);

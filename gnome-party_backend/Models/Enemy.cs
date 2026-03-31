@@ -12,9 +12,7 @@ public class Enemy
 {
     Character Character { get; set; }
     CharacterAI AI { get; set; }
-
     public Enemy(Character character) : this(character.CharacterType, character) { }
-
     public Enemy(string characterType, Character? character = null)
     {
         switch (characterType)
@@ -27,7 +25,6 @@ public class Enemy
                 throw new ArgumentException($"Unknown character type: {characterType}");
         }
     }
-
     public CombatRequest ChooseAction(List<Character> enemies, List<Character> allies)
     {
         var actions = new List<string>();

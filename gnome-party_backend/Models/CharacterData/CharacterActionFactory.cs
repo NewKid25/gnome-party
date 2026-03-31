@@ -22,7 +22,7 @@ public class CharacterActionFactory
             "Rattle Guard" => new RattleGuard(),
 
             // Extra/Practice Implementation Moves
-            "Special Fireball" => new SpecialFireball(),
+            "Special Fireball" => new Fireball(),
             "Fury Strikes" => new FuryStrikes(),
             _ => throw new ArgumentException($"Unknown action name: {actionName}"),
         };

@@ -15,11 +15,11 @@ namespace Models.Status
     public static class StatusModifierKeys
     {
         public const string DamageReduction = "DamageReduction";
+        public const string IncomingDamageMultiplier = "IncomingDamageMultiplier";
+        public const string OutgoingDamageMultiplier = "OutgoingDamageMultiplier";
         public const string RedirectTarget = "RedirectTarget";
         public const string TickDamage = "TickDamage";
         public const string TickHeal = "TickHeal";
-        public const string IncomingDamageMultiplier = "IncomingDamageMultiplier";
-        public const string OutgoingDamageMultiplier = "OutgoingDamageMultiplier";
     }
 
     public static class StatusTypes
@@ -32,15 +32,15 @@ namespace Models.Status
 
     public class StatusEffect
     {
-        public string StatusId { get; set; } = Guid.NewGuid().ToString();
-        public string StatusType { get; set; } = string.Empty;
-        public string SourceCharacterId { get; set; } = string.Empty;
-        public string StatusOwnerCharacterId { get; set; } = string.Empty;
+        public List<string> AffectedCharacterIds { get; set; } = new();
         public int Duration { get; set; }
         public DurationUnit DurationUnit { get; set; }
-        public List<string> AffectedCharacterIds { get; set; } = new();
         public Dictionary<string, double> ModifierValues { get; set; } = new();
         public Dictionary<string, string> StatusDescription { get; set; } = new();
+        public string StatusId { get; set; } = Guid.NewGuid().ToString();
+        public string StatusOwnerCharacterId { get; set; } = string.Empty;
+        public string StatusType { get; set; } = string.Empty;
+        public string SourceCharacterId { get; set; } = string.Empty;
         public virtual StatusEffect DeepCopy()
         {
             return new StatusEffect 
