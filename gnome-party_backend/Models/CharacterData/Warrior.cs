@@ -17,8 +17,10 @@ namespace Models.CharacterData
             {
                 new Block().ActionDescription,
                 new Slash().ActionDescription,
-                new FuryStrikes().ActionDescription,
                 new WhirlingStrike().ActionDescription,
+                new Parry().ActionDescription,
+                
+                //new FuryStrikes().ActionDescription,
             };
         }
         public Warrior(string id) : base(id)
@@ -31,8 +33,11 @@ namespace Models.CharacterData
             {
                 new Block().ActionDescription,
                 new Slash().ActionDescription,
-                new FuryStrikes().ActionDescription,
                 new WhirlingStrike().ActionDescription,
+                new Parry().ActionDescription,
+                
+                //new FuryStrikes().ActionDescription,
+
             };
         }
     }

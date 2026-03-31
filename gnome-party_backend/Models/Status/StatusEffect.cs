@@ -27,6 +27,7 @@ namespace Models.Status
         public const string Block = "Block";
         public const string Burn = "Burn";
         public const string RattleGuard = "RattleGuard";
+        public const string Parry = "Parry";
     }
 
     public class StatusEffect

@@ -109,7 +109,7 @@ namespace CombatService
                         throw new InvalidOperationException("Attack target was not found.");
                     }
                     var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource);
-                    var incomingMultiplier = GetIncomingDamageMultiplier(finalTarget);
+                    var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget);
                     var damageReduction = GetDamageReduction(finalTarget);
                     var finalDamage = (int)Math.Floor(
                         attack.BaseDamage *
@@ -231,12 +231,17 @@ namespace CombatService
             }
             return originalTarget;
         }
-        private double GetIncomingDamageMultiplier(Character target)
+        private double GetIncomingDamageMultiplier(Character source, Character target)
         {
             double multiplier = 1.0;
 
             foreach (var status in target.StatusEffects)
             {
+                if (status.StatusType == StatusTypes.Parry && status.AffectedCharacterIds.Contains(source.Id))
+                {
+                    multiplier *= 0;
+                    continue;
+                }
                 if (status.ModifierValues.TryGetValue(StatusModifierKeys.IncomingDamageMultiplier, out var value))
                 {
                     multiplier *= value;
@@ -256,7 +261,7 @@ namespace CombatService
                 }
             }
 
-            return Math.Min(reduction, 0.95);
+            return Math.Min(reduction, 1);
         }
         private double GetOutgoingDamageMultiplier(Character source)
         {
