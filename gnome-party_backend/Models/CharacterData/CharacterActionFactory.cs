@@ -17,6 +17,7 @@ public class CharacterActionFactory
             "Fireball" => new Fireball(),
             "Fury Strikes" => new FuryStrikes(),
             "Rattle Guard" => new RattleGuard(),
+            "Whirling Strike" => new WhirlingStrike(),
             _ => throw new ArgumentException($"Unknown action name: {actionName}"),
         };
     }

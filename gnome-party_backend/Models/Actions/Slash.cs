@@ -14,9 +14,10 @@ namespace Models.Actions
         {
             throw new NotImplementedException();
         }
-
         public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false)
         {
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (target == null) throw new ArgumentNullException(nameof(target));
             return new AttackResolution
             {
                 AttackInstances = new List<AttackInstance>

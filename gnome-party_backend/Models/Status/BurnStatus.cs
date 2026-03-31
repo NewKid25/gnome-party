@@ -17,7 +17,6 @@ namespace Models.Status
             Duration = duration;
             DurationUnit = DurationUnit.TurnStart;
             AffectedCharacterIds = new List<string> { target.Id };
-
             ModifierValues = new Dictionary<string, double>
             {
                 [StatusModifierKeys.TickDamage] = tickDamage

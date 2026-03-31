@@ -33,8 +33,7 @@ namespace Models.Actions
                 ActionName = AttackName,
                 BaseDamage = 8,
                 FinalDamage = 8,
-                IsRedirected = isRedirected,
-                IsBlocked = false
+                IsRedirected = isRedirected
             });
             List<Character> burnTargeets;
             if (isRedirected)
