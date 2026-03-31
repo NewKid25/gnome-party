@@ -31,8 +31,8 @@ namespace Models.Actions
                 SourceCharacterId = user.Id,
                 TargetCharacterId = target.Id,
                 ActionName = AttackName,
-                BaseDamage = 8,
-                FinalDamage = 8,
+                BaseDamage = 6,
+                FinalDamage = 6,
                 IsRedirected = isRedirected
             });
             List<Character> burnTargeets;

@@ -26,8 +26,8 @@ namespace Models.Status
     {
         public const string Block = "Block";
         public const string Burn = "Burn";
-        public const string RattleGuard = "RattleGuard";
         public const string Parry = "Parry";
+        public const string RattleGuard = "RattleGuard";
     }
 
     public class StatusEffect
@@ -45,15 +45,16 @@ namespace Models.Status
         {
             return new StatusEffect 
             {
+                AffectedCharacterIds = new List<string>(AffectedCharacterIds), 
+                Duration = Duration, 
+                DurationUnit = DurationUnit,
+                ModifierValues = new Dictionary<string, double>(ModifierValues), 
+                StatusDescription = new Dictionary<string, string>(StatusDescription),
                 StatusId = StatusId, 
+                StatusOwnerCharacterId = StatusOwnerCharacterId, 
                 StatusType = StatusType, 
                 SourceCharacterId = SourceCharacterId, 
-                StatusOwnerCharacterId = StatusOwnerCharacterId, 
-                Duration = Duration, 
-                DurationUnit = DurationUnit, 
-                AffectedCharacterIds = new List<string>(AffectedCharacterIds), 
-                ModifierValues = new Dictionary<string, double>(ModifierValues), 
-                StatusDescription = new Dictionary<string, string>(StatusDescription) };
+            };
         }
     }
 }

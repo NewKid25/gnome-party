@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.Actions;
+﻿using Models.Actions;
 
 namespace Models.CharacterData.PlayerCharacterClasses
 {
