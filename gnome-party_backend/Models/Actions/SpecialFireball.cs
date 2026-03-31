@@ -8,11 +8,11 @@ using Models.Status;
 
 namespace Models.Actions
 {
-    public sealed class Fireball : CharacterAction
+    public sealed class SpecialFireball : CharacterAction
     {
-        public Fireball() : base("Fireball")
+        public SpecialFireball() : base("Special Fireball")
         {
-            ActionDescription = new CharacterActionDescription("Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns");
+            ActionDescription = new CharacterActionDescription("Special Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns");
         }
         public override void ApplyEffect(Character user, Character target, AttackContext context)
         {

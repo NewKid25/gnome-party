@@ -16,9 +16,9 @@ namespace Models.CharacterData
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Block().ActionDescription,
+                new Parry().ActionDescription,
                 new Slash().ActionDescription,
                 new WhirlingStrike().ActionDescription,
-                new Parry().ActionDescription,
                 
                 //new FuryStrikes().ActionDescription,
             };
@@ -32,9 +32,9 @@ namespace Models.CharacterData
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Block().ActionDescription,
+                new Parry().ActionDescription,
                 new Slash().ActionDescription,
                 new WhirlingStrike().ActionDescription,
-                new Parry().ActionDescription,
                 
                 //new FuryStrikes().ActionDescription,
 

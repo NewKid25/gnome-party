@@ -11,14 +11,19 @@ public class CharacterActionFactory
         {
         return actionName switch
         {
-            "Slash" => new Slash(),
+            // Warrior Attacks
             "Block" => new Block(),
-            "Bone Slash" => new BoneSlash(),
-            "Fireball" => new Fireball(),
-            "Fury Strikes" => new FuryStrikes(),
-            "Rattle Guard" => new RattleGuard(),
-            "Whirling Strike" => new WhirlingStrike(),
             "Parry" => new Parry(),
+            "Slash" => new Slash(),
+            "Whirling Strike" => new WhirlingStrike(),
+
+            // Skeleton Attacks
+            "Bone Slash" => new BoneSlash(),
+            "Rattle Guard" => new RattleGuard(),
+
+            // Extra/Practice Implementation Moves
+            "Special Fireball" => new SpecialFireball(),
+            "Fury Strikes" => new FuryStrikes(),
             _ => throw new ArgumentException($"Unknown action name: {actionName}"),
         };
     }

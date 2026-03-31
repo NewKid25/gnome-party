@@ -14,8 +14,8 @@ public class Skeleton :Character
         Health = 20;
         MaxHealth = 20;
         ActionsDescriptions = [
-            new RattleGuard().ActionDescription,
             new BoneSlash().ActionDescription,
+            new RattleGuard().ActionDescription,
             ];
     }
 }
