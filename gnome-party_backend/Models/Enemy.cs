@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Models.AI;
 using Models.CombatData;
+using Models.CharacterData.EasyEnemyPoolClasses;
 
 namespace Models;
 

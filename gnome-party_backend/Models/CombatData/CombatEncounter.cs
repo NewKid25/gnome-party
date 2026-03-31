@@ -1,4 +1,5 @@
 ﻿using Models.CharacterData;
+using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.EncounterData;
 
 namespace Models.CombatData;

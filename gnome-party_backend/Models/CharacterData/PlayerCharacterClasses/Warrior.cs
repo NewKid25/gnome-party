@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Models.Actions;
 
-namespace Models.CharacterData
+namespace Models.CharacterData.PlayerCharacterClasses
 {
     public sealed class Warrior : Character
     {

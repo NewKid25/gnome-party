@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models.CharacterData;
+namespace Models.CharacterData.EasyEnemyPoolClasses;
 public class Skeleton :Character
 {
     public Skeleton()

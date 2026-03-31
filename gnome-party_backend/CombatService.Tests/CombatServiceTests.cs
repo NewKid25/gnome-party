@@ -5,6 +5,8 @@ using Amazon.Lambda.TestUtilities;
 using CombatService;
 using GnomeParty.Database;
 using Models.CharacterData;
+using Models.CharacterData.EasyEnemyPoolClasses;
+using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 using Models.EncounterData;
 using Models.Status;
