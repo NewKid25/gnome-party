@@ -6,10 +6,10 @@ namespace Models.Status
 {
     public enum DurationUnit
     {
-        Encounter,
-        TurnStart,
-        TurnEnd,
         Campaign,
+        Encounter,
+        TurnEnd,
+        TurnStart,
     }
 
     public static class StatusModifierKeys

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 using Models.CombatData;
 
 namespace Models.Status
@@ -18,11 +15,11 @@ namespace Models.Status
             character.Health -= tickDamage;
             events.Add(new CombatEvent("BurnTick", new StatusTickEventParams
             {
-                StatusType = status.StatusType,
                 SourceId = status.SourceCharacterId,
+                StatusAmount = tickDamage
+                StatusType = status.StatusType,
                 TargetId = character.Id,
                 TargetName = character.Name,
-                StatusAmount = tickDamage
             }));
         }
     }

@@ -22,8 +22,8 @@ namespace Models.Status
                 ["ActiveText"] = $"{user.Name} has Rattle Guard active.",
                 ["ExpiredText"] = $"{user.Name} is no longer using Rattle Guard."
             };
-            StatusType = StatusTypes.RattleGuard;
             StatusOwnerCharacterId = user.Id;
+            StatusType = StatusTypes.RattleGuard;
             SourceCharacterId = user.Id;
         }
         public override StatusEffect DeepCopy()
@@ -35,8 +35,8 @@ namespace Models.Status
                 ModifierValues = new Dictionary<string, double>(ModifierValues),
                 StatusDescription = new Dictionary<string, string>(StatusDescription),
                 StatusId = StatusId,
-                StatusType = StatusType,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
+                StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
             };
         }
