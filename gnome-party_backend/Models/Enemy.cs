@@ -34,7 +34,7 @@ public class Enemy
         {
             actions.Add(actionDescription.Name);
         }
-        var combatRequest = AI.ChooseAction(actions, enemies, allies);
+        var combatRequest = AI.ChooseAction(Character, actions, enemies, allies);
         combatRequest.SourceCharacterId = Character.Id; //i do this here because AI doesnt have reference to source, and feels silly to pass one in
         return combatRequest;
     }

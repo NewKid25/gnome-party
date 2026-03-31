@@ -203,6 +203,28 @@ namespace Models.Tests
             Assert.Equal(3, burn.Duration);
             Assert.Equal(2, (int)burn.ModifierValues[StatusModifierKeys.TickDamage]);
         }
-        
+
+        [Fact]
+        public void RattleGuard_AppliesSelfDamageReductionStatus()
+        {
+            var user = new Skeleton { Id = "skeleton1", Name = "Skeleton" };
+            var gameState = new CombatEncounterGameState(
+                new List<Character>(),
+                new List<Character> { user });
+
+            var action = new RattleGuard();
+            var resolution = action.ResolveAttack(user, user, gameState);
+
+            Assert.Empty(resolution.AttackInstances);
+            Assert.Single(resolution.StatusEffectsToApply);
+
+            var status = resolution.StatusEffectsToApply[0];
+            Assert.Equal(StatusTypes.RattleGuard, status.StatusType);
+            Assert.Equal("skeleton1", status.SourceCharacterId);
+            Assert.Equal("skeleton1", status.StatusOwnerCharacterId);
+            Assert.Equal(1, status.Duration);
+            Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
+            Assert.Equal(0.5, status.ModifierValues[StatusModifierKeys.DamageReduction]);
+        }
     }
 }
