@@ -72,7 +72,7 @@ class GnomePuppet extends Konva.Group implements Puppet {
 		
 		this.width(437/ 2);
 		this.height(595 / 2);
-		this.scale({x: 0.75, y: 0.75})
+		this.scale({x: 0.5, y: 0.5})
 		this.offset(imgOffset);
 		this.position({x: 0, y:0});
 

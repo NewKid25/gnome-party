@@ -12,9 +12,14 @@ import AnimationStep from "./interfaces/AnimationStep";
 import { TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
+import BoneSlashAnimation from "./animations/BoneSlashAnimation";
+import { useEncounterData } from "../../participant-view/stores/encounterData";
+import SkeletonPuppet from "./SkeletonPuppet";
 
 export default
 class ViewManager {
+
+	socket:WebSocket
 
 	stage:Konva.Stage
 
@@ -24,8 +29,18 @@ class ViewManager {
 	playerVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 	enemyVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 
+	encounterData = useEncounterData();
 
 	constructor() {
+		this.socket = new WebSocket("wss://ws.gnome-party.com");
+
+		this.socket.addEventListener("message", (ev) => {
+			console.log("Message from server ", ev.data);
+  			let parsedJSON = JSON.parse(ev.data);
+			
+			this.handleMessage(parsedJSON);
+		});
+
 		const container:HTMLDivElement = document.getElementById("konva-container") as HTMLDivElement;
 	
 		// first we need to create a stage
@@ -42,11 +57,16 @@ class ViewManager {
 		// add layers to the stage
 		this.stage.add(this.mainLayer);
 		this.stage.add(this.uiLayer);
+
+		this.socket.onopen = (ev:Event) => {
+			this.socket.send(JSON.stringify({route: "host-game"}))
+		};
 	}
 	
-	loadEncounter()
+	loadEncounter(gameState:any)
 	{
 		// Load player characters
+		/*
 		var playerCharacters: Object[] = [
 			{},
 			{},
@@ -55,6 +75,9 @@ class ViewManager {
 			{},
 			{}
 		]
+		*/
+
+		var playerCharacters = gameState.PlayerCharacters;
 
 		for (let i = 0; i < playerCharacters.length; i++) {
 			// Create GnomePuppet
@@ -64,49 +87,67 @@ class ViewManager {
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(20, {x: 30, y: puppet.height() / 2})
+			let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
 			healthbar.x(puppet.x() - puppet.width() /2 - 50);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
 			this.uiLayer.add(healthbar);
 
-			this.playerVisualComponents.set(i.toString(), {puppet: puppet, healthbar: healthbar});
+			this.playerVisualComponents.set(playerCharacters[i].Id, {puppet: puppet, healthbar: healthbar});
 		}
 
 		// Load enemy characters
+		/*
 		var enemyCharacters: Object[] = [
 			{}
 		]
+		*/
+		var enemyCharacters = gameState.EnemyCharacters;
 
 		for (let i = 0; i < enemyCharacters.length; i++) {
 			// Create puppet of corresponding enemy (using GnomePuppet as placeholder)
-			let puppet:GnomePuppet = new GnomePuppet();
+			let puppet:SkeletonPuppet = new SkeletonPuppet();
 			puppet.x(this.stage.width() - 300);
 			puppet.y((i + 1) * this.stage.height() / (enemyCharacters.length + 1));
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(20, {x: 30, y: puppet.height() / 2})
+			let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
 			healthbar.x(puppet.x() + puppet.width() /2 + 20);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
 			this.uiLayer.add(healthbar);
 
-			this.enemyVisualComponents.set("test-enemy", {puppet: puppet, healthbar: healthbar});
+			this.enemyVisualComponents.set(enemyCharacters[i].Id, {puppet: puppet, healthbar: healthbar});
 		}
 	}
 
-	gameLoop()
-	{
+	handleMessage(msg:any) {
+		if (msg.Subject == "host-game")
+		{
+			this.encounterData.gameSessionId = msg.Message.GameSessionId;
+			this.encounterData.localPlayerId = msg.Message.Host.UserId;
+		}
+		if (msg.Subject == "begin-combat-encounter")
+		{
+			this.encounterData.encounterId = msg.Message.EncounterId;
+			this.loadEncounter(msg.Message.GameState);
+		}
+		if (msg.Subject == "action-handler")
+		{
+			this.processTurn(msg.Message);
+		}
 	}
 
 	processTurn(turn:TurnStep[])
 	{
 		let animations:AnimationStep[] = [];
+		// let finalStep:TurnStep|undefined;
 		for (let step of turn)
 		{
 			let animation:AnimationStep | undefined = this.instantiateActionAnimation(step);
 			if (animation) animations.push(animation);
+			// finalStep = step;
 		}
 
 		let sequence:AnimationSequence = new AnimationSequence(animations);
@@ -263,6 +304,8 @@ class ViewManager {
 		switch(actionName) {
 			case "Slash":
 				return new SlashAnimation(step, this);
+			case "Bone Slash":
+				return new BoneSlashAnimation(step, this);
 		}
 	}
 }

@@ -22,18 +22,18 @@ class SlashAnimation implements AnimationStep
 	constructor(step:TurnStep, vm:ViewManager) 
 	{
 		console.log(step.Request.SourceCharacterId, step.Request.TargetCharacterId)
-		let player:Group | undefined = vm.playerVisualComponents.get(step.Request.SourceCharacterId)?.puppet;
-		let enemyPuppet: Group | undefined = vm.enemyVisualComponents.get(step.Request.TargetCharacterId)?.puppet;
-		let enemyHealth: HealthBar | undefined = vm.enemyVisualComponents.get(step.Request.TargetCharacterId)?.healthbar;
+		let enemyPuppet:Group | undefined = vm.enemyVisualComponents.get(step.Request.SourceCharacterId)?.puppet;
+		let playerPuppet: Group | undefined = vm.playerVisualComponents.get(step.Request.TargetCharacterId)?.puppet;
+		let playerHealth: HealthBar | undefined = vm.playerVisualComponents.get(step.Request.TargetCharacterId)?.healthbar;
 		
-		if (player && enemyPuppet && enemyHealth)
+		if (enemyPuppet && playerPuppet && playerHealth)
 		{
 			this.leapAnim = new LeapAnimation({
-				leapingNode: player,
-				destination: enemyPuppet,
+				leapingNode: enemyPuppet,
+				destination: playerPuppet,
 				leapDuration: 1,
 				landingAnimation: new FunctionStep(() => {
-					enemyHealth.changeHealth(step.GameState.EnemyCharacters.find((v, i, o) => v.Id == step.Request.TargetCharacterId)?.Health ?? 0)
+					playerHealth.changeHealth(step.GameState.PlayerCharacters.find((v, i, o) => v.Id == step.Request.TargetCharacterId)?.Health ?? 0)
 				})
 			})
 		} else throw TypeError

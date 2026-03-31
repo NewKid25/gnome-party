@@ -1,6 +1,7 @@
 export interface TurnStep {
     Request:   ActionRequest;
     GameState: GameState;
+    Events: TurnEvent[];
 }
 
 export interface GameState {
@@ -26,4 +27,9 @@ export interface ActionRequest {
     TargetCharacterId: string;
     SourceCharacterId: string;
     Action:            string;
+}
+
+export interface TurnEvent {
+    event: string;
+    params: any;
 }
