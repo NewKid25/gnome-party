@@ -43,11 +43,11 @@ namespace Models.Actions
             {
                 resolution.AttackInstances.Add(new AttackInstance
                 {
-                    SourceCharacterId = user.Id,
-                    TargetCharacterId = target.Id,
                     ActionName = AttackName,
                     BaseDamage = 3,
                     FinalDamage = 3
+                    SourceCharacterId = user.Id,
+                    TargetCharacterId = target.Id,
                 });
             }
             return resolution;

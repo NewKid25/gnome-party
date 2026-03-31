@@ -6,10 +6,6 @@ namespace Models.CharacterData.PlayerCharacterClasses
     {
         public Warrior() : base(Guid.NewGuid().ToString())
         {
-            Name = "Warrior";
-            CharacterType = "Warrior";
-            Health = 30;
-            MaxHealth = 30;
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Block().ActionDescription,
@@ -19,13 +15,13 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 
                 //new FuryStrikes().ActionDescription,
             };
-        }
-        public Warrior(string id) : base(id)
-        {
-            Name = "Warrior";
             CharacterType = "Warrior";
             Health = 30;
             MaxHealth = 30;
+            Name = "Warrior";
+        }
+        public Warrior(string id) : base(id)
+        {
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Block().ActionDescription,
@@ -36,6 +32,10 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 //new FuryStrikes().ActionDescription,
 
             };
+            CharacterType = "Warrior";
+            Health = 30;
+            MaxHealth = 30;
+            Name = "Warrior";
         }
     }
 }

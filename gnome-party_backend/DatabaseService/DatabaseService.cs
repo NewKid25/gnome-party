@@ -21,7 +21,6 @@ public class DatabaseService : IDatabaseService
 
         DBContext = new DynamoDBContext(DDBClient, config);
     }
-
     /// <summary>
     /// constructor that can be used to inject dependencies, for testing.
     /// </summary>
@@ -30,15 +29,14 @@ public class DatabaseService : IDatabaseService
         DDBClient = ddbClient;
         DBContext = dbContext;
     }
-
-    public async Task SaveAsync<T>(T item)
+    public async Task DeleteAllEntriesFromTableAsync<T>()
     {
-        await DBContext.SaveAsync(item);
-        return;
-    }
-    public async Task<T> LoadAsync<T>(Object hashKey)
-    {
-        return await DBContext.LoadAsync<T>(hashKey);
+        var search = DBContext.FromScanAsync<T>(new ScanOperationConfig());
+        var searchResponse = await search.GetRemainingAsync();
+        foreach (var item in searchResponse)
+        {
+            await DBContext.DeleteAsync(item);
+        }
     }
      public async Task DeleteAsync<T>(T item)
     {
@@ -62,14 +60,13 @@ public class DatabaseService : IDatabaseService
             return searchResponse[0]; //if we found anything that matches our condition, get the first one
         }
     }
-
-    public async Task DeleteAllEntriesFromTableAsync<T>()
+    public async Task<T> LoadAsync<T>(Object hashKey)
     {
-        var search = DBContext.FromScanAsync<T>(new ScanOperationConfig());
-        var searchResponse = await search.GetRemainingAsync();
-        foreach (var item in searchResponse)
-        {
-            await DBContext.DeleteAsync(item);
-        }
+        return await DBContext.LoadAsync<T>(hashKey);
+    }
+    public async Task SaveAsync<T>(T item)
+    {
+        await DBContext.SaveAsync(item);
+        return;
     }
 }

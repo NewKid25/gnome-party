@@ -24,11 +24,11 @@ namespace Models.Actions
                 {
                     new AttackInstance
                     {
-                        SourceCharacterId = user.Id,
-                        TargetCharacterId = target.Id,
                         ActionName = AttackName,
                         BaseDamage = 10,
                         FinalDamage = 10
+                        SourceCharacterId = user.Id,
+                        TargetCharacterId = target.Id,
                     }
                 }
             };

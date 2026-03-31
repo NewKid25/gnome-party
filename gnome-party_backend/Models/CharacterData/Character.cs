@@ -4,15 +4,12 @@ using Models.Status;
 namespace Models.CharacterData;
 public class Character
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
     public string CharacterType { get; set; }
     public int Health { get; set; }
+    public string Id { get; set; }
     public int MaxHealth { get; set; }
-    public List<CharacterActionDescription> ActionsDescriptions { get; set; }
-    public List<StatusEffect> StatusEffects { get; set; } = new();
+    public string Name { get; set; }
     public Character() : this(Guid.NewGuid().ToString()) { }
-
     public Character(string id)
     {
         Random rnd = new Random();
@@ -26,7 +23,8 @@ public class Character
         ActionsDescriptions.Add(new Slash().ActionDescription);
         ActionsDescriptions.Add(new Block().ActionDescription);
     }
-
+    public List<CharacterActionDescription> ActionsDescriptions { get; set; }
+    public List<StatusEffect> StatusEffects { get; set; } = new();
     public Character DeepCopy()
     {
         var copy = new Character(Id)

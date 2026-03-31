@@ -6,25 +6,25 @@ namespace Models.CharacterData.PlayerCharacterClasses
     {
         public Mage() : base(Guid.NewGuid().ToString())
         {
-            Name = "Mage";
-            CharacterType = "Mage";
-            Health = 20;
-            MaxHealth = 20;
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Fireball().ActionDescription,
             };
+            CharacterType = "Mage";
+            Health = 20;
+            MaxHealth = 20;
+            Name = "Mage";
         }
         public Mage(string id) : base(id)
         {
-            Name = "Mage";
-            CharacterType = "Mage";
-            Health = 20;
-            MaxHealth = 20;
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Fireball().ActionDescription,
             };
+            CharacterType = "Mage";
+            Health = 20;
+            MaxHealth = 20;
+            Name = "Mage";
         }
     }
 }

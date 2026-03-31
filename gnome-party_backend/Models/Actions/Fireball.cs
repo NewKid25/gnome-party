@@ -10,9 +10,9 @@ namespace Models.Actions
 {
     public sealed class Fireball : CharacterAction
     {
-        public Fireball() : base("Special Fireball")
+        public Fireball() : base("Fireball")
         {
-            ActionDescription = new CharacterActionDescription("Special Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns");
+            ActionDescription = new CharacterActionDescription("Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns");
         }
         public override void ApplyEffect(Character user, Character target, AttackContext context)
         {
@@ -25,20 +25,20 @@ namespace Models.Actions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
-            const int burnTickDamage = 2;
             const int burnDuration = 3;
+            const int burnTickDamage = 2;
             if (user == null) throw new ArgumentNullException(nameof(user));
             if(target == null) throw new ArgumentNullException(nameof(target));
             if(gameState == null) throw new ArgumentNullException(nameof(gameState));
             var resolution = new AttackResolution();
             resolution.AttackInstances.Add(new AttackInstance
             {
-                SourceCharacterId = user.Id,
-                TargetCharacterId = target.Id,
                 ActionName = AttackName,
                 BaseDamage = 6,
                 FinalDamage = 6,
-                IsRedirected = isRedirected
+                IsRedirected = isRedirected,
+                SourceCharacterId = user.Id,
+                TargetCharacterId = target.Id,
             });
             List<Character> burnTargeets;
             if (isRedirected)
@@ -54,9 +54,9 @@ namespace Models.Actions
                 resolution.StatusEffectsToApply.Add(new BurnStatus(user, burnTarget, burnDuration, burnTickDamage));
                 resolution.Events.Add(new CombatEvent("status_applied", new StatusAppliedEventParams
                 {
+                    OwnerId = burnTarget.Id
                     StatusType = StatusTypes.Burn,
                     SourceId = user.Id,
-                    OwnerId = burnTarget.Id
                 }));
             }
             return resolution;

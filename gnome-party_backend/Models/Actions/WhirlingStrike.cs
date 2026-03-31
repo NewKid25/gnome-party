@@ -40,12 +40,12 @@ namespace Models.Actions
             {
                 resolution.AttackInstances.Add(new AttackInstance
                 {
-                    SourceCharacterId = user.Id,
-                    TargetCharacterId = target.Id,
                     ActionName = AttackName,
                     BaseDamage = 5,
                     FinalDamage = 5,
                     IsRedirected = isRedirected
+                    SourceCharacterId = user.Id,
+                    TargetCharacterId = target.Id,
                 });
             }
             return resolution;

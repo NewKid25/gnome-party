@@ -8,14 +8,14 @@ public class Skeleton :Character
 {
     public Skeleton()
     {
-        Id = Guid.NewGuid().ToString();
-        Name = "Skeleton";
-        CharacterType = "Skeleton";
-        Health = 20;
-        MaxHealth = 20;
         ActionsDescriptions = [
             new BoneSlash().ActionDescription,
             new RattleGuard().ActionDescription,
             ];
+        CharacterType = "Skeleton";
+        Health = 20;
+        Id = Guid.NewGuid().ToString();
+        MaxHealth = 20;
+        Name = "Skeleton";
     }
 }
