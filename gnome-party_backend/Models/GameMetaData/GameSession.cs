@@ -20,7 +20,7 @@ public class GameSession
         GameSessionId = Guid.NewGuid().ToString();
         Host = _host;
         Participants = new List<GameConnection>();
-        InviteCode = 0;
+        InviteCode = Random.Shared.Next(100000, 1000000); //random 6 digit code
         Campaign = new Campaign();
     }
     public List<GameConnection> Participants { get; set; }

@@ -210,9 +210,35 @@ public class Functions
             context.Logger.LogInformation($"Body: {request.Body}");
 
             var databaseService = new DatabaseService();
+            JsonDocument message = JsonDocument.Parse(request.Body);
+            //var inviteCode = message.Deserialize<int>();
+            //Console.WriteLine($"Invite code: {inviteCode}");
 
+            JsonElement inviteCodeJsonElement;
+            if (!message.RootElement.TryGetProperty("InviteCode", out inviteCodeJsonElement))
+            {
+                context.Logger.LogInformation("Could not find InviteCode in input");
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
+            }
+            var inviteCode = inviteCodeJsonElement.GetInt32();
             GameSession gameSession;
-            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
+            try
+            {
+                gameSession = await databaseService.GetGameSessionByInviteCodeAsync(inviteCode);
+            }
+            catch (KeyNotFoundException)
+            {
+                context.Logger.LogInformation($"No game session found with invite code {inviteCode}");
+                await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session-failed", $"No game session found with invite code {inviteCode}"));
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.NotFound,
+                    Body = $"No game session found with invite code {inviteCode}"
+                };
+            }
             context.Logger.LogInformation("Loaded existing game session");
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId, gameSession);
@@ -257,14 +283,23 @@ public class Functions
 
             var databaseService = new DatabaseService();
 
-            //deleting all the game sessions is temporary, because all games have the same invite code
-            //and we want keep it that way for now so participants can easily find the host. In the future we will want to generate unique invite codes for each game and remove this line
-            await databaseService.DeleteAllEntriesFromTableAsync<GameSession>();
-
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
             var gameSession = new GameSession(connection);
             connection.GameSessionId = gameSession.GameSessionId;
+            while (true)
+            {
+                try
+                {
+                    await databaseService.GetGameSessionByInviteCodeAsync(gameSession.InviteCode); //will throw error if no game session with this code, disregard return value, just want to check if it exists 
+                    context.Logger.LogInformation($"Generated invite code {gameSession.InviteCode} already exists. Generating a new code.");
+                    gameSession.InviteCode = new Random().Next(100000, 1000000);//generate a new 6 digit code
+                }
+                catch (KeyNotFoundException) //strangely, if it throws this error, that means there is no existing game session with the same invite code, which is what we want
+                { 
+                    break;
+                }
+            }
 
             await databaseService.SaveAsync(connection);
             await databaseService.SaveAsync(gameSession);
@@ -299,14 +334,29 @@ public class Functions
             var connection = await databaseClient.LoadAsync<GameConnection>(connectionId);
             await databaseClient.DeleteAsync(connection);
 
-            if (connection.GameSessionId != "not_inited")
+            if (connection.GameSessionId != "not_inited") //is connection in a game session?
             {
                 var gameSession = await databaseClient.LoadAsync<GameSession>(connection.GameSessionId);
+                Console.WriteLine($"Game Session = {gameSession}");
                 if (gameSession != null)
                 {
-                    gameSession.RemoveParticipant(connection.ConnectionId);
-                    await databaseClient.SaveAsync(gameSession);
-                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                    if (gameSession.Host.ConnectionId == connectionId)
+                    {
+                        context.Logger.LogInformation($"Host disconnected, deleting game session {gameSession.GameSessionId}");
+                        await databaseClient.DeleteAsync(gameSession);
+                        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("host-disconnected", connection));
+                        foreach(var participant in gameSession.Participants)
+                        {
+                            await databaseClient.DeleteAsync(participant);
+                        }
+                    }
+                    else
+                    {
+                        gameSession.RemoveParticipant(connection.ConnectionId);
+                        await databaseClient.SaveAsync(gameSession);
+                        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                    }
+                    Console.WriteLine($"disconnect complete");
                 }
             }
             return new APIGatewayProxyResponse
