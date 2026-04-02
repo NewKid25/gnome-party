@@ -283,10 +283,6 @@ public class Functions
 
             var databaseService = new DatabaseService();
 
-            //deleting all the game sessions is temporary, because all games have the same invite code
-            //and we want keep it that way for now so participants can easily find the host. In the future we will want to generate unique invite codes for each game and remove this line
-            await databaseService.DeleteAllEntriesFromTableAsync<GameSession>();
-
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
             var gameSession = new GameSession(connection);
@@ -338,14 +334,29 @@ public class Functions
             var connection = await databaseClient.LoadAsync<GameConnection>(connectionId);
             await databaseClient.DeleteAsync(connection);
 
-            if (connection.GameSessionId != "not_inited")
+            if (connection.GameSessionId != "not_inited") //is connection in a game session?
             {
                 var gameSession = await databaseClient.LoadAsync<GameSession>(connection.GameSessionId);
+                Console.WriteLine($"Game Session = {gameSession}");
                 if (gameSession != null)
                 {
-                    gameSession.RemoveParticipant(connection.ConnectionId);
-                    await databaseClient.SaveAsync(gameSession);
-                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                    if (gameSession.Host.ConnectionId == connectionId)
+                    {
+                        context.Logger.LogInformation($"Host disconnected, deleting game session {gameSession.GameSessionId}");
+                        await databaseClient.DeleteAsync(gameSession);
+                        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("host-disconnected", connection));
+                        foreach(var participant in gameSession.Participants)
+                        {
+                            await databaseClient.DeleteAsync(participant);
+                        }
+                    }
+                    else
+                    {
+                        gameSession.RemoveParticipant(connection.ConnectionId);
+                        await databaseClient.SaveAsync(gameSession);
+                        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                    }
+                    Console.WriteLine($"disconnect complete");
                 }
             }
             return new APIGatewayProxyResponse
