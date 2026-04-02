@@ -267,15 +267,15 @@ public class Functions
             connection.GameSessionId = gameSession.GameSessionId;
             while (true)
             {
-                var gameSessionWithSameCode = await databaseService.GetGameSessionByInviteCodeAsync(gameSession.InviteCode);
-                if (gameSessionWithSameCode == null)
+                try
                 {
-                    break;
-                }
-                else
-                {
+                    await databaseService.GetGameSessionByInviteCodeAsync(gameSession.InviteCode); //will throw error if no game session with this code, disregard return value, just want to check if it exists 
                     context.Logger.LogInformation($"Generated invite code {gameSession.InviteCode} already exists. Generating a new code.");
                     gameSession.InviteCode = new Random().Next(100000, 1000000);//generate a new 6 digit code
+                }
+                catch (KeyNotFoundException) //strangely, if it throws this error, that means there is no existing game session with the same invite code, which is what we want
+                { 
+                    break;
                 }
             }
 
