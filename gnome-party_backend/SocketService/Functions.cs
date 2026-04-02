@@ -210,9 +210,35 @@ public class Functions
             context.Logger.LogInformation($"Body: {request.Body}");
 
             var databaseService = new DatabaseService();
+            JsonDocument message = JsonDocument.Parse(request.Body);
+            //var inviteCode = message.Deserialize<int>();
+            //Console.WriteLine($"Invite code: {inviteCode}");
 
+            JsonElement inviteCodeJsonElement;
+            if (!message.RootElement.TryGetProperty("InviteCode", out inviteCodeJsonElement))
+            {
+                context.Logger.LogInformation("Could not find InviteCode in input");
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
+            }
+            var inviteCode = inviteCodeJsonElement.GetInt32();
             GameSession gameSession;
-            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
+            try
+            {
+                gameSession = await databaseService.GetGameSessionByInviteCodeAsync(inviteCode);
+            }
+            catch (KeyNotFoundException)
+            {
+                context.Logger.LogInformation($"No game session found with invite code {inviteCode}");
+                await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session-failed", $"No game session found with invite code {inviteCode}"));
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.NotFound,
+                    Body = $"No game session found with invite code {inviteCode}"
+                };
+            }
             context.Logger.LogInformation("Loaded existing game session");
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId, gameSession);
