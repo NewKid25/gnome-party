@@ -265,6 +265,19 @@ public class Functions
             var connection = new GameConnection(connectionId, playerId);
             var gameSession = new GameSession(connection);
             connection.GameSessionId = gameSession.GameSessionId;
+            while (true)
+            {
+                var gameSessionWithSameCode = await databaseService.GetGameSessionByInviteCodeAsync(gameSession.InviteCode);
+                if (gameSessionWithSameCode == null)
+                {
+                    break;
+                }
+                else
+                {
+                    context.Logger.LogInformation($"Generated invite code {gameSession.InviteCode} already exists. Generating a new code.");
+                    gameSession.InviteCode = new Random().Next(100000, 1000000);//generate a new 6 digit code
+                }
+            }
 
             await databaseService.SaveAsync(connection);
             await databaseService.SaveAsync(gameSession);
