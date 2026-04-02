@@ -10,6 +10,7 @@ namespace Models.Status
             AffectedCharacterIds = new List<string> { enemy.Id };
             Duration = 1;
             DurationUnit = DurationUnit.TurnStart;
+            SourceCharacterId = user.Id;
             StatusDescription = new Dictionary<string, string>
             {
                 ["AppliedText"] = $"{user.Name} activates parry against {enemy.Name}.",
@@ -18,7 +19,6 @@ namespace Models.Status
             };
             StatusOwnerCharacterId = user.Id;
             StatusType = StatusTypes.Parry;
-            SourceCharacterId = user.Id;
         }
         public override StatusEffect DeepCopy()
         {

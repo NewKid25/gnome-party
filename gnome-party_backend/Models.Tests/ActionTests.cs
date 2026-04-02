@@ -228,5 +228,28 @@ namespace Models.Tests
             Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
             Assert.Equal(0.5, status.ModifierValues[StatusModifierKeys.DamageReduction]);
         }
+        [Fact]
+        public void Parry_AppliesParryStatusToUserAgainstTargetEnemy()
+        {
+            var user = new Warrior("user");
+            var enemy = new Skeleton { Id = "enemy" };
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { user },
+                new List<Character> { enemy });
+
+            var action = new Parry();
+            var resolution = action.ResolveAttack(user, enemy, gameState);
+
+            Assert.Empty(resolution.AttackInstances);
+            Assert.Single(resolution.StatusEffectsToApply);
+
+            var status = resolution.StatusEffectsToApply[0];
+            Assert.Equal(StatusTypes.Parry, status.StatusType);
+            Assert.Equal("user", status.SourceCharacterId);
+            Assert.Equal("user", status.StatusOwnerCharacterId);
+            Assert.Equal(1, status.Duration);
+            Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
+            Assert.Contains("enemy", status.AffectedCharacterIds);
+        }
     }
 }
