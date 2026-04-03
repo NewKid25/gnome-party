@@ -1,8 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Amazon.DynamoDBv2;
-using Amazon.Lambda.TestUtilities;
-using CombatService;
 using GnomeParty.Database;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
@@ -67,7 +62,6 @@ public class CombatServiceTests
         Assert.NotNull(result1);
         Assert.IsType<List<CombatResult>>(result1);
     }
-
     private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter)
     {
         var mockDb = new Mock<IDatabaseService>();
@@ -132,7 +126,6 @@ public class CombatServiceTests
         Assert.Equal(2, damageEvents.Count);
         Assert.Equal(0, enemy1.Health);
     }
-
     [Fact]
     public async Task BoneSlash_WithOnePlayer_Deals6Damage()
     {
@@ -168,7 +161,6 @@ public class CombatServiceTests
         Assert.Equal(6, damageParams.DamageAmount);
         Assert.Equal(14, enemy.Health);
     }
-
     [Fact]
     public async Task Block_RedirectsEnemyAttack_ToBlocker_AndReducesDamage()
     {
@@ -212,7 +204,6 @@ public class CombatServiceTests
         Assert.NotNull(enemyDamageResult);
         Assert.Contains(enemyDamageResult!.Events, e => e.Event == "damage");
     }
-
     [Fact]
     public async Task Fireball_NormalCast_AppliesSplashBurn()
     {
@@ -250,7 +241,6 @@ public class CombatServiceTests
         Assert.Contains(enemy2.StatusEffects, s => s.StatusType == StatusTypes.Burn);
         Assert.Contains(enemy3.StatusEffects, s => s.StatusType == StatusTypes.Burn);
     }
-
     [Fact]
     public async Task Fireball_WhenRedirected_BurnsOnlyBlocker()
     {
@@ -292,14 +282,13 @@ public class CombatServiceTests
 
         Assert.NotEmpty(results);
 
-        // Fireball 8 damage redirected to blocker, reduced by 50% => 4 + 2 burn damage = 6 total damage to the blocker
+        // Fireball 6 damage redirected to blocker, reduced by 50% => 3 + 2 burn damage = 5 total damage to the blocker
         Assert.Equal(30, ally.Health);
-        Assert.Equal(24, blocker.Health);
+        Assert.Equal(25, blocker.Health);
 
         Assert.Contains(blocker.StatusEffects, s => s.StatusType == StatusTypes.Burn);
         Assert.DoesNotContain(ally.StatusEffects, s => s.StatusType == StatusTypes.Burn);
     }
-
     [Fact]
     public async Task FuryStrikes_ProducesMultipleDamageEvents()
     {
@@ -332,5 +321,84 @@ public class CombatServiceTests
 
         Assert.InRange(damageEvents.Count, 2, 4);
         Assert.InRange(enemy.Health, 8, 14);
+    }
+    [Fact]
+    public async Task MagicMissile_Redirected_ButFullDamage()
+    {
+        var caster = new Mage("caster");
+        var blocker = new Skeleton
+        {
+            Id = "blocker",
+            Name = "Blocker",
+            Health = 30,
+            MaxHealth = 30
+        };
+        var ally = new Skeleton
+        {
+            Id = "ally",
+            Name = "Ally",
+            Health = 30,
+            MaxHealth = 30
+        };
+        blocker.StatusEffects.Add(new BlockStatus(blocker, ally));
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { caster },
+            new List<Character> { blocker, ally });
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = caster.Id,
+            TargetCharacterId = ally.Id,
+            Action = "Magic Missile"
+        });
+        Assert.NotEmpty(results);
+        // Block is attempted, so damage is redirected to blocker, but Magic Missile is unblockable so no damage reduction is applied
+        Assert.Equal(30, ally.Health);
+        Assert.Equal(20, blocker.Health);
+    }
+    [Fact]
+    public async Task Parry_PreventsEnemySlash()
+    {
+        var blocker = new Warrior("blocker") { Health = 30, MaxHealth = 30 };
+        var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
+
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { blocker },
+            new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+
+        var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = blocker.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Parry"
+        });
+
+        Assert.NotEmpty(firstResult);
+
+        var secondResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = enemy.Id,
+            TargetCharacterId = blocker.Id,
+            Action = "Slash"
+        });
+
+        Assert.NotEmpty(secondResult);
+
+        Assert.Equal(30, blocker.Health);
+        Assert.Equal(20, enemy.Health);
+
+        var enemyDamageResult = secondResult.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id);
+        Assert.NotNull(enemyDamageResult);
+        Assert.Contains(enemyDamageResult!.Events, e => e.Event == "damage");
     }
 }

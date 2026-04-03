@@ -15,7 +15,6 @@ namespace Models.CharacterData
             ActionDescription = new CharacterActionDescription(attackName);
         }
         public CharacterActionDescription ActionDescription { get; set; }
-        public abstract void ApplyEffect(Character user, Character target, AttackContext context);
         public abstract AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false, bool isUnblockable = false);
     }
 }

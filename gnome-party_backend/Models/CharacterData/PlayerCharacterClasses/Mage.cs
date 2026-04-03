@@ -20,6 +20,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Fireball().ActionDescription,
+                new MagicMisslie().ActionDescription,
             };
             CharacterType = "Mage";
             Health = 20;

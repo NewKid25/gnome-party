@@ -38,9 +38,9 @@ namespace Models.Status
                 StatusDescription = new Dictionary<string, string>(StatusDescription)
             };
         }
-        public void Process(StatusEffect status, Character character, List<CombatEvent> events)
+        public override void Process(Character character, List<CombatEvent> events)
         {
-            int tickDamage = (int)status.ModifierValues.GetValueOrDefault(StatusModifierKeys.TickDamage, 0);
+            int tickDamage = (int)ModifierValues.GetValueOrDefault(StatusModifierKeys.TickDamage, 0);
             if (tickDamage <= 0)
             {
                 return;
@@ -48,9 +48,9 @@ namespace Models.Status
             character.Health -= tickDamage;
             events.Add(new CombatEvent("BurnTick", new StatusTickEventParams
             {
-                SourceId = status.SourceCharacterId,
+                SourceId = SourceCharacterId,
                 StatusAmount = tickDamage,
-                StatusType = status.StatusType,
+                StatusType = StatusType,
                 TargetId = character.Id,
                 TargetName = character.Name,
             }));

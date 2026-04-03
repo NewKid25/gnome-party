@@ -17,12 +17,16 @@ public class CharacterActionFactory
             "Slash" => new Slash(),
             "Whirling Strike" => new WhirlingStrike(),
 
+            // Mage Attacks
+            "Fireball" => new Fireball(),
+            "Magic Missile" => new MagicMisslie(),
+            
+
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),
             "Rattle Guard" => new RattleGuard(),
 
             // Extra/Practice Implementation Moves
-            "Fireball" => new Fireball(),
             "Fury Strikes" => new FuryStrikes(),
             _ => throw new ArgumentException($"Unknown action name: {actionName}"),
         };

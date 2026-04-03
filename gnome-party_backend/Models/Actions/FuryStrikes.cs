@@ -25,10 +25,6 @@ namespace Models.Actions
                 "Hit the same target 2 to 4 times for 3 damage each"
             );
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
         public override AttackResolution ResolveAttack(
             Character user, 
             Character target, 

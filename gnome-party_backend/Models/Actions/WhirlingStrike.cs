@@ -13,10 +13,6 @@ namespace Models.Actions
         {
             ActionDescription = new CharacterActionDescription("Whirling Strike", "Deal 5 damage to all enemies");
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
         public override AttackResolution ResolveAttack(
             Character user, 
             Character target, 
@@ -45,7 +41,7 @@ namespace Models.Actions
                     FinalDamage = 5,
                     IsRedirected = isRedirected,
                     SourceCharacterId = user.Id,
-                    TargetCharacterId = target.Id,
+                    TargetCharacterId = whirlStrikeTargets[i].Id,
                 });
             }
             return resolution;

@@ -11,10 +11,6 @@ namespace Models.Actions
         {
             ActionDescription = new CharacterActionDescription("Block", "Guard an ally");
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
         public override AttackResolution ResolveAttack(
             Character user, 
             Character ally, 

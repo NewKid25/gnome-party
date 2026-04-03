@@ -17,10 +17,6 @@ namespace Models.Actions
                 "Target an enemy. Take no damage from that enemy this turn."
             );
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
         public override AttackResolution ResolveAttack(
             Character user,
             Character target,

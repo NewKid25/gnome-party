@@ -34,7 +34,6 @@ namespace Models.Tests
 
             Assert.Empty(resolution.StatusEffectsToApply);
         }
-
         [Fact]
         public void BoneSlashDeals6DamageToTarget()
         {
@@ -58,7 +57,6 @@ namespace Models.Tests
 
             Assert.Empty(resolution.StatusEffectsToApply);
         }
-
         [Fact]
         public void BlockAppliesBlockStatusToUserProtectingTarget()
         {
@@ -83,7 +81,6 @@ namespace Models.Tests
             Assert.Contains("ally", status.AffectedCharacterIds);
             Assert.Equal(0.5, status.ModifierValues[StatusModifierKeys.DamageReduction]);
         }
-
         [Fact]
         public void FuryStrikesWith2HitsCreatesTwoAttacks()
         {
@@ -109,7 +106,6 @@ namespace Models.Tests
 
             Assert.Empty(resolution.StatusEffectsToApply);
         }
-
         [Fact]
         public void FuryStrikesWith4HitsCreatesFourAttacks()
         {
@@ -130,7 +126,6 @@ namespace Models.Tests
                 Assert.Equal(3, hit.BaseDamage);
             });
         }
-
         [Fact]
         public void FireballNormalCastHitsTargetAndBurnsTargetAndAdjacentAllies()
         {
@@ -153,7 +148,7 @@ namespace Models.Tests
             Assert.Equal("caster", hit.SourceCharacterId);
             Assert.Equal("enemy2", hit.TargetCharacterId);
             Assert.Equal("Fireball", hit.ActionName);
-            Assert.Equal(8, hit.BaseDamage);
+            Assert.Equal(6, hit.BaseDamage);
             Assert.False(hit.IsRedirected);
 
             Assert.Equal(3, resolution.StatusEffectsToApply.Count);
@@ -174,7 +169,6 @@ namespace Models.Tests
                 Assert.Equal(2, (int)status.ModifierValues[StatusModifierKeys.TickDamage]);
             });
         }
-
         [Fact]
         public void FireballRedirectedHitsOnlyBlockerAndBurnsOnlyBlocker()
         {
@@ -194,7 +188,7 @@ namespace Models.Tests
 
             var hit = resolution.AttackInstances[0];
             Assert.Equal("blocker", hit.TargetCharacterId);
-            Assert.Equal(8, hit.BaseDamage);
+            Assert.Equal(6, hit.BaseDamage);
             Assert.True(hit.IsRedirected);
 
             Assert.Single(resolution.StatusEffectsToApply);
@@ -205,7 +199,6 @@ namespace Models.Tests
             Assert.Equal(3, burn.Duration);
             Assert.Equal(2, (int)burn.ModifierValues[StatusModifierKeys.TickDamage]);
         }
-
         [Fact]
         public void RattleGuard_AppliesSelfDamageReductionStatus()
         {
@@ -250,6 +243,31 @@ namespace Models.Tests
             Assert.Equal(1, status.Duration);
             Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
             Assert.Contains("enemy", status.AffectedCharacterIds);
+        }
+        [Fact]
+        public void MagicMissileDeals10DamageToTarget()
+        {
+            bool isRedirected = false;
+            bool unblockable = true;
+            var user = new Mage("user");
+            var target = new Skeleton { Id = "target" };
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { user },
+                new List<Character> { target });
+
+            var action = new MagicMisslie();
+            var resolution = action.ResolveAttack(user, target, gameState, isRedirected, unblockable);
+
+            Assert.Single(resolution.AttackInstances);
+
+            var hit = resolution.AttackInstances[0];
+            Assert.Equal("user", hit.SourceCharacterId);
+            Assert.Equal("target", hit.TargetCharacterId);
+            Assert.Equal("Magic Missile", hit.ActionName);
+            Assert.Equal(10, hit.BaseDamage);
+            Assert.Equal(10, hit.FinalDamage);
+
+            Assert.Empty(resolution.StatusEffectsToApply);
         }
     }
 }

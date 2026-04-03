@@ -14,10 +14,6 @@ namespace Models.Actions
         {
             ActionDescription = new CharacterActionDescription("Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns");
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
         public override AttackResolution ResolveAttack(
             Character user, 
             Character target, 

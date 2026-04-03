@@ -11,7 +11,6 @@ namespace CombatService
 {
     public class CombatService
     {
-        private readonly Dictionary<string, IStatusTriggerHandler> statusTriggerHandlers;
         IDatabaseService databaseService;
         public CombatService()
         {
@@ -88,7 +87,7 @@ namespace CombatService
         {
             return gameState.PlayerCharacters.Concat(gameState.EnemyCharacters);
         }
-        private double GetDamageReduction(Character target, bool isUnblockable = false)
+        private double GetDamageReduction(Character target, bool isUnblockable)
         {
             double reduction = 0.0;
             if (isUnblockable == true)
@@ -180,7 +179,11 @@ namespace CombatService
                     }
                     var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource);
                     var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget);
-                    var damageReduction = GetDamageReduction(finalTarget);
+                    var damageReduction = GetDamageReduction(finalTarget, attack.IsUnblockable);
+                    if(attack.IsUnblockable)
+                    {
+                        damageReduction = 0.0;
+                    }
                     var finalDamage = (int)Math.Floor(
                         attack.BaseDamage *
                         outgoingMultiplier *
@@ -226,10 +229,7 @@ namespace CombatService
             var expiredStatuses = new List<StatusEffect>();
             foreach (var status in character.StatusEffects.Where(s => s.DurationUnit == trigger).ToList())
             {
-                if (statusTriggerHandlers.TryGetValue(status.StatusType, out var handler))
-                {
-                    handler.Process(status, character, events);
-                }
+                status.Process(character, events);
                 status.Duration--;
                 if (status.Duration <= 0)
                 {
@@ -261,10 +261,6 @@ namespace CombatService
         }
         private Character ResolveActionTarget(CharacterAction action, CombatEncounterGameState gameState, Character originalTarget)
         {
-            if (action.Unblockable)
-            {
-                return originalTarget;
-            }
             return ResolveRedirectTarget(gameState, originalTarget);
         }
         private Character ResolveRedirectTarget(CombatEncounterGameState gameState, Character originalTarget)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Models.CharacterData;
+using Models.CombatData;
 
 namespace Models.Status
 {
@@ -56,5 +58,7 @@ namespace Models.Status
                 SourceCharacterId = SourceCharacterId, 
             };
         }
+        public virtual void Process(Character actingCharacter, List<CombatEvent> events){}
+
     }
 }

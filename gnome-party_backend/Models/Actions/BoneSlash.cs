@@ -10,11 +10,6 @@ namespace Models.Actions
         {
             ActionDescription = new CharacterActionDescription("Bone Slash", "Deal 6 damage to target enemy");
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
-
         public override AttackResolution ResolveAttack(Character user, 
             Character target, 
             CombatEncounterGameState gameState, 

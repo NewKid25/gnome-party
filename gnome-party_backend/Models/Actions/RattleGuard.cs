@@ -11,10 +11,6 @@ namespace Models.Actions
         {
             ActionDescription = new CharacterActionDescription("Rattle Guard", "Reduce damage by 50% for one turn");
         }
-        public override void ApplyEffect(Character user, Character target, AttackContext context)
-        {
-            throw new NotImplementedException();
-        }
         public override AttackResolution ResolveAttack(
             Character user, 
             Character ally, 
