@@ -27,7 +27,6 @@ namespace Models.Status
         {
             return new BurnStatus
             {
-                StatusId = StatusId,
                 StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,

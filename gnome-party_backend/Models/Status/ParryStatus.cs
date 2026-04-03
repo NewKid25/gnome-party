@@ -30,10 +30,21 @@ namespace Models.Status
                 ModifierValues = new Dictionary<string, double>(ModifierValues),
                 SourceCharacterId = SourceCharacterId,
                 StatusDescription = new Dictionary<string, string>(StatusDescription),
-                StatusId = StatusId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
                 StatusType = StatusType,
             };
+        }
+        public override double ModifyIncomingDamageMultiplier(Character source, Character target, double currentMultiplier, bool isUnblockable)
+        {
+            if (isUnblockable)
+            {
+                return currentMultiplier;
+            }
+            if (AffectedCharacterIds.Contains(source.Id))
+            {
+                return 0;
+            }
+            return currentMultiplier;
         }
     }
 }

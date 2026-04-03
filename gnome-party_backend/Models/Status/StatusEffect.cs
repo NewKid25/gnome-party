@@ -52,13 +52,44 @@ namespace Models.Status
                 DurationUnit = DurationUnit,
                 ModifierValues = new Dictionary<string, double>(ModifierValues), 
                 StatusDescription = new Dictionary<string, string>(StatusDescription),
-                StatusId = StatusId, 
                 StatusOwnerCharacterId = StatusOwnerCharacterId, 
                 StatusType = StatusType, 
                 SourceCharacterId = SourceCharacterId, 
             };
         }
         public virtual void Process(Character actingCharacter, List<CombatEvent> events){}
-
+        public virtual double ModifyIncomingDamageMultiplier(
+            Character source,
+            Character target,
+            double currentMultiplier,
+            bool isUnblockable)
+        {
+            return currentMultiplier;
+        }
+        public virtual double ModifyOutgoingDamageMultiplier(
+            Character source,
+            Character target,
+            double currentMultiplier,
+            bool isUnblockable)
+        {
+            return currentMultiplier;
+        }
+        public virtual double ModifyDamageReduction(
+            Character source,
+            Character target,
+            double currentReduction,
+            bool isUnblockable)
+        {
+            return currentReduction;
+        }
+        public virtual Character ModifyRedirectTarget(
+            Character source,
+            Character originalTarget,
+            Character currentTarget,
+            CombatEncounterGameState gameState,
+            bool isUnblockable)
+        {
+            return currentTarget;
+        }
     }
 }

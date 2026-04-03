@@ -34,11 +34,28 @@ namespace Models.Status
                 DurationUnit = DurationUnit,
                 ModifierValues = new Dictionary<string, double>(ModifierValues),
                 StatusDescription = new Dictionary<string, string>(StatusDescription),
-                StatusId = StatusId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
                 StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
             };
+        }
+        public override double ModifyDamageReduction(
+            Character source,
+            Character target,
+            double currentReduction,
+            bool isUnblockable)
+        {
+            if (isUnblockable)
+            {
+                return currentReduction;
+            }
+
+            if (ModifierValues.TryGetValue(StatusModifierKeys.DamageReduction, out var value))
+            {
+                return currentReduction + value;
+            }
+
+            return currentReduction;
         }
     }
 }

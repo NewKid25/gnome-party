@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Models.CharacterData;
+using Models.CombatData;
 
 namespace Models.Status
 {
@@ -31,7 +32,6 @@ namespace Models.Status
         {
             return new BlockStatus
             {
-                StatusId = StatusId,
                 StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
@@ -41,6 +41,42 @@ namespace Models.Status
                 ModifierValues = new Dictionary<string, double>(ModifierValues),
                 StatusDescription = new Dictionary<string, string>(StatusDescription)
             };
+        }
+        public override double ModifyDamageReduction(
+          Character source,
+          Character target,
+          double currentReduction,
+          bool isUnblockable)
+        {
+            if (isUnblockable)
+            {
+                return currentReduction;
+            }
+            if (ModifierValues.TryGetValue(StatusModifierKeys.DamageReduction, out var value))
+            {
+                return currentReduction + value;
+            }
+            return currentReduction;
+        }
+        public override Character ModifyRedirectTarget(
+            Character source,
+            Character originalTarget,
+            Character currentTarget,
+            CombatEncounterGameState gameState,
+            bool isUnblockable)
+        {
+            if (AffectedCharacterIds.Contains(originalTarget.Id))
+            {
+                var owner = gameState.PlayerCharacters.Concat(gameState.EnemyCharacters)
+                    .FirstOrDefault(c => c.Id == StatusOwnerCharacterId && c.Health > 0);
+
+                if (owner != null)
+                {
+                    return owner;
+                }
+            }
+
+            return currentTarget;
         }
     }
 }

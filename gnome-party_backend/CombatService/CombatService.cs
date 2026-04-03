@@ -22,7 +22,7 @@ namespace CombatService
         }
         private void ApplyStatusEffects(Character character, StatusEffect newStatus)
         {
-            var existingStatus = character.StatusEffects.FirstOrDefault(s => s.StatusType == newStatus.StatusType && s.StatusOwnerCharacterId == newStatus.StatusOwnerCharacterId);
+            var existingStatus = character.StatusEffects.FirstOrDefault(s => s.StatusType == newStatus.StatusType); 
             if (existingStatus == null)
             {
                 character.StatusEffects.Add(newStatus);
@@ -87,53 +87,30 @@ namespace CombatService
         {
             return gameState.PlayerCharacters.Concat(gameState.EnemyCharacters);
         }
-        private double GetDamageReduction(Character target, bool isUnblockable)
+        private double GetDamageReduction(Character source, Character target, bool isUnblockable)
         {
             double reduction = 0.0;
-            if (isUnblockable == true)
+            foreach (var status in target.StatusEffects)
             {
-                reduction = 0.0;
+                reduction = status.ModifyDamageReduction(source, target, reduction, isUnblockable);
             }
-            else
-            {
-                foreach (var status in target.StatusEffects)
-                {
-                    if (status.ModifierValues.TryGetValue(StatusModifierKeys.DamageReduction, out var value))
-                    {
-                        reduction += value;
-                    }
-                }
-            }
-            return Math.Min(reduction, 1);
+            return Math.Min(reduction, 1.0);
         }
         private double GetIncomingDamageMultiplier(Character source, Character target, bool isUnblockable)
         {
             double multiplier = 1.0;
-
             foreach (var status in target.StatusEffects)
             {
-                if (!isUnblockable &&status.StatusType == StatusTypes.Parry && status.AffectedCharacterIds.Contains(source.Id))
-                {
-                    multiplier *= 0;
-                    continue;
-                }
-                if (status.ModifierValues.TryGetValue(StatusModifierKeys.IncomingDamageMultiplier, out var value))
-                {
-                    multiplier *= value;
-                }
+                multiplier = status.ModifyIncomingDamageMultiplier(source, target, multiplier, isUnblockable);
             }
             return multiplier;
         }
-        private double GetOutgoingDamageMultiplier(Character source)
+        private double GetOutgoingDamageMultiplier(Character source, Character target, bool isUnblockable)
         {
             double multiplier = 1.0;
-
             foreach (var status in source.StatusEffects)
             {
-                if (status.ModifierValues.TryGetValue(StatusModifierKeys.OutgoingDamageMultiplier, out var value))
-                {
-                    multiplier *= value;
-                }
+                multiplier = status.ModifyOutgoingDamageMultiplier(source, target, multiplier, isUnblockable);
             }
             return multiplier;
         }
@@ -162,7 +139,7 @@ namespace CombatService
                     throw new InvalidOperationException($"Target character '{request.TargetCharacterId}' was not found.");
                 }
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents);
-                var resolvedTarget = ResolveActionTarget(action, encounter.GameState, originalTargetCharacter);
+                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable);
                 var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id;
                 var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected);
                 foreach (var attack in resolution.AttackInstances)
@@ -177,13 +154,9 @@ namespace CombatService
                     {
                         throw new InvalidOperationException("Attack target was not found.");
                     }
-                    var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource);
+                    var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
-                    var damageReduction = GetDamageReduction(finalTarget, attack.IsUnblockable);
-                    if(attack.IsUnblockable)
-                    {
-                        damageReduction = 0.0;
-                    }
+                    var damageReduction = GetDamageReduction(attackSource, finalTarget, attack.IsUnblockable);
                     var finalDamage = (int)Math.Floor(
                         attack.BaseDamage *
                         outgoingMultiplier *
@@ -259,24 +232,27 @@ namespace CombatService
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
             return events;
         }
-        private Character ResolveActionTarget(CharacterAction action, CombatEncounterGameState gameState, Character originalTarget)
+        private Character ResolveActionTarget(
+            Character source,
+            CharacterAction action,
+            CombatEncounterGameState gameState,
+            Character originalTarget,
+            bool isUnblockable)
         {
-            return ResolveRedirectTarget(gameState, originalTarget);
-        }
-        private Character ResolveRedirectTarget(CombatEncounterGameState gameState, Character originalTarget)
-        {
-            var guardian = GetAllCharacters(gameState).FirstOrDefault(c =>
-                c.Health > 0 &&
-                c.StatusEffects.Any(s =>
-                    s.StatusType == StatusTypes.Block &&
-                    s.StatusOwnerCharacterId == c.Id &&
-                    s.AffectedCharacterIds.Contains(originalTarget.Id)));
-
-            if (guardian != null)
+            Character resolvedTarget = originalTarget;
+            foreach (var character in gameState.PlayerCharacters.Concat(gameState.EnemyCharacters))
             {
-                return guardian;
+                foreach (var status in character.StatusEffects)
+                {
+                    resolvedTarget = status.ModifyRedirectTarget(
+                        source,
+                        originalTarget,
+                        resolvedTarget,
+                        gameState,
+                        isUnblockable);
+                }
             }
-            return originalTarget;
+            return resolvedTarget;
         }
     }
 }
