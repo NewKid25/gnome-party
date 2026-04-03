@@ -1,3 +1,4 @@
+using System.Numerics;
 using GnomeParty.Database;
 using Models;
 using Models.Actions;
@@ -77,7 +78,7 @@ public class CombatServiceTests
         return mockDb;
     }
     [Fact]
-    public async Task Slash_WithTwoPlayers_ProcessesAfterBothReady_AndProducesDamageEvent()
+    public async Task SlashWithTwoPlayersProcessesAfterBothReadyAndProducesDamageEvent()
     {
         var player1 = new Warrior("player1");
         var player2 = new Warrior("player2");
@@ -129,7 +130,7 @@ public class CombatServiceTests
         Assert.Equal(0, enemy1.Health);
     }
     [Fact]
-    public async Task BoneSlash_WithOnePlayer_Deals6Damage()
+    public async Task BoneSlashWithOnePlayerDeals6Damage()
     {
         var player = new Warrior("player");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
@@ -164,7 +165,7 @@ public class CombatServiceTests
         Assert.Equal(14, enemy.Health);
     }
     [Fact]
-    public async Task Block_RedirectsEnemyAttack_ToBlocker_AndReducesDamage()
+    public async Task BlockRedirectsEnemyAttackToBlockerAndReducesDamage()
     {
         var ally = new Warrior("ally") { Health = 30, MaxHealth = 30 };
         var blocker = new Warrior("blocker") { Health = 30, MaxHealth = 30 };
@@ -207,7 +208,7 @@ public class CombatServiceTests
         Assert.Contains(enemyDamageResult!.Events, e => e.Event == "damage");
     }
     [Fact]
-    public async Task Fireball_NormalCast_AppliesSplashBurn()
+    public async Task FireballNormalCastAppliesSplashBurn()
     {
         var caster = new Warrior("caster");
         var enemy1 = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
@@ -244,7 +245,7 @@ public class CombatServiceTests
         Assert.Contains(enemy3.StatusEffects, s => s is BurnStatus);
     }
     [Fact]
-    public async Task Fireball_WhenRedirected_BurnsOnlyBlocker()
+    public async Task FireballWhenRedirectedBurnsOnlyBlocker()
     {
         var caster = new Warrior("caster");
 
@@ -292,7 +293,7 @@ public class CombatServiceTests
         Assert.DoesNotContain(ally.StatusEffects, s => s is BurnStatus);
     }
     [Fact]
-    public async Task FuryStrikes_ProducesMultipleDamageEvents()
+    public async Task FuryStrikesProducesMultipleDamageEvents()
     {
         var player = new Warrior("player");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
@@ -325,7 +326,7 @@ public class CombatServiceTests
         Assert.InRange(enemy.Health, 8, 14);
     }
     [Fact]
-    public async Task MagicMissile_BreaksThroughParry()
+    public async Task MagicMissileBreaksThroughParry()
     {
         var mage = new Mage
         {
@@ -362,7 +363,7 @@ public class CombatServiceTests
         Assert.Contains(mageResult!.Events, e => e.Event == "damage");
     }
     [Fact]
-    public async Task MagicMissile_Redirected_ButFullDamage()
+    public async Task MagicMissileRedirectedButFullDamage()
     {
         var caster = new Mage("caster");
         var blocker = new Skeleton
@@ -399,7 +400,7 @@ public class CombatServiceTests
         Assert.Equal(20, blocker.Health);
     }
     [Fact]
-    public async Task Parry_PreventsEnemySlash()
+    public async Task ParryPreventsEnemySlash()
     {
         var blocker = new Warrior("blocker") { Health = 30, MaxHealth = 30 };
         var enemy = new Skeleton { Id = "enemy1", Health = 30, MaxHealth = 30 };
@@ -439,5 +440,39 @@ public class CombatServiceTests
         var enemyDamageResult = secondResult.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id);
         Assert.NotNull(enemyDamageResult);
         Assert.Contains(enemyDamageResult!.Events, e => e.Event == "damage");
+    }
+    [Fact]
+    public async Task WhirlingStrikeHitsEntireEnemyTeam()
+    {
+        var warrior = new Warrior("warrior") { Health = 42, MaxHealth = 42 }; // Should have 6 health remaining after taking 6 Skeleton Slashes
+
+        // Six copies of a basic skeleton to test that Whirling Strike hits all enemies and that damage is calculated correctly for each
+        var enemy1 = new Skeleton { Id = "enemy1" }; 
+        var enemy2 = new Skeleton { Id = "enemy2" };
+        var enemy3 = new Skeleton { Id = "enemy3" };
+        var enemy4 = new Skeleton { Id = "enemy4" };
+        var enemy5 = new Skeleton { Id = "enemy5" };
+        var enemy6 = new Skeleton { Id = "enemy6" };
+
+        var enemies = new List<Character> { enemy1, enemy2, enemy3, enemy4, enemy5, enemy6 }; // Save each enemy in a variable to check their health after the attack
+        var encounter = new ActiveCombatEncounter(new List<Character> { warrior }, enemies); // Create encounter with the warrior and all six enemies
+
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the warrior to use Whirling Strike on one of the enemies. The target should be ignored and all enemies should be hit by the attack
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = warrior.Id,
+            TargetCharacterId = enemy1.Id,
+            Action = "Whirling Strike"
+        });
+        Assert.NotEmpty(results); // Check that we got results back from the combat request handler
+        var playerResult = results.First(r => r.Request.Action == "Whirling Strike" && r.Request.SourceCharacterId == warrior.Id); // Find the result for the Whirling Strike action used by our warrior
+        foreach (var enemy in enemies) // Loop through each enemy and check that they were hit by the attack and that the damage was calculated correctly. Each skeleton should take 5 damage from the Whirling Strike, so they should all have 15 health remaining
+        {
+            Assert.Equal(15, enemy.Health);
+        }
+        Assert.Equal(6, warrior.Health); // The warrior should have taken 6 damage from the skeletons' counterattacks, so they should have 6 health remaining
     }
 }

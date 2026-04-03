@@ -201,7 +201,7 @@ namespace Models.Tests
             Assert.Equal(2, (int)burn.ModifierValues[StatusModifierKeys.TickDamage]);
         }
         [Fact]
-        public void RattleGuard_AppliesSelfDamageReductionStatus()
+        public void RattleGuardAppliesSelfDamageReductionStatus()
         {
             var user = new Skeleton { Id = "skeleton1", Name = "Skeleton" };
             var gameState = new CombatEncounterGameState(
@@ -223,7 +223,7 @@ namespace Models.Tests
             Assert.Equal(0.5, status.ModifierValues[StatusModifierKeys.DamageReduction]);
         }
         [Fact]
-        public void Parry_AppliesParryStatusToUserAgainstTargetEnemy()
+        public void ParryAppliesParryStatusToUserAgainstTargetEnemy()
         {
             var user = new Warrior("user");
             var enemy = new Skeleton { Id = "enemy" };
@@ -267,6 +267,73 @@ namespace Models.Tests
             Assert.Equal("Magic Missile", hit.ActionName);
             Assert.Equal(10, hit.BaseDamage);
             Assert.Equal(10, hit.FinalDamage);
+
+            Assert.Empty(resolution.StatusEffectsToApply);
+        }
+        [Fact]
+        public void IceRayDealsDamageAppliesChillStatus()
+        {
+            var user = new Mage("user");
+            var target = new Skeleton { Id = "target" };
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { user },
+                new List<Character> { target });
+
+            var action = new IceRay();
+            var resolution = action.ResolveAttack(user, target, gameState);
+
+            Assert.Single(resolution.AttackInstances);
+
+            var hit = resolution.AttackInstances[0];
+            Assert.Equal("user", hit.SourceCharacterId);
+            Assert.Equal("target", hit.TargetCharacterId);
+            Assert.Equal("Ice Ray", hit.ActionName);
+            Assert.Equal(5, hit.BaseDamage);
+            Assert.Equal(5, hit.FinalDamage);
+
+            var status = resolution.StatusEffectsToApply[0];
+            Assert.IsType<ChillStatus>(status);
+            Assert.Equal("user", status.SourceCharacterId);
+            Assert.Equal("user", status.StatusOwnerCharacterId);
+            Assert.Equal(1, status.Duration);
+            Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
+            Assert.Contains("target", status.AffectedCharacterIds);
+
+            Assert.NotEmpty(resolution.StatusEffectsToApply);
+        }
+        [Fact]
+        public void WhirlingStrikeDamagesAllEnemies()
+        {
+            var warrior = new Warrior("warrior");
+
+            var enemy1 = new Skeleton { Id = "enemy1" };
+            var enemy2 = new Skeleton { Id = "enemy2" };
+            var enemy3 = new Skeleton { Id = "enemy3" };
+            var enemy4 = new Skeleton { Id = "enemy4" };
+            var enemy5 = new Skeleton { Id = "enemy5" };
+            var enemy6 = new Skeleton { Id = "enemy6" };
+
+            var enemies = new List<Character> { enemy1, enemy2, enemy3, enemy4, enemy5, enemy6 };
+            var gameState = new CombatEncounterGameState(new List<Character> { warrior }, enemies);
+
+            var action = new WhirlingStrike();
+            var resolution = action.ResolveAttack(warrior, enemy1, gameState, false);
+
+            Assert.Equal(6, resolution.AttackInstances.Count);
+            Assert.All(resolution.AttackInstances, hit =>
+            {
+                Assert.Equal("warrior", hit.SourceCharacterId);
+                Assert.Equal("Whirling Strike", hit.ActionName);
+                Assert.Equal(5, hit.BaseDamage);
+                Assert.Equal(5, hit.FinalDamage);
+            });
+
+            var targetIds = resolution.AttackInstances.Select(hit => hit.TargetCharacterId).ToList();
+            Assert.Equal(6, targetIds.Distinct().Count());
+            
+            var expectedIds = enemies.Select(e => e.Id).OrderBy(id => id).ToList();
+            var actualIds = targetIds.OrderBy(id => id).ToList();
+            Assert.Equal(expectedIds, actualIds);
 
             Assert.Empty(resolution.StatusEffectsToApply);
         }

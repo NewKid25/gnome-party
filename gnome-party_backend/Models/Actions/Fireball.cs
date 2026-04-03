@@ -51,7 +51,6 @@ namespace Models.Actions
                 resolution.Events.Add(new CombatEvent("burn_status_applied", new StatusAppliedEventParams
                 {
                     OwnerId = burnTarget.Id,
-                    SourceId = user.Id,
                 }));
             }
             return resolution;

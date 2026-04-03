@@ -19,6 +19,7 @@ public class CharacterActionFactory
 
             // Mage Attacks
             "Fireball" => new Fireball(),
+            "Ice Ray" => new IceRay(),
             "Magic Missile" => new MagicMisslie(),
             
 

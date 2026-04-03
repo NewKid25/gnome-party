@@ -46,7 +46,7 @@ namespace Models.Status
             {
                 SourceId = SourceCharacterId,
                 StatusAmount = tickDamage,
-                TargetId = character.Id,
+                CharacterId = character.Id,
             }));
         }
     }

@@ -33,7 +33,6 @@ namespace Models.Actions
             resolution.StatusEffectsToApply.Add(new ChillStatus(user, target));
             resolution.Events.Add(new CombatEvent("chiil_status_applied", new StatusAppliedEventParams
             {
-                SourceId = user.Id,
                 OwnerId = user.Id,
             }));
 

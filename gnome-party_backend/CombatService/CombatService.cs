@@ -215,7 +215,7 @@ namespace CombatService
                 var name = expiredStatus.GetType().Name.Replace("Status", "").ToLower();
                 events.Add(new CombatEvent($"{name}_expired", new StatusExpiredEventParams
                 {
-                    OwnerId = character.Id
+                    CharacterId = character.Id
                 }));
             }
         }

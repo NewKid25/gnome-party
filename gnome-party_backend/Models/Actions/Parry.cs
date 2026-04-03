@@ -30,7 +30,6 @@ namespace Models.Actions
             resolution.StatusEffectsToApply.Add(new ParryStatus(user, target));
             resolution.Events.Add(new CombatEvent("parry_status_applied", new StatusAppliedEventParams
             {
-                SourceId = user.Id,
                 OwnerId = user.Id
             }));
             return resolution;
