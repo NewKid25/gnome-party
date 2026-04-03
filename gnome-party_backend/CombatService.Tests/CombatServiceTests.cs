@@ -1,4 +1,6 @@
 using GnomeParty.Database;
+using Models;
+using Models.Actions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
@@ -323,6 +325,43 @@ public class CombatServiceTests
         Assert.InRange(enemy.Health, 8, 14);
     }
     [Fact]
+    public async Task MagicMissile_BreaksThroughParry()
+    {
+        var mage = new Mage
+        {
+            Id = "mage",
+            Name = "Mage",
+            Health = 30,
+            MaxHealth = 30
+        };
+        var skelly = new Skeleton() { Id = "skelly", Name = "Skelly", Health = 30, MaxHealth = 30 };
+        skelly.StatusEffects.Add(new ParryStatus(skelly, mage));
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { mage },
+            new List<Character> { skelly });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = skelly.Id,
+            Action = "Magic Missile"
+        });
+
+        Assert.NotEmpty(results);
+
+        Assert.Equal(24, mage.Health);
+        Assert.Equal(20, skelly.Health);
+
+        var mageResult = results.FirstOrDefault(r => r.Request.SourceCharacterId == mage.Id);
+        Assert.NotNull(mageResult);
+        Assert.Contains(mageResult!.Events, e => e.Event == "damage");
+    }
+    [Fact]
     public async Task MagicMissile_Redirected_ButFullDamage()
     {
         var caster = new Mage("caster");
@@ -363,7 +402,7 @@ public class CombatServiceTests
     public async Task Parry_PreventsEnemySlash()
     {
         var blocker = new Warrior("blocker") { Health = 30, MaxHealth = 30 };
-        var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
+        var enemy = new Skeleton { Id = "enemy1", Health = 30, MaxHealth = 30 };
 
         var encounter = new ActiveCombatEncounter(
             new List<Character> { blocker },
@@ -395,7 +434,7 @@ public class CombatServiceTests
         Assert.NotEmpty(secondResult);
 
         Assert.Equal(30, blocker.Health);
-        Assert.Equal(20, enemy.Health);
+        Assert.Equal(30, enemy.Health);
 
         var enemyDamageResult = secondResult.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id);
         Assert.NotNull(enemyDamageResult);

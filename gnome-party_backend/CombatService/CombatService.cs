@@ -106,13 +106,13 @@ namespace CombatService
             }
             return Math.Min(reduction, 1);
         }
-        private double GetIncomingDamageMultiplier(Character source, Character target)
+        private double GetIncomingDamageMultiplier(Character source, Character target, bool isUnblockable)
         {
             double multiplier = 1.0;
 
             foreach (var status in target.StatusEffects)
             {
-                if (status.StatusType == StatusTypes.Parry && status.AffectedCharacterIds.Contains(source.Id))
+                if (!isUnblockable &&status.StatusType == StatusTypes.Parry && status.AffectedCharacterIds.Contains(source.Id))
                 {
                     multiplier *= 0;
                     continue;
@@ -178,7 +178,7 @@ namespace CombatService
                         throw new InvalidOperationException("Attack target was not found.");
                     }
                     var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource);
-                    var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget);
+                    var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var damageReduction = GetDamageReduction(finalTarget, attack.IsUnblockable);
                     if(attack.IsUnblockable)
                     {
