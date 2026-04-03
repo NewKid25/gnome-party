@@ -28,9 +28,8 @@ namespace Models.Actions
             if (target == null) throw new ArgumentNullException(nameof(target));
             var resolution = new AttackResolution();
             resolution.StatusEffectsToApply.Add(new ParryStatus(user, target));
-            resolution.Events.Add(new CombatEvent("status_applied", new StatusAppliedEventParams
+            resolution.Events.Add(new CombatEvent("parry_status_applied", new StatusAppliedEventParams
             {
-                StatusType = StatusTypes.Parry,
                 SourceId = user.Id,
                 OwnerId = user.Id
             }));

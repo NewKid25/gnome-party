@@ -22,7 +22,7 @@ namespace Models.Actions
             if (ally == null) throw new ArgumentNullException(nameof(ally));
             var resolution = new AttackResolution();
             resolution.StatusEffectsToApply.Add(new BlockStatus(user, ally));
-            resolution.Events.Add(new CombatEvent("status_applied", new {statusType = StatusTypes.Block, sourceId = user.Id, ownerId = user.Id, targetId = ally.Id}));
+            resolution.Events.Add(new CombatEvent("block_status_applied", new {sourceId = user.Id, ownerId = user.Id, targetId = ally.Id}));
             return resolution;
         }
     }

@@ -10,7 +10,6 @@ namespace Models.Status
         public int StatusAmount { get; set; }
         public string StatusType { get; set; } = "";
         public string TargetId { get; set; } = "";
-        public string TargetName { get; set; } = "";
     }
     public class StatusAppliedEventParams
     {

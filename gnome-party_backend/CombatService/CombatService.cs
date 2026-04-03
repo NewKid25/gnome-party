@@ -22,7 +22,7 @@ namespace CombatService
         }
         private void ApplyStatusEffects(Character character, StatusEffect newStatus)
         {
-            var existingStatus = character.StatusEffects.FirstOrDefault(s => s.StatusType == newStatus.StatusType); 
+            var existingStatus = character.StatusEffects.FirstOrDefault(s => s.GetType() == newStatus.GetType());
             if (existingStatus == null)
             {
                 character.StatusEffects.Add(newStatus);
@@ -212,9 +212,9 @@ namespace CombatService
             foreach (var expiredStatus in expiredStatuses)
             {
                 character.StatusEffects.Remove(expiredStatus);
-                events.Add(new CombatEvent("StatusExpired", new StatusExpiredEventParams
+                var name = expiredStatus.GetType().Name.Replace("Status", "").ToLower();
+                events.Add(new CombatEvent($"{name}_expired", new StatusExpiredEventParams
                 {
-                    StatusType = expiredStatus.StatusType,
                     OwnerId = character.Id
                 }));
             }

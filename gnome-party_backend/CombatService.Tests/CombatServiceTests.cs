@@ -237,11 +237,11 @@ public class CombatServiceTests
             r.Request.SourceCharacterId == caster.Id);
 
         Assert.Contains(playerResult.Events, e => e.Event == "damage");
-        Assert.True(playerResult.Events.Count(e => e.Event == "status_applied") >= 3);
+        Assert.True(playerResult.Events.Count(e => e.Event == "burn_status_applied") >= 3);
 
-        Assert.Contains(enemy1.StatusEffects, s => s.StatusType == StatusTypes.Burn);
-        Assert.Contains(enemy2.StatusEffects, s => s.StatusType == StatusTypes.Burn);
-        Assert.Contains(enemy3.StatusEffects, s => s.StatusType == StatusTypes.Burn);
+        Assert.Contains(enemy1.StatusEffects, s => s is BurnStatus);
+        Assert.Contains(enemy2.StatusEffects, s => s is BurnStatus);
+        Assert.Contains(enemy3.StatusEffects, s => s is BurnStatus);
     }
     [Fact]
     public async Task Fireball_WhenRedirected_BurnsOnlyBlocker()
@@ -288,8 +288,8 @@ public class CombatServiceTests
         Assert.Equal(30, ally.Health);
         Assert.Equal(25, blocker.Health);
 
-        Assert.Contains(blocker.StatusEffects, s => s.StatusType == StatusTypes.Burn);
-        Assert.DoesNotContain(ally.StatusEffects, s => s.StatusType == StatusTypes.Burn);
+        Assert.Contains(blocker.StatusEffects, s => s is BurnStatus);
+        Assert.DoesNotContain(ally.StatusEffects, s => s is BurnStatus);
     }
     [Fact]
     public async Task FuryStrikes_ProducesMultipleDamageEvents()

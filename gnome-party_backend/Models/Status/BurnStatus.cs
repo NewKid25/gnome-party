@@ -9,10 +9,8 @@ namespace Models.Status
     public sealed class BurnStatus : StatusEffect
     {
         public BurnStatus() { }
-
         public BurnStatus(Character source, Character target, int duration = 3, int tickDamage = 2)
         {
-            StatusType = StatusTypes.Burn;
             SourceCharacterId = source.Id;
             StatusOwnerCharacterId = target.Id;
             Duration = duration;
@@ -27,7 +25,6 @@ namespace Models.Status
         {
             return new BurnStatus
             {
-                StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
                 Duration = Duration,
@@ -49,9 +46,7 @@ namespace Models.Status
             {
                 SourceId = SourceCharacterId,
                 StatusAmount = tickDamage,
-                StatusType = StatusType,
                 TargetId = character.Id,
-                TargetName = character.Name,
             }));
         }
     }

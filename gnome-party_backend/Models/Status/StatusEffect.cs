@@ -24,14 +24,6 @@ namespace Models.Status
         public const string TickHeal = "TickHeal";
     }
 
-    public static class StatusTypes
-    {
-        public const string Block = "Block";
-        public const string Burn = "Burn";
-        public const string Parry = "Parry";
-        public const string RattleGuard = "RattleGuard";
-    }
-
     public class StatusEffect
     {
         public List<string> AffectedCharacterIds { get; set; } = new();
@@ -41,7 +33,6 @@ namespace Models.Status
         public Dictionary<string, string> StatusDescription { get; set; } = new();
         public string StatusId { get; set; } = Guid.NewGuid().ToString();
         public string StatusOwnerCharacterId { get; set; } = string.Empty;
-        public string StatusType { get; set; } = string.Empty;
         public string SourceCharacterId { get; set; } = string.Empty;
         public virtual StatusEffect DeepCopy()
         {
@@ -53,7 +44,6 @@ namespace Models.Status
                 ModifierValues = new Dictionary<string, double>(ModifierValues), 
                 StatusDescription = new Dictionary<string, string>(StatusDescription),
                 StatusOwnerCharacterId = StatusOwnerCharacterId, 
-                StatusType = StatusType, 
                 SourceCharacterId = SourceCharacterId, 
             };
         }

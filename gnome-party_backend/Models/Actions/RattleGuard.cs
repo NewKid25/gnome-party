@@ -21,7 +21,7 @@ namespace Models.Actions
             if (user == null) throw new ArgumentNullException(nameof(user));
             var resolution = new AttackResolution();
             resolution.StatusEffectsToApply.Add(new RattleGuardStatus(user));
-            resolution.Events.Add(new CombatEvent("status_applied", new { statusType = StatusTypes.RattleGuard, sourceId = user.Id, ownerId = user.Id, targetId = user.Id }));
+            resolution.Events.Add(new CombatEvent("rattleguard_status_applied", new {sourceId = user.Id, ownerId = user.Id, targetId = user.Id }));
             return resolution;
         }
     }

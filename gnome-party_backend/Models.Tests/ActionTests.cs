@@ -1,4 +1,5 @@
-﻿using CombatService;
+﻿using System.Net.NetworkInformation;
+using CombatService;
 using Models.Actions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
@@ -73,7 +74,7 @@ namespace Models.Tests
             Assert.Single(resolution.StatusEffectsToApply);
 
             var status = resolution.StatusEffectsToApply[0];
-            Assert.Equal(StatusTypes.Block, status.StatusType);
+            Assert.IsType<BlockStatus>(status);
             Assert.Equal("blocker", status.SourceCharacterId);
             Assert.Equal("blocker", status.StatusOwnerCharacterId);
             Assert.Equal(1, status.Duration);
@@ -163,7 +164,7 @@ namespace Models.Tests
 
             Assert.All(resolution.StatusEffectsToApply, status =>
             {
-                Assert.Equal(StatusTypes.Burn, status.StatusType);
+                Assert.IsType<BurnStatus>(status);
                 Assert.Equal(3, status.Duration);
                 Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
                 Assert.Equal(2, (int)status.ModifierValues[StatusModifierKeys.TickDamage]);
@@ -194,7 +195,7 @@ namespace Models.Tests
             Assert.Single(resolution.StatusEffectsToApply);
 
             var burn = resolution.StatusEffectsToApply[0];
-            Assert.Equal(StatusTypes.Burn, burn.StatusType);
+            Assert.IsType<BurnStatus>(burn);
             Assert.Equal("blocker", burn.StatusOwnerCharacterId);
             Assert.Equal(3, burn.Duration);
             Assert.Equal(2, (int)burn.ModifierValues[StatusModifierKeys.TickDamage]);
@@ -214,7 +215,7 @@ namespace Models.Tests
             Assert.Single(resolution.StatusEffectsToApply);
 
             var status = resolution.StatusEffectsToApply[0];
-            Assert.Equal(StatusTypes.RattleGuard, status.StatusType);
+            Assert.IsType<RattleGuardStatus>(status);
             Assert.Equal("skeleton1", status.SourceCharacterId);
             Assert.Equal("skeleton1", status.StatusOwnerCharacterId);
             Assert.Equal(1, status.Duration);
@@ -237,7 +238,7 @@ namespace Models.Tests
             Assert.Single(resolution.StatusEffectsToApply);
 
             var status = resolution.StatusEffectsToApply[0];
-            Assert.Equal(StatusTypes.Parry, status.StatusType);
+            Assert.IsType<ParryStatus>(status);
             Assert.Equal("user", status.SourceCharacterId);
             Assert.Equal("user", status.StatusOwnerCharacterId);
             Assert.Equal(1, status.Duration);

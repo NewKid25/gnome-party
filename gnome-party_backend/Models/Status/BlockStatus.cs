@@ -8,10 +8,9 @@ namespace Models.Status
 {
     public sealed class BlockStatus : StatusEffect
     {
-       public BlockStatus() { }
+        public BlockStatus() { }
         public BlockStatus(Character user, Character ally)
         {
-            StatusType = StatusTypes.Block;
             SourceCharacterId = user.Id;
             StatusOwnerCharacterId = user.Id;
             Duration = 1;
@@ -32,7 +31,6 @@ namespace Models.Status
         {
             return new BlockStatus
             {
-                StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
                 Duration = Duration,
