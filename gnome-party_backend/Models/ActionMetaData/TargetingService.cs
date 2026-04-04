@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 using Models.CombatData;
 
 namespace Models.ActionMetaData
@@ -43,36 +40,36 @@ namespace Models.ActionMetaData
         }
         public static List<Character> GetAllCharacters(CombatEncounterGameState gameState)
         {
-            if (gameState == null)
+            if (gameState == null) // Null check for the game state
             {
                 throw new ArgumentNullException(nameof(gameState));
             }
-            var all = new List<Character>();
-            foreach (var player in gameState.PlayerCharacters)
+            var all = new List<Character>(); // Initialize a list to hold all characters in the game state
+            foreach (var player in gameState.PlayerCharacters) // Add all player characters to the list
             {
                 all.Add(player);
             }
-            foreach (var enemy in gameState.EnemyCharacters)
+            foreach (var enemy in gameState.EnemyCharacters) // Add all enemy characters to the list
             {
                 all.Add(enemy);
             }
-            return all;
+            return all; // Return the list of all characters in the game state
         }
         public static List<Character> GetOpposingTeam(CombatEncounterGameState gameState, string characterId)
         {
-            if (gameState == null)
+            if (gameState == null) // Null check for the game state
             {
                 throw new ArgumentNullException(nameof(gameState));
             }
-            if (characterId == null)
+            if (characterId == null) // Null check for the character ID
             {
                 throw new ArgumentNullException(nameof(characterId));
             }
-            if (gameState.PlayerCharacters.Any(c => c.Id == characterId))
+            if (gameState.PlayerCharacters.Any(c => c.Id == characterId)) // Check if the character belongs to the player's team and return the enemy team if it does
             {
                 return gameState.EnemyCharacters;
             }
-            if (gameState.EnemyCharacters.Any(c => c.Id == characterId))
+            if (gameState.EnemyCharacters.Any(c => c.Id == characterId)) // Check if the character belongs to the enemy team and return the player's team if it does
             {
                 return gameState.PlayerCharacters;
             }
@@ -80,35 +77,35 @@ namespace Models.ActionMetaData
         }
         public static List<Character> GetTargetAndAdjacentAllies(CombatEncounterGameState gameState, string targetId)
         {
-            var team = GetTargetsTeam(gameState, targetId);
-            int targetIndex = FindTargetIndex(team, targetId);
-            var targets = new List<Character>();
-            if (targetIndex - 1 >= 0)
+            var team = GetTargetsTeam(gameState, targetId); // Get the team of the target character based on the current game state and the target ID
+            int targetIndex = FindTargetIndex(team, targetId); // Find the index of the target character in the team list
+            var targets = new List<Character>(); // Initialize a list to hold the target character and its adjacent allies
+            if (targetIndex - 1 >= 0) // Check if there is an ally to the left of the target character and add it to the targets list if it exists
             {
                 targets.Add(team[targetIndex - 1]);
             }
-            targets.Add(team[targetIndex]);
-            if (targetIndex + 1 < team.Count)
+            targets.Add(team[targetIndex]); // Add the target character itself to the targets list
+            if (targetIndex + 1 < team.Count) // Check if there is an ally to the right of the target character and add it to the targets list if it exists
             {
                 targets.Add(team[targetIndex + 1]);
             }
-            return targets;
+            return targets; // Return the list of the target character and its adjacent allies
         }
         public static List<Character> GetTargetsTeam(CombatEncounterGameState gameState, string characterId)
         {
-            if (gameState == null)
+            if (gameState == null) // Null check for the game state
             {
                 throw new ArgumentNullException(nameof(gameState));
             }
-            if (characterId == null)
+            if (characterId == null) // Null check for the character ID
             {
                 throw new ArgumentNullException(nameof(characterId));
             }
-            if (gameState.PlayerCharacters.Any(c => c.Id == characterId))
+            if (gameState.PlayerCharacters.Any(c => c.Id == characterId)) // Check if the character belongs to the player's team and return the player's team if it does
             {
                 return gameState.PlayerCharacters;
             }
-            if (gameState.EnemyCharacters.Any(c => c.Id == characterId))
+            if (gameState.EnemyCharacters.Any(c => c.Id == characterId)) // Check if the character belongs to the enemy team and return the enemy team if it does
             {
                 return gameState.EnemyCharacters;
             }

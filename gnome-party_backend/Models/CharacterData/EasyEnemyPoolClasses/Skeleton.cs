@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Models.CharacterData.EasyEnemyPoolClasses;
-public class Skeleton :Character
+public class Skeleton : Character
 {
     public Skeleton()
     {
+        // List of actions available to the Skeleton
         ActionsDescriptions = [
             new BoneSlash().ActionDescription,
             new RattleGuard().ActionDescription,

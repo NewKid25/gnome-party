@@ -6,6 +6,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
     {
         public Warrior() : base(Guid.NewGuid().ToString())
         {
+            // List of actions available to the Warrior
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Block().ActionDescription,
@@ -22,6 +23,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
         }
         public Warrior(string id) : base(id)
         {
+            // List of actions available to the Warrior
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Block().ActionDescription,

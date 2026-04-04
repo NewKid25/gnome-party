@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics.Contracts;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 
 namespace Models.ActionMetaData
 {
