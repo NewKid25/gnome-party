@@ -21,6 +21,7 @@ public class CharacterActionFactory
             "Fireball" => new Fireball(),
             "Ice Ray" => new IceRay(),
             "Magic Missile" => new MagicMisslie(),
+            "Mirror" => new Mirror(),
             
 
             // Skeleton Attacks

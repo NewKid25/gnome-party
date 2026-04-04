@@ -14,7 +14,6 @@ namespace Models.Status
     public class StatusAppliedEventParams
     {
         public string OwnerId { get; set; } = "";
-        public string StatusType { get; set; } = "";
     }
     public class StatusExpiredEventParams
     {

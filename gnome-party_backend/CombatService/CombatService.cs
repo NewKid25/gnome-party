@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using Models;
+using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.EncounterData;
@@ -142,6 +143,7 @@ namespace CombatService
                 var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable);
                 var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id;
                 var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected);
+                resolution = ResolveMirror(encounter.GameState, srcCharacter, action, request.Action, resolution);
                 foreach (var attack in resolution.AttackInstances)
                 {
                     var attackSource = FindCharacter(encounter.GameState, attack.SourceCharacterId);
@@ -167,7 +169,6 @@ namespace CombatService
                     {
                         finalDamage = 0;
                     }
-                    attack.IsRedirected = isRedirected;
                     attack.FinalDamage = finalDamage;
                     attack.IsBlocked = damageReduction > 0;
                     finalTarget.Health -= finalDamage;
@@ -253,6 +254,51 @@ namespace CombatService
                 }
             }
             return resolvedTarget;
+        }
+        private AttackResolution ResolveMirror(
+            CombatEncounterGameState gameState, 
+            Character character, 
+            CharacterAction action, 
+            string actionName,
+            AttackResolution targetResolution)
+        {
+            // Null checks
+            if (gameState == null) { throw new ArgumentNullException(nameof(gameState)); }
+            if(character == null) { throw new ArgumentNullException(nameof(character)); }
+            if(action == null) { throw new ArgumentNullException(nameof(action)); }
+            if(targetResolution == null) { throw new ArgumentNullException(nameof(targetResolution)); }
+
+            if(string.IsNullOrEmpty(actionName) || actionName == "Mirror") { return targetResolution; } // Checking for null or repeat mirror to prevent infinite loops
+
+            // Check if the character has a mirror status effect
+            var mirrorStatus = character.StatusEffects.OfType<MirrorStatus>().FirstOrDefault(); 
+            if (mirrorStatus == null) { return targetResolution; }
+
+            // Get the target id of the mirror effect
+            var mirrorTargetId = mirrorStatus.AffectedCharacterIds.FirstOrDefault();
+            if(string.IsNullOrEmpty(mirrorTargetId)) { return targetResolution; }
+
+            // Find the mirror target character
+            var mirrorTarget = FindCharacter(gameState, mirrorTargetId);
+            if (mirrorTarget == null || mirrorTarget.Health <= 0) { return targetResolution; }
+
+            // Resolve the mirror action as if the character had targeted the mirror target instead.
+            var resolvedMirrorTarget = ResolveActionTarget(character, action, gameState, mirrorTarget, action.Unblockable);
+            var mirrorIsRedirected = resolvedMirrorTarget.Id != mirrorTarget.Id;
+            var mirrorAction = action.ResolveAttack(character, resolvedMirrorTarget, gameState, mirrorIsRedirected, action.Unblockable);
+            mirrorAction.Events.Add(new CombatEvent("mirror_activated", new  // This event can be used by the frontend to trigger mirror-specific animations or effects
+            {
+                sourceId = character.Id,
+                targetId = mirrorTarget.Id,
+                actionName = actionName
+            }));
+
+            // Combine the mirror action resolution with the original target resolution
+            targetResolution.AttackInstances.AddRange(mirrorAction.AttackInstances);
+            targetResolution.StatusEffectsToApply.AddRange(mirrorAction.StatusEffectsToApply);
+            targetResolution.Events.AddRange(mirrorAction.Events);
+
+            return targetResolution; // The original resolution is returned but with the mirror action's effects combined in. 
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             {
                 new Fireball().ActionDescription,
                 new MagicMisslie().ActionDescription,
+                new Mirror().ActionDescription,
             };
             CharacterType = "Mage";
             Health = 20;
@@ -22,6 +23,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             {
                 new Fireball().ActionDescription,
                 new MagicMisslie().ActionDescription,
+                new Mirror().ActionDescription,
             };
             CharacterType = "Mage";
             Health = 20;
