@@ -10,17 +10,17 @@ namespace Models.Status
         public ChillStatus() { }
         public ChillStatus(Character user, Character enemy)
         {
-            AffectedCharacterIds = new List<string> { enemy.Id };
-            Duration = 1;
-            DurationUnit = DurationUnit.TurnStart;
-            SourceCharacterId = user.Id;
-            StatusDescription = new Dictionary<string, string>
+            Duration = 1; // Lasts for 1 turn
+            DurationUnit = DurationUnit.TurnEnd; // Expires at the end of the turn
+            SourceCharacterId = user.Id; // The character who applied the status
+            StatusDescription = new Dictionary<string, string> // Descriptions for different stages of the status
             {
                 ["AppliedText"] = $"{user.Name} applies chill to {enemy.Name}.",
                 ["ActiveText"] = $"{enemy.Name}'s attacks are reduced because of the cold.",
                 ["ExpiredText"] = $"{enemy.Name} is no longer chilled."
             };
-            StatusOwnerCharacterId = user.Id;
+            StatusOwnerCharacterId = enemy.Id; // The character affected by the status
+            AffectedCharacterIds = new List<string> { enemy.Id }; // The character whose attacks will be reduced
         }
         public override StatusEffect DeepCopy()
         {

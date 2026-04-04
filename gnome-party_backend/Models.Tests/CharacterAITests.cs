@@ -12,7 +12,7 @@ namespace Models.Tests
         [InlineData(0.2, "Rattle Guard")]
         [InlineData(0.4, "Rattle Guard")]
         [InlineData(0.8, "Bone Slash")]
-        public void SkeletonWithLowHealthCorrect(double roll, string expectedAction)
+        public void RattleGuardOnLowHealthAndCorrectRoll(double roll, string expectedAction)
         {
             var rng = new TestRandomGenerator(roll); // Create a TestRandomGenerator with the specified roll value
             var ai = new SkeletonAI(rng); // Create an instance of SkeletonAI using the TestRandomGenerator

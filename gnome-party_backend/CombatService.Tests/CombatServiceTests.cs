@@ -126,7 +126,7 @@ public class CombatServiceTests
         Assert.Equal(0, enemy1.Health);
     }
     [Fact]
-    public async Task BoneSlashWithOnePlayerDeals6Damage()
+    public async Task BoneSlashWithOnePlayerDealsDamage()
     {
         var player = new Warrior("player");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
@@ -243,7 +243,7 @@ public class CombatServiceTests
     [Fact]
     public async Task FireballWhenRedirectedBurnsOnlyBlocker()
     {
-        var caster = new Warrior("caster");
+        var caster = new Mage("caster");
 
         var blocker = new Skeleton
         {
@@ -434,44 +434,40 @@ public class CombatServiceTests
     [Fact]
     public async Task ParryPreventsEnemySlash()
     {
-        var blocker = new Warrior("blocker") { Health = 30, MaxHealth = 30 };
-        var enemy = new Skeleton { Id = "enemy1", Health = 30, MaxHealth = 30 };
+        var parryer = new Warrior("blocker") { Health = 30, MaxHealth = 30 }; // The character that will use Parry to block the enemy's attack
+        var enemy = new Skeleton { Id = "enemy1", Health = 30, MaxHealth = 30 }; // The enemy that will attempt to attack the parryer.
 
-        var encounter = new ActiveCombatEncounter(
-            new List<Character> { blocker },
+        var encounter = new ActiveCombatEncounter( // Create an encounter with the parryer and the enemy
+            new List<Character> { parryer },
             new List<Character> { enemy });
 
-        var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
 
-        var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the parryer to use Parry on the enemy's attack
         {
             EncounterId = encounter.EncounterId,
             GameSessionId = "game1",
-            SourceCharacterId = blocker.Id,
+            SourceCharacterId = parryer.Id,
             TargetCharacterId = enemy.Id,
             Action = "Parry"
         });
 
-        Assert.NotEmpty(firstResult);
+        Assert.NotEmpty(results); // Check that we got results back from the combat request handler
+        Assert.Contains(parryer.StatusEffects, s => s is ParryStatus); // Check that the Parry status was applied to the enemy
 
-        var secondResult = await service.CombatRequestHandlerAsync(new CombatRequest
-        {
-            EncounterId = encounter.EncounterId,
-            GameSessionId = "game1",
-            SourceCharacterId = enemy.Id,
-            TargetCharacterId = blocker.Id,
-            Action = "Slash"
-        });
+        Assert.Equal(30, parryer.Health); // The parryer should take no damage from the enemy's attack because of the Parry status, so their health should remain at 30
+        Assert.Equal(30, enemy.Health); // The enemy should also take no damage from the parry, so their health should remain at 30
 
-        Assert.NotEmpty(secondResult);
+        var enemyResult = results.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id); // Find the result for the enemy's attack in the combat results
+        Assert.NotNull(enemyResult); // Check that we found the result for the enemy's attack
 
-        Assert.Equal(30, blocker.Health);
-        Assert.Equal(30, enemy.Health);
+        var damageEvent = enemyResult!.Events.FirstOrDefault(e => e.Event == "damage"); // Find the damage event in the enemy's attack result
+        Assert.NotNull(damageEvent); // Check that we found the damage event in the enemy's attack result
 
-        var enemyDamageResult = secondResult.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id);
-        Assert.NotNull(enemyDamageResult);
-        Assert.Contains(enemyDamageResult!.Events, e => e.Event == "damage");
+        var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params); // Validate that the damage event parameters are of the correct type
+        Assert.Equal(parryer.Id, damageParams.TargetId); // The target of the enemy's attack should still be the parryer, even though the damage is prevented by the Parry status
+        Assert.Equal(0, damageParams.DamageAmount); // The damage amount should be 0 because the Parry status should prevent all damage from the enemy's attack
     }
     [Fact]
     public async Task WhirlingStrikeHitsEntireEnemyTeam()
@@ -479,7 +475,7 @@ public class CombatServiceTests
         var warrior = new Warrior("warrior") { Health = 42, MaxHealth = 42 }; // Should have 6 health remaining after taking 6 Skeleton Slashes
 
         // Six copies of a basic skeleton to test that Whirling Strike hits all enemies and that damage is calculated correctly for each
-        var enemy1 = new Skeleton { Id = "enemy1" }; 
+        var enemy1 = new Skeleton { Id = "enemy1" };
         var enemy2 = new Skeleton { Id = "enemy2" };
         var enemy3 = new Skeleton { Id = "enemy3" };
         var enemy4 = new Skeleton { Id = "enemy4" };
@@ -545,5 +541,68 @@ public class CombatServiceTests
         var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params);
         Assert.Equal(skeleton.Id, damageParams.TargetId);
         Assert.Equal(5, damageParams.DamageAmount);
+    }
+    [Fact]
+    public async Task IceRayAppliesChillStatusAndReducesEnemyAttackPower()
+    {
+        var mage = new Mage("mage") { Health = 20, MaxHealth = 20 }; // Create a mage character with 20 health
+        var enemy = new Skeleton { Id = "enemy", Health = 30, MaxHealth = 30 }; // Create a skeleton enemy with 30 health
+
+        var encounter = new ActiveCombatEncounter( // Create an encounter with the mage and the skeleton
+            new List<Character> { mage },
+            new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the mage to use Ice Ray on the skeleton
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Ice Ray"
+        });
+
+        Assert.NotEmpty(results); // Check that we got results back from the combat request handler
+        Assert.Equal(25, enemy.Health); // The skeleton should have taken 5 damage from the Ice Ray
+        Assert.Equal(17, mage.Health); // The mage should have taken 6 damage from the skeleton's attack, reduced by 50% because of the Chill status, for a total of 3 damage taken
+    }
+    [Fact]
+    public async Task ChillStatusReducesOutgoingDamage()
+    {
+        var mage = new Mage("mage") { Health = 20, MaxHealth = 20 }; // Create a mage character with 20 health
+        var enemy = new Skeleton { Id = "enemy", Health = 30, MaxHealth = 30 }; // Create a skeleton enemy with 30 health
+
+        enemy.StatusEffects.Add(new ChillStatus(mage, enemy)); // Apply the Chill status to the skeleton
+
+        var encounter = new ActiveCombatEncounter( // Create an encounter with the mage and the skeleton
+            new List<Character> { mage },
+            new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the skeleton to use Slash on the mage
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Magic Missile"
+        });
+
+        Assert.NotEmpty(results); // Check that we got results back from the combat request handler
+        Assert.Equal(20, enemy.Health); // The skeleton should have taken 10 damage from the Magic Missile
+        Assert.Equal(17, mage.Health); // Check that the mage took 3 damage from the skeleton's attack instead of 6 because of the Chill status
+
+        var enemyResult = results.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id && r.Request.Action == "Bone Slash"); // Find the result for the skeleton's attack in the combat results
+        Assert.NotNull(enemyResult); // Check that we found the result for the skeleton's attack
+
+        var damageEvent = enemyResult!.Events.FirstOrDefault(e => e.Event == "damage"); // Find the damage event in the skeleton's attack result
+        Assert.NotNull(damageEvent); // Check that we found the damage event in the skeleton's attack result
+
+        var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params); // Validate that the damage event parameters are of the correct type
+        Assert.Equal(mage.Id, damageParams.TargetId);
+        Assert.Equal(3, damageParams.DamageAmount);
     }
 }

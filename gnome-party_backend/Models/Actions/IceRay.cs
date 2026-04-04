@@ -12,7 +12,7 @@ namespace Models.Actions
     {
         public IceRay() : base("Ice Ray")
         {
-            ActionDescription = new CharacterActionDescription("Ice Ray", "Deal 8 damage to a target and reduce their attack power.");
+            ActionDescription = new CharacterActionDescription("Ice Ray", "Deal 5 damage to a target and reduce their attack power.");
         }
         public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false, bool isUnblockable = false)
         {
