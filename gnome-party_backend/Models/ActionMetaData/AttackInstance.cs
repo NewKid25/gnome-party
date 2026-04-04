@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Models.ActionMetaData
 {
+    // This class represents the result of a single attack instance, which may be part of a larger attack resolution
     public class AttackInstance
     {
         public string ActionName { get; set; } = "";

@@ -4,7 +4,8 @@ using Models.CharacterData;
 
 namespace Models.ActionMetaData
 {
-    public sealed class AttackContext
+    // This class encapsulates all relevant information about an attack action being performed
+    public sealed class AttackContext 
     {
         public CharacterAction Attack { get; private set; }
         public AttackContext(Character attacker, CharacterAction attack, Character target) : this(attacker, attack, target, 0) {}

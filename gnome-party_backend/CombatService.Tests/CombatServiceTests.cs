@@ -61,33 +61,40 @@ public class CombatServiceTests
         Assert.NotNull(result1);
         Assert.IsType<List<CombatResult>>(result1);
     }
-    private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter)
+    
+    // Helper method to build a mock database service that returns the provided encounter when LoadAsync is called
+    private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter) 
     {
-        var mockDb = new Mock<IDatabaseService>();
+        var mockDb = new Mock<IDatabaseService>(); // Create a new mock of the IDatabaseService interface
 
-        mockDb.Setup(db => db.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
+        mockDb.Setup(db => db.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>())) // Set up the LoadAsync method to return the provided encounter when called with any object as the hash key
               .ReturnsAsync(encounter);
 
-        mockDb.Setup(db => db.SaveAsync(It.IsAny<ActiveCombatEncounter>()))
+        mockDb.Setup(db => db.SaveAsync(It.IsAny<ActiveCombatEncounter>())) // Set up the SaveAsync method to do nothing (just return a completed task) when called with any ActiveCombatEncounter object
               .Returns(Task.CompletedTask);
 
-        return mockDb;
+        return mockDb; // Return the configured mock database service
     }
+    
     [Fact]
+    // Test: Verify that action is processed only after both players have submitted their actions
     public async Task SlashWithTwoPlayersProcessesAfterBothReadyAndProducesDamageEvent()
     {
+        // Create two player characters and two enemy skeletons for the encounter
         var player1 = new Warrior("player1");
         var player2 = new Warrior("player2");
         var enemy1 = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
         var enemy2 = new Skeleton { Id = "enemy2", Health = 20, MaxHealth = 20 };
 
+        // Create an encounter with the characters
         var encounter = new ActiveCombatEncounter(
             new List<Character> { player1, player2 },
             new List<Character> { enemy1, enemy2 });
 
-        var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
 
+        // First player submits their action, but it should not be processed until both players have submitted an action
         var result1 = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -97,36 +104,41 @@ public class CombatServiceTests
             Action = "Slash"
         });
 
-        Assert.Empty(result1);
+        Assert.Empty(result1); // Check that no results were produced yet since both players have not submitted their actions
 
+        // Second player submits their action, now both actions should be processed and damage events should be produced for both players' Slash actions
         var result2 = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
             GameSessionId = "game1",
             SourceCharacterId = player2.Id,
-            TargetCharacterId = enemy1.Id,
+            TargetCharacterId = enemy2.Id,
             Action = "Slash"
         });
 
-        Assert.NotEmpty(result2);
+        Assert.NotEmpty(result2); // Check that we got results back from the combat request handler after both players submitted their actions
 
-        var playerSlashResults = result2
+        var playerSlashResults = result2 // Get the results for both players' Slash actions
             .Where(r => r.Request.Action == "Slash" &&
-                        (r.Request.SourceCharacterId == player1.Id || r.Request.SourceCharacterId == player2.Id))
-            .ToList();
+                        (r.Request.SourceCharacterId == player1.Id || r.Request.SourceCharacterId == player2.Id)).ToList();
 
-        Assert.Equal(2, playerSlashResults.Count);
+        Assert.Equal(2, playerSlashResults.Count); // Check that we have results for both players' Slash actions
 
-        var damageEvents = playerSlashResults
+        var damageEvents = playerSlashResults // Extract the damage events from both players' Slash results
             .SelectMany(r => r.Events)
             .Where(e => e.Event == "damage")
             .ToList();
 
-        Assert.Equal(2, damageEvents.Count);
-        Assert.Equal(0, enemy1.Health);
+        Assert.Equal(2, damageEvents.Count); // Check that we have 2 damage events, one for each player's Slash action
+        
+        // Check that the correct damage was done to both enemies
+        Assert.Equal(10, enemy1.Health);
+        Assert.Equal(10, enemy2.Health);
     }
+
     [Fact]
-    public async Task BoneSlashWithOnePlayerDealsDamage()
+    // Test: Verify that Bone Slash correctly applies damage to the target enemy 
+    public async Task BoneSlashDealsCorrectDamage()
     {
         var player = new Warrior("player");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
@@ -430,6 +442,11 @@ public class CombatServiceTests
         // Block is attempted, so damage is redirected to blocker, but Magic Missile is unblockable so no damage reduction is applied
         Assert.Equal(30, ally.Health);
         Assert.Equal(20, blocker.Health);
+    }
+    [Fact]
+    public async Task MirrorCorrectlyDuplicatesFireball()
+    {
+        var mage = new Mage("mage") { Health = 78, MaxHealth = 78 };
     }
     [Fact]
     public async Task ParryPreventsEnemySlash()

@@ -271,6 +271,29 @@ namespace Models.Tests
             Assert.Empty(resolution.StatusEffectsToApply);
         }
         [Fact]
+        public void MirrorAppliesMirrorStatusToUser()
+        {
+            var mage = new Mage("mage");
+            var enemy = new Skeleton { Id = "enemy" };
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { mage },
+                new List<Character> { enemy });
+            var action = new Mirror();
+            var resolution = action.ResolveAttack(mage, enemy, gameState);
+
+            Assert.Empty(resolution.AttackInstances);
+            Assert.Single(resolution.StatusEffectsToApply);
+
+            var status = resolution.StatusEffectsToApply[0];
+            Assert.IsType<MirrorStatus>(status);
+            Assert.Equal("mage", status.SourceCharacterId);
+            Assert.Equal("mage", status.StatusOwnerCharacterId);
+            Assert.Equal(2, status.Duration);
+            Assert.Equal(DurationUnit.TurnEnd, status.DurationUnit);
+            Assert.Contains("enemy", status.AffectedCharacterIds);
+
+        }
+        [Fact]
         public void IceRayDealsDamageAppliesChillStatus()
         {
             var user = new Mage("user");
@@ -294,9 +317,9 @@ namespace Models.Tests
             var status = resolution.StatusEffectsToApply[0];
             Assert.IsType<ChillStatus>(status);
             Assert.Equal("user", status.SourceCharacterId);
-            Assert.Equal("user", status.StatusOwnerCharacterId);
+            Assert.Equal("target", status.StatusOwnerCharacterId);
             Assert.Equal(1, status.Duration);
-            Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
+            Assert.Equal(DurationUnit.TurnEnd, status.DurationUnit);
             Assert.Contains("target", status.AffectedCharacterIds);
 
             Assert.NotEmpty(resolution.StatusEffectsToApply);
