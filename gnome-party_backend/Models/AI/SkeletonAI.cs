@@ -1,11 +1,14 @@
 ﻿using System.Diagnostics;
 using Models.CharacterData;
 using Models.CombatData;
+using Models.TestHelperData;
 
 namespace Models.AI;
 
 internal class SkeletonAI : CharacterAI
 {
+    public SkeletonAI() { }
+    public SkeletonAI(IRandomGenerator rng) : base(rng) { }
     public override CombatRequest ChooseAction(Character self, List<string> actions, List<Character> enemies, List<Character> allies)
     {
         if(actions == null || actions.Count == 0) // Defensive check to ensure we have actions to choose from

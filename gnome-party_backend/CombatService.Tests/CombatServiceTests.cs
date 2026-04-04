@@ -15,10 +15,6 @@ namespace CombatService.Tests;
 
 public class CombatServiceTests
 {
-    public CombatServiceTests()
-    {
-
-    }
     //this test is just for debugging and should be replaced with more specific tests
     [Fact]
     public async Task TestCombatRequestHandlerAsync()
@@ -326,7 +322,43 @@ public class CombatServiceTests
         Assert.InRange(enemy.Health, 8, 14);
     }
     [Fact]
-    public async Task MagicMissileBreaksThroughParry()
+    public async Task MagicMissileIgnoresRattleGuardReduction()
+    {
+        var mage = new Mage("mage") { Health = 30, MaxHealth = 30 };
+        var skeleton = new Skeleton { Id = "skeleton", Health = 20, MaxHealth = 20 };
+
+        skeleton.StatusEffects.Add(new RattleGuardStatus(skeleton));
+
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { mage },
+            new List<Character> { skeleton });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = skeleton.Id,
+            Action = "Magic Missile"
+        });
+
+        Assert.NotEmpty(results);
+        Assert.Equal(10, skeleton.Health);
+
+        var mageResult = results.FirstOrDefault(r =>
+            r.Request.SourceCharacterId == mage.Id &&
+            r.Request.Action == "Magic Missile");
+
+        Assert.NotNull(mageResult);
+        var damageEvent = mageResult!.Events.FirstOrDefault(e => e.Event == "damage");
+        Assert.NotNull(damageEvent);
+        var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params);
+        Assert.Equal(10, damageParams.DamageAmount);
+    }
+    [Fact]
+    public async Task MagicMissileIgnoresParry()
     {
         var mage = new Mage
         {
@@ -474,5 +506,44 @@ public class CombatServiceTests
             Assert.Equal(15, enemy.Health);
         }
         Assert.Equal(6, warrior.Health); // The warrior should have taken 6 damage from the skeletons' counterattacks, so they should have 6 health remaining
+    }
+    [Fact]
+    public async Task RattleGuardReducesIncomingSlashDamageByHalf()
+    {
+        var player = new Warrior("player") { Health = 30, MaxHealth = 30 };
+        var skeleton = new Skeleton { Id = "skeleton", Health = 20, MaxHealth = 20 };
+
+        skeleton.StatusEffects.Add(new RattleGuardStatus(skeleton));
+
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { player },
+            new List<Character> { skeleton });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = player.Id,
+            TargetCharacterId = skeleton.Id,
+            Action = "Slash"
+        });
+
+        Assert.NotEmpty(results);
+        Assert.Equal(15, skeleton.Health);
+
+        var playerResult = results.FirstOrDefault(r =>
+            r.Request.SourceCharacterId == player.Id &&
+            r.Request.Action == "Slash");
+
+        Assert.NotNull(playerResult);
+
+        var damageEvent = playerResult!.Events.FirstOrDefault(e => e.Event == "damage");
+        Assert.NotNull(damageEvent);
+
+        var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params);
+        Assert.Equal(skeleton.Id, damageParams.TargetId);
+        Assert.Equal(5, damageParams.DamageAmount);
     }
 }
