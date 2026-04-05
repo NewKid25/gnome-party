@@ -632,6 +632,64 @@ public class CombatServiceTests
     }
 
     [Fact]
+    // Test: Mockery does 6 damage, applies Mock status to user, and making affected character target the user
+    public async Task MockeryAttacksAndRedirectsEnemyAttention()
+    {
+        // The bard that will use mockery. Should take 6 damage from the enemy instead of the ally, leaving it with 10 health remaining
+
+        var bard = new Bard("bard") { Health = 16, MaxHealth = 16 }; // Character that will use Mockery
+        var ally = new Warrior() {Id = "ally", Health = 6, MaxHealth = 6 }; // Original target of enemy attack
+        var enemy = new Skeleton() { Id = "enemy", Health = 26, MaxHealth = 26 }; // Enemy that will attack the ally warrior
+
+        var encounter = new ActiveCombatEncounter( // Create the encounter with the bard, ally, and enemy
+            new List<Character> { bard, ally },
+            new List<Character> { enemy });
+
+        var mockdb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockdb.Object); // Create the combat service with the mocked database
+
+        // Make the combat request for the bard to use Mockery on the enemy mage
+        var result1 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = bard.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Mockery"
+        });
+
+        // Make the combat request for the ally to use Slash on the enemy mage
+        var result2 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = ally.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+        
+        // Verify a result was passed
+        Assert.NotEmpty(result2); 
+        var enemyResult = result2.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id);
+        Assert.NotNull(enemyResult);
+
+        var enemyDamageEvent = enemyResult!.Events.FirstOrDefault(e => e.Event == "damage");
+        Assert.NotNull(enemyDamageEvent);
+
+        var damageParams = Assert.IsType<DamageEventParams>(enemyDamageEvent!.Params);
+        Assert.Equal(6, damageParams.DamageAmount);
+        Assert.Equal(bard.Id, damageParams.TargetId);
+
+        Assert.Contains(bard.StatusEffects, s => s is MockStatus); // Verify Mock Status was applied to the bard
+
+        // Verfiy that Mockery did 6 damage to the enemy mage, applied Mock Status to the bard, and redirected enemy's attack to the user
+        Assert.Contains(bard.StatusEffects, s => s is MockStatus);
+        Assert.Equal(10, enemy.Health); // Received 6 damage from the bard's mockery and 10 damage from the ally's slash
+        Assert.Equal(10, bard.Health); // Received 6 damage from the enemy's Bone Slash instead of the ally being attacked
+        Assert.Equal(6, ally.Health); // Received no damage froom the enemy mage
+    }
+
+    [Fact]
     // Test: Parry prevents enemy slash attack
     public async Task ParryPreventsEnemySlash()
     {

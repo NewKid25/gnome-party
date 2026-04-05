@@ -44,7 +44,7 @@ namespace Models.Status
             if (!AffectedCharacterIds.Contains(attacker.Id)) { return currentTarget; } // If the attacker is not affected by this mock, return the current target unchanged
             
             // Find the mocker character who applied this mock status
-            var mocker = gameState.PlayerCharacters.Concat(gameState.EnemyCharacters).FirstOrDefault(c => c.Id == SourceCharacterId && c.Health > 0);
+            var mocker = gameState.PlayerCharacters.Concat(gameState.EnemyCharacters).FirstOrDefault(c => c.Id == StatusOwnerCharacterId && c.Health > 0);
             if(mocker == null) { return currentTarget; }
             return mocker; // Return mocker as the new target
         }

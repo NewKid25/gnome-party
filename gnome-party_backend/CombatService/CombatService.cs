@@ -274,7 +274,7 @@ namespace CombatService
         
         // Method for resolving the target of an action, taking redirection from status effects into account
         private Character ResolveActionTarget(
-            Character source,
+            Character attacker,
             CharacterAction action,
             CombatEncounterGameState gameState,
             Character originalTarget,
