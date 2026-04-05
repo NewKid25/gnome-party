@@ -22,6 +22,8 @@ namespace Models.Status
             StatusOwnerCharacterId = enemy.Id; // The character affected by the status
             AffectedCharacterIds = new List<string> { enemy.Id }; // The character whose attacks will be reduced
         }
+        
+        // Make a deep copy of the status effect
         public override StatusEffect DeepCopy()
         {
             return new ChillStatus
@@ -35,6 +37,8 @@ namespace Models.Status
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
             };
         }
+
+        // Modify the outgoing damage multiplier to reflect the affect of Chill Status
         public override double ModifyOutgoingDamageMultiplier(Character source, Character target, double currentMultiplier, bool isUnblockable)
         {
             if (AffectedCharacterIds.Contains(source.Id))

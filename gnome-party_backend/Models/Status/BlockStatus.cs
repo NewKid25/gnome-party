@@ -8,7 +8,10 @@ namespace Models.Status
 {
     public sealed class BlockStatus : StatusEffect
     {
+        // Default constructor for serialization
         public BlockStatus() { }
+
+        // Constructor for the Block Status Effect
         public BlockStatus(Character user, Character ally)
         {
             SourceCharacterId = user.Id;
@@ -27,6 +30,8 @@ namespace Models.Status
                 ["ExpiredText"] = $"{user.Name} is no longer guarding {ally.Name}."
             };
         }
+
+        // Make a deep copy of the status effect
         public override StatusEffect DeepCopy()
         {
             return new BlockStatus
@@ -40,6 +45,8 @@ namespace Models.Status
                 StatusDescription = new Dictionary<string, string>(StatusDescription)
             };
         }
+
+        // Modify the damage reduction to reflect the affect of Block Status
         public override double ModifyDamageReduction(
           Character source,
           Character target,
@@ -56,6 +63,8 @@ namespace Models.Status
             }
             return currentReduction;
         }
+
+        // Modify the attack target to reflect the affect of Block Status
         public override Character ModifyRedirectTarget(
             Character source,
             Character originalTarget,
@@ -63,8 +72,10 @@ namespace Models.Status
             CombatEncounterGameState gameState,
             bool isUnblockable)
         {
-            if (AffectedCharacterIds.Contains(originalTarget.Id))
+            if (AffectedCharacterIds.Contains(originalTarget.Id)) // Check to see if the original target is being protected by Block
             {
+                // If the block status is active, and the character being attacked is the one being blocked, redirect to blocker
+                // Check to make sure the blocker is still alive
                 var owner = gameState.PlayerCharacters.Concat(gameState.EnemyCharacters)
                     .FirstOrDefault(c => c.Id == StatusOwnerCharacterId && c.Health > 0);
 

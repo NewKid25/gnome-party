@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Models.Status
 {
+    // Event parameter classes for status-related combat events
     public class StatusTickEventParams
     {
         public string SourceId { get; set; } = "";

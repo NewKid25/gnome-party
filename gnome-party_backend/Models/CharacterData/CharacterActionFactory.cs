@@ -7,6 +7,7 @@ namespace Models.CharacterData;
 
 public class CharacterActionFactory
 {
+    // Class that creates CharacterAction instances based on action names.
         public static CharacterAction CreateCharacterAction(string actionName)
         {
         return actionName switch

@@ -7,7 +7,9 @@ namespace Models.Status
 {
     public sealed class RattleGuardStatus : StatusEffect
     {
-        public RattleGuardStatus() { }
+        public RattleGuardStatus() { } // Parameterless constructor for deserialization
+
+        // Constructor to initialize the Rattle Guard status with the user character
         public RattleGuardStatus(Character user)
         {
             Duration = 1;
@@ -25,6 +27,8 @@ namespace Models.Status
             StatusOwnerCharacterId = user.Id;
             SourceCharacterId = user.Id;
         }
+
+        // Creates a deep copy of the RattleGuardStatus instance
         public override StatusEffect DeepCopy()
         {
             return new RattleGuardStatus
@@ -37,6 +41,8 @@ namespace Models.Status
                 SourceCharacterId = SourceCharacterId,
             };
         }
+
+        // Modifies the damage reduction to reflect the affect of Rattle Guard
         public override double ModifyDamageReduction(
             Character source,
             Character target,

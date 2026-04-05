@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Models.CharacterData;
+// Class for describing character actions
 public class CharacterActionDescription
 {
     public string Description { get; set; }

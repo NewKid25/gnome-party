@@ -3,7 +3,8 @@ using Models.CombatData;
 
 namespace Models.CharacterData
 {
-    public abstract class CharacterAction
+    // Base class for character actions
+    public abstract class CharacterAction 
     {
         public string AttackName { get; private set; }
         public bool Unblockable { get; private set; }

@@ -3,13 +3,16 @@ using Models.CombatData;
 
 namespace Models.Status
 {
-    public enum DurationUnit
+    // Enum to represent the unit of time for status effect duration
+    public enum DurationUnit 
     {
         Campaign,
         Encounter,
         TurnStart,
         TurnEnd
     }
+
+    // Static class to hold constant keys for status effect modifiers
     public static class StatusModifierKeys
     {
         public const string DamageReduction = "DamageReduction";
@@ -26,6 +29,8 @@ namespace Models.Status
         public Dictionary<string, string> StatusDescription { get; set; } = new();
         public string StatusOwnerCharacterId { get; set; } = string.Empty;
         public string SourceCharacterId { get; set; } = string.Empty;
+        
+        // Provides a method to create a deep copy of the StatusEffect instance
         public virtual StatusEffect DeepCopy()
         {
             return new StatusEffect 
@@ -39,22 +44,32 @@ namespace Models.Status
                 SourceCharacterId = SourceCharacterId, 
             };
         }
+
+        // Provides a method to process the status effect
         public virtual void Process(Character actingCharacter, List<CombatEvent> events){}
+
+        // Provides a method to modify incoming damage multiplier
         public virtual double ModifyIncomingDamageMultiplier(
             Character source,
             Character target,
             double currentMultiplier,
             bool isUnblockable) { return currentMultiplier; }
+
+        // Provides a method to modify outgoing damage multiplier
         public virtual double ModifyOutgoingDamageMultiplier(
             Character source,
             Character target,
             double currentMultiplier,
             bool isUnblockable)   {    return currentMultiplier; }
+
+        // Provides a method to modify damage reduction
         public virtual double ModifyDamageReduction(
             Character source,
             Character target,
             double currentReduction,
             bool isUnblockable)   {     return currentReduction;  }
+
+        // Provides a method to modify the redirect target of an attack
         public virtual Character ModifyRedirectTarget(
             Character source,
             Character originalTarget,

@@ -4,6 +4,7 @@ using Models.Status;
 namespace Models.CharacterData;
 public class Character
 {
+    // Class for representing a character in the game
     public string CharacterType { get; set; }
     public int Health { get; set; }
     public string Id { get; set; }
