@@ -32,6 +32,7 @@ namespace Models.Actions
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                         IsUnblockable = true,
+                        IsBlocked = false,
                     }
                 }
             };

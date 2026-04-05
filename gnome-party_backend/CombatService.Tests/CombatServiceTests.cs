@@ -77,7 +77,7 @@ public class CombatServiceTests
     }
     
     [Fact]
-    // Test: Verify that action is processed only after both players have submitted their actions
+    // Test: Action is processed only after both players have submitted their actions
     public async Task SlashWithTwoPlayersProcessesAfterBothReadyAndProducesDamageEvent()
     {
         // Create two player characters and two enemy skeletons for the encounter
@@ -137,19 +137,23 @@ public class CombatServiceTests
     }
 
     [Fact]
-    // Test: Verify that Bone Slash correctly applies damage to the target enemy 
+    // Test: Bone Slash correctly applies damage to the target enemy 
     public async Task BoneSlashDealsCorrectDamage()
     {
-        var player = new Warrior("player");
+        // Initialize player and enemy
+        var player = new Warrior("player"); 
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
 
+        // Create a combat encounter with the player and enemy
         var encounter = new ActiveCombatEncounter(
             new List<Character> { player },
             new List<Character> { enemy });
 
+        // Initialize mock database and service to test combat service
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
+        // Create a combat request and store the results
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -159,7 +163,7 @@ public class CombatServiceTests
             Action = "Bone Slash"
         });
 
-        Assert.NotEmpty(results);
+        Assert.NotEmpty(results); // Check that results were sent back
 
         var playerResult = results.First(r =>
             r.Request.Action == "Bone Slash" &&
@@ -168,24 +172,31 @@ public class CombatServiceTests
         var damageEvent = playerResult.Events.First(e => e.Event == "damage");
         var damageParams = Assert.IsType<DamageEventParams>(damageEvent.Params);
 
+        // Test for appropriate damage event response and health of character after their attacks
         Assert.Equal(enemy.Id, damageParams.TargetId);
         Assert.Equal(6, damageParams.DamageAmount);
         Assert.Equal(14, enemy.Health);
     }
+
     [Fact]
+    // Test: Block redirects attack 
     public async Task BlockRedirectsEnemyAttackToBlockerAndReducesDamage()
     {
+        // Initialize an ally, blocker, and enemy for testing 
         var ally = new Warrior("ally") { Health = 30, MaxHealth = 30 };
         var blocker = new Warrior("blocker") { Health = 30, MaxHealth = 30 };
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
 
+        // Create an encounter for testing
         var encounter = new ActiveCombatEncounter(
             new List<Character> { ally, blocker },
             new List<Character> { enemy });
 
+        // Initialize a mockdb and combat service
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
+        // Ally goes first and does slash
         var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -195,8 +206,9 @@ public class CombatServiceTests
             Action = "Slash"
         });
 
-        Assert.Empty(firstResult);
+        Assert.Empty(firstResult); // Make sure result is empty because blocker hasn't picked an action
 
+        // Now the blocker blocks, which should redirect the attack and reduce its damage
         var secondResult = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -206,30 +218,38 @@ public class CombatServiceTests
             Action = "Block"
         });
 
-        Assert.NotEmpty(secondResult);
+        Assert.NotEmpty(secondResult); // Check that a result has been passed after blocker picked an action
 
+        // Verify that ally took no damage and that blocker received the attack at a reduced amount
         Assert.Equal(30, ally.Health);
         Assert.Equal(27, blocker.Health);
 
+        // Verify that the enemy attack was redirected and took place
         var enemyDamageResult = secondResult.FirstOrDefault(r => r.Request.SourceCharacterId == enemy.Id);
         Assert.NotNull(enemyDamageResult);
         Assert.Contains(enemyDamageResult!.Events, e => e.Event == "damage");
     }
+
     [Fact]
+    // Test: Fireball hits the target, burns the target, and burns those adjacent to the target
     public async Task FireballNormalCastAppliesSplashBurn()
     {
-        var caster = new Warrior("caster");
+        // Initialize the caster and sample enemies for testing
+        var caster = new Mage("caster");
         var enemy1 = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
         var enemy2 = new Skeleton { Id = "enemy2", Health = 20, MaxHealth = 20 };
         var enemy3 = new Skeleton { Id = "enemy3", Health = 20, MaxHealth = 20 };
 
+        // Create the encounter and initialize the service to test
         var encounter = new ActiveCombatEncounter(
             new List<Character> { caster },
             new List<Character> { enemy1, enemy2, enemy3 });
 
+        // Initialize the mockdb and service
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
+        // Cast fireball at enemy2, which should apply burn to enemy1, enemy2, and enemy3
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -239,8 +259,10 @@ public class CombatServiceTests
             Action = "Fireball"
         });
 
+        // Check that results were returned
         Assert.NotEmpty(results);
 
+        // Verify the correct results were passed 
         var playerResult = results.First(r =>
             r.Request.Action == "Fireball" &&
             r.Request.SourceCharacterId == caster.Id);
@@ -248,24 +270,26 @@ public class CombatServiceTests
         Assert.Contains(playerResult.Events, e => e.Event == "damage");
         Assert.True(playerResult.Events.Count(e => e.Event == "burn_status_applied") >= 3);
 
+        // Check that all the enemies were burned
         Assert.Contains(enemy1.StatusEffects, s => s is BurnStatus);
         Assert.Contains(enemy2.StatusEffects, s => s is BurnStatus);
         Assert.Contains(enemy3.StatusEffects, s => s is BurnStatus);
     }
+
     [Fact]
+    // Test: Fireball, when redirected, only affects the blocker
     public async Task FireballWhenRedirectedBurnsOnlyBlocker()
     {
+        // Initialize caster, blocker, and ally for testing
         var caster = new Mage("caster");
-
-        var blocker = new Skeleton
+        var blocker = new Warrior
         {
             Id = "blocker",
             Name = "Blocker",
             Health = 30,
             MaxHealth = 30
         };
-
-        var ally = new Skeleton
+        var ally = new Warrior
         {
             Id = "ally",
             Name = "Ally",
@@ -273,15 +297,19 @@ public class CombatServiceTests
             MaxHealth = 30
         };
 
+        // Manually give blocker the Block Status
         blocker.StatusEffects.Add(new BlockStatus(blocker, ally));
 
+        // Create the encounter and service
         var encounter = new ActiveCombatEncounter(
             new List<Character> { caster },
             new List<Character> { blocker, ally });
 
+        // Initialize the mockdb and service
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
+        // Cast the fireball at ally
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -291,28 +319,35 @@ public class CombatServiceTests
             Action = "Fireball"
         });
 
-        Assert.NotEmpty(results);
+        Assert.NotEmpty(results); // Ensure results isn't empty
 
         // Fireball 6 damage redirected to blocker, reduced by 50% => 3 + 2 burn damage = 5 total damage to the blocker
         Assert.Equal(30, ally.Health);
         Assert.Equal(25, blocker.Health);
 
+        // Ensure that only the blocker receives burn damage
         Assert.Contains(blocker.StatusEffects, s => s is BurnStatus);
         Assert.DoesNotContain(ally.StatusEffects, s => s is BurnStatus);
     }
+
     [Fact]
+    // Test: Fury Strikes produces multiple damage events
     public async Task FuryStrikesProducesMultipleDamageEvents()
     {
+        // Initialize player and enemy for testing
         var player = new Warrior("player");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
 
+        // Create combat encounter and service
         var encounter = new ActiveCombatEncounter(
             new List<Character> { player },
             new List<Character> { enemy });
 
+        // Initialize mockdb and service for testing
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
+        // Player uses Fury Strikes, which should produce 2-4 damage events against the enemy
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -322,31 +357,41 @@ public class CombatServiceTests
             Action = "Fury Strikes"
         });
 
-        Assert.NotEmpty(results);
+        Assert.NotEmpty(results); // Verify that results were passed from Combat Request
 
+        // Verify that the correct results were passed
         var playerResult = results.First(r =>
             r.Request.Action == "Fury Strikes" &&
             r.Request.SourceCharacterId == player.Id);
 
         var damageEvents = playerResult.Events.Where(e => e.Event == "damage").ToList();
 
+        // Verify that the damage produced was within range
         Assert.InRange(damageEvents.Count, 2, 4);
         Assert.InRange(enemy.Health, 8, 14);
     }
+
     [Fact]
+    // Test: Magic Missile ignores the damage reduction of Rattle Guard
     public async Task MagicMissileIgnoresRattleGuardReduction()
     {
+        // Initialize mage and skeleton for testing
         var mage = new Mage("mage") { Health = 30, MaxHealth = 30 };
         var skeleton = new Skeleton { Id = "skeleton", Health = 20, MaxHealth = 20 };
 
+        // Manually add the Rattle Guard Status to the skeleton
         skeleton.StatusEffects.Add(new RattleGuardStatus(skeleton));
 
+        // Create encounter and service
         var encounter = new ActiveCombatEncounter(
             new List<Character> { mage },
             new List<Character> { skeleton });
 
+        // Initialize a mockdb and combat service
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
+
+        // Create a combat request of mage doing Magic Missile to skeleton
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -356,9 +401,10 @@ public class CombatServiceTests
             Action = "Magic Missile"
         });
 
-        Assert.NotEmpty(results);
-        Assert.Equal(10, skeleton.Health);
-
+        Assert.NotEmpty(results); // Verify that a result was passed
+        Assert.Equal(10, skeleton.Health); // Verify that Rattle Guard did not reduce Magic Missile's damage
+         
+        // Verify the correct results were passed
         var mageResult = results.FirstOrDefault(r =>
             r.Request.SourceCharacterId == mage.Id &&
             r.Request.Action == "Magic Missile");
@@ -369,9 +415,12 @@ public class CombatServiceTests
         var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params);
         Assert.Equal(10, damageParams.DamageAmount);
     }
+
     [Fact]
+    // Test: Magic Missile ignores the damage reduction of Parry
     public async Task MagicMissileIgnoresParry()
     {
+        // Initialize mage and skelly for testing 
         var mage = new Mage
         {
             Id = "mage",
@@ -380,14 +429,20 @@ public class CombatServiceTests
             MaxHealth = 30
         };
         var skelly = new Skeleton() { Id = "skelly", Name = "Skelly", Health = 30, MaxHealth = 30 };
+
+        // Manually add the Parry Status Effect to the skelly
         skelly.StatusEffects.Add(new ParryStatus(skelly, mage));
+
+        // Initialize a combat encounter for testing
         var encounter = new ActiveCombatEncounter(
             new List<Character> { mage },
             new List<Character> { skelly });
 
+        // Initialize a mockdb and combat service
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
+        // Cast magic missile at the skelly
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -397,8 +452,9 @@ public class CombatServiceTests
             Action = "Magic Missile"
         });
 
-        Assert.NotEmpty(results);
+        Assert.NotEmpty(results); // Verify that results were passed back from Combat Request
 
+        // Verify that the correct damage was done to the mage and skelly
         Assert.Equal(24, mage.Health);
         Assert.Equal(20, skelly.Health);
 
@@ -406,9 +462,12 @@ public class CombatServiceTests
         Assert.NotNull(mageResult);
         Assert.Contains(mageResult!.Events, e => e.Event == "damage");
     }
+
     [Fact]
+    // Test: Magic Missile is redirected but damage isn't reduced 
     public async Task MagicMissileRedirectedButFullDamage()
     {
+        // Initialize caster, blocker, and ally for testing
         var caster = new Mage("caster");
         var blocker = new Skeleton
         {
@@ -424,12 +483,20 @@ public class CombatServiceTests
             Health = 30,
             MaxHealth = 30
         };
+
+        // Manually apply Block Status 
         blocker.StatusEffects.Add(new BlockStatus(blocker, ally));
+
+        // Initialize encounter and service
         var encounter = new ActiveCombatEncounter(
             new List<Character> { caster },
             new List<Character> { blocker, ally });
+
+        // Create a mockdb and service for testing
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
+
+        // Create a combat request of caster calling Magic Missile
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -438,17 +505,23 @@ public class CombatServiceTests
             TargetCharacterId = ally.Id,
             Action = "Magic Missile"
         });
-        Assert.NotEmpty(results);
+
+        Assert.NotEmpty(results); // Verify that results were passed
+
         // Block is attempted, so damage is redirected to blocker, but Magic Missile is unblockable so no damage reduction is applied
         Assert.Equal(30, ally.Health);
         Assert.Equal(20, blocker.Health);
     }
+
     [Fact]
+    // Test: Mirror duplicates Fireball and splits the damage
     public async Task MirrorCorrectlyDuplicatesFireball()
     {
         var mage = new Mage("mage") { Health = 78, MaxHealth = 78 };
     }
+
     [Fact]
+    // Test: Parry prevents enemy slash attack
     public async Task ParryPreventsEnemySlash()
     {
         var parryer = new Warrior("blocker") { Health = 30, MaxHealth = 30 }; // The character that will use Parry to block the enemy's attack
@@ -486,7 +559,16 @@ public class CombatServiceTests
         Assert.Equal(parryer.Id, damageParams.TargetId); // The target of the enemy's attack should still be the parryer, even though the damage is prevented by the Parry status
         Assert.Equal(0, damageParams.DamageAmount); // The damage amount should be 0 because the Parry status should prevent all damage from the enemy's attack
     }
+
     [Fact]
+    // Test: Parry prevents enemy Fireball damage, but not the burn damage
+    public async Task ParryPreventsFireballDamage()
+    {
+
+    }
+
+    [Fact]
+    // Test: Whirling Strike hits the entire enemy team
     public async Task WhirlingStrikeHitsEntireEnemyTeam()
     {
         var warrior = new Warrior("warrior") { Health = 42, MaxHealth = 42 }; // Should have 6 health remaining after taking 6 Skeleton Slashes
@@ -520,20 +602,28 @@ public class CombatServiceTests
         }
         Assert.Equal(6, warrior.Health); // The warrior should have taken 6 damage from the skeletons' counterattacks, so they should have 6 health remaining
     }
+
     [Fact]
+    // Test: Rattle Guard Reduced Slash Damage
     public async Task RattleGuardReducesIncomingSlashDamageByHalf()
     {
+        // Initialize a player and a skeleton for testing
         var player = new Warrior("player") { Health = 30, MaxHealth = 30 };
         var skeleton = new Skeleton { Id = "skeleton", Health = 20, MaxHealth = 20 };
 
+        // Manually add the Rattle Guard Status to the skeleton
         skeleton.StatusEffects.Add(new RattleGuardStatus(skeleton));
 
+        // Create an encounter with the player and the skeleton
         var encounter = new ActiveCombatEncounter(
             new List<Character> { player },
             new List<Character> { skeleton });
 
+        // Create the mock db and combat service for testing
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
+
+        // Execute the combat request
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
@@ -543,23 +633,26 @@ public class CombatServiceTests
             Action = "Slash"
         });
 
-        Assert.NotEmpty(results);
-        Assert.Equal(15, skeleton.Health);
+        Assert.NotEmpty(results); // Verify that a result was passed 
+        Assert.Equal(15, skeleton.Health); // Verify that the incoming damage has been reduced
 
+        // Retrieve the result from the combat request
         var playerResult = results.FirstOrDefault(r =>
             r.Request.SourceCharacterId == player.Id &&
             r.Request.Action == "Slash");
 
-        Assert.NotNull(playerResult);
+        Assert.NotNull(playerResult); // Verify that the result from the combat request is present
 
+        // Verify the damage event and parameters
         var damageEvent = playerResult!.Events.FirstOrDefault(e => e.Event == "damage");
         Assert.NotNull(damageEvent);
-
         var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params);
         Assert.Equal(skeleton.Id, damageParams.TargetId);
         Assert.Equal(5, damageParams.DamageAmount);
     }
+
     [Fact]
+    // Test: Ice Ray applies the correct status (Chill Status) and reduces the enemy's attack power
     public async Task IceRayAppliesChillStatusAndReducesEnemyAttackPower()
     {
         var mage = new Mage("mage") { Health = 20, MaxHealth = 20 }; // Create a mage character with 20 health
@@ -584,7 +677,9 @@ public class CombatServiceTests
         Assert.Equal(25, enemy.Health); // The skeleton should have taken 5 damage from the Ice Ray
         Assert.Equal(17, mage.Health); // The mage should have taken 6 damage from the skeleton's attack, reduced by 50% because of the Chill status, for a total of 3 damage taken
     }
+
     [Fact]
+    // Test: Chill Status reduces the enemy's outgoing damage
     public async Task ChillStatusReducesOutgoingDamage()
     {
         var mage = new Mage("mage") { Health = 20, MaxHealth = 20 }; // Create a mage character with 20 health
