@@ -362,7 +362,6 @@ namespace Models.Tests
             Assert.Equal(2, status.Duration);
             Assert.Equal(DurationUnit.TurnEnd, status.DurationUnit);
             Assert.Contains("enemy", status.AffectedCharacterIds);
-
         }
 
         [Fact]

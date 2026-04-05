@@ -282,17 +282,15 @@ public class CombatServiceTests
     {
         // Initialize caster, blocker, and ally for testing
         var caster = new Mage("caster");
-        var blocker = new Warrior
+        var blocker = new Skeleton
         {
             Id = "blocker",
-            Name = "Blocker",
             Health = 30,
             MaxHealth = 30
         };
-        var ally = new Warrior
+        var ally = new Skeleton
         {
             Id = "ally",
-            Name = "Ally",
             Health = 30,
             MaxHealth = 30
         };
@@ -517,7 +515,69 @@ public class CombatServiceTests
     // Test: Mirror duplicates Fireball and splits the damage
     public async Task MirrorCorrectlyDuplicatesFireball()
     {
-        var mage = new Mage("mage") { Health = 78, MaxHealth = 78 };
+        var mage = new Mage("mage") { Health = 78, MaxHealth = 78 }; // Should have 6 health remaining after taking 12 Bone Slashes from enemy Skeletons
+
+        // Six copies of a basic skeleton to test that Fireball and Mirrored Fireball properly hit everyone
+        var enemy1 = new Skeleton { Id = "enemy1" };
+        var enemy2 = new Skeleton { Id = "enemy2" };
+        var enemy3 = new Skeleton { Id = "enemy3" };
+        var enemy4 = new Skeleton { Id = "enemy4" };
+        var enemy5 = new Skeleton { Id = "enemy5" };
+        var enemy6 = new Skeleton { Id = "enemy6" };
+
+        var enemies = new List<Character> { enemy1, enemy2, enemy3, enemy4, enemy5, enemy6 };
+
+        // Create the encounter and initialize the service to test
+        var encounter = new ActiveCombatEncounter(new List<Character> { mage }, enemies);
+
+        // Initialize the mockdb and service
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+
+        // Cast Mirror on enemy2
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = enemy2.Id,
+            Action = "Mirror"
+        });
+
+        Assert.NotEmpty(results); // Check that results were returned 
+        Assert.Contains(mage.StatusEffects, s => s is MirrorStatus); // Check that the Mirror Status was applied to the user
+        Assert.Equal(42, mage.Health); // Check for the result of 6 enemy Bone Slash attacks
+
+        // Cast Fireball on enemy5 which should also be mirrored onto enemy2
+        var results2 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = enemy5.Id,
+            Action = "Fireball",
+        });
+
+        Assert.NotEmpty(results2); // Check that results were returned from our attack
+                                   
+        // Verify the correct results were passed 
+        var playerResult = results2.First(r =>
+            r.Request.Action == "Fireball" &&
+            r.Request.SourceCharacterId == mage.Id);
+        Assert.Contains(playerResult.Events, e => e.Event == "damage");
+        Assert.True(playerResult.Events.Count(e => e.Event == "burn_status_applied") >= 6);
+
+        // Verify enemies 1, 3, 4, and 6 were only burned
+        Assert.Equal(18, enemy1.Health);
+        Assert.Equal(18, enemy3.Health);
+        Assert.Equal(18, enemy4.Health);
+        Assert.Equal(18, enemy6.Health);
+
+        // Verify enemies 2 and 5 were hit with the fireball damage and burned
+        Assert.Equal(12, enemy2.Health);
+        Assert.Equal(12, enemy5.Health);
+
+        Assert.Equal(6, mage.Health); // The mage should have taken 6 damage from the skeletons' counterattacks, so they should have 6 health remaining
     }
 
     [Fact]
@@ -534,7 +594,8 @@ public class CombatServiceTests
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
         var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
 
-        var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the parryer to use Parry on the enemy's attack
+        // Make the combat request for the parryer to use Parry on the enemy's attack
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest 
         {
             EncounterId = encounter.EncounterId,
             GameSessionId = "game1",
@@ -544,7 +605,7 @@ public class CombatServiceTests
         });
 
         Assert.NotEmpty(results); // Check that we got results back from the combat request handler
-        Assert.Contains(parryer.StatusEffects, s => s is ParryStatus); // Check that the Parry status was applied to the enemy
+        Assert.Contains(parryer.StatusEffects, s => s is ParryStatus); // Check that the Parry status was applied to the user
 
         Assert.Equal(30, parryer.Health); // The parryer should take no damage from the enemy's attack because of the Parry status, so their health should remain at 30
         Assert.Equal(30, enemy.Health); // The enemy should also take no damage from the parry, so their health should remain at 30
@@ -561,17 +622,61 @@ public class CombatServiceTests
     }
 
     [Fact]
-    // Test: Parry prevents enemy Fireball damage, but not the burn damage
+    // Test: Parry prevents enemy Fireball damage, but not the burn damage to target and allies
     public async Task ParryPreventsFireballDamage()
     {
+        // Initialize mage and warriors for testing
+        var mage = new Mage("mage") { Health = 20, MaxHealth = 20 };
+        var skeleton1 = new Skeleton() { Id = "skeleton1",  Health = 30, MaxHealth = 30 };
+        var skeleton2 = new Skeleton() { Id = "skeleton2", Health = 30, MaxHealth = 30 };
+        var skeleton3 = new Skeleton() { Id = "skeleton3", Health = 30, MaxHealth = 30 };
 
+        // Create an encounter with the mage and all three warriors
+        var encounter = new ActiveCombatEncounter( 
+            new List<Character> { mage },
+            new List<Character> { skeleton1, skeleton2, skeleton3 });
+
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+
+        skeleton2.StatusEffects.Add(new ParryStatus(skeleton2, mage)); // Manually attach the parry status to skeleton2
+
+        // Make the combat request for the mage to use Fireball on the skeletons
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest 
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = skeleton2.Id,
+            Action = "Fireball"
+        });
+
+        Assert.NotEmpty(results); // Check that we got results back from the combat request handler
+
+        // Verify the correct results were passed 
+        var playerResult = results.First(r =>
+            r.Request.Action == "Fireball" &&
+            r.Request.SourceCharacterId == mage.Id);
+
+        Assert.Contains(playerResult.Events, e => e.Event == "damage");
+        Assert.True(playerResult.Events.Count(e => e.Event == "burn_status_applied") >= 3);
+
+        // Check that all the enemies were burned
+        Assert.Contains(skeleton1.StatusEffects, s => s is BurnStatus);
+        Assert.Contains(skeleton2.StatusEffects, s => s is BurnStatus);
+        Assert.Contains(skeleton3.StatusEffects, s => s is BurnStatus);
+
+        // Check that all enemies took burn damage, but warrior parried the initial fireball damage
+        Assert.Equal(28, skeleton1.Health);
+        Assert.Equal(28, skeleton2.Health);
+        Assert.Equal(28, skeleton3.Health);
     }
 
     [Fact]
     // Test: Whirling Strike hits the entire enemy team
     public async Task WhirlingStrikeHitsEntireEnemyTeam()
     {
-        var warrior = new Warrior("warrior") { Health = 42, MaxHealth = 42 }; // Should have 6 health remaining after taking 6 Skeleton Slashes
+        var warrior = new Warrior("warrior") { Health = 42, MaxHealth = 42 }; // Should have 6 health remaining after taking 6 Bone Slashes
 
         // Six copies of a basic skeleton to test that Whirling Strike hits all enemies and that damage is calculated correctly for each
         var enemy1 = new Skeleton { Id = "enemy1" };
@@ -596,7 +701,8 @@ public class CombatServiceTests
         });
         Assert.NotEmpty(results); // Check that we got results back from the combat request handler
         var playerResult = results.First(r => r.Request.Action == "Whirling Strike" && r.Request.SourceCharacterId == warrior.Id); // Find the result for the Whirling Strike action used by our warrior
-        foreach (var enemy in enemies) // Loop through each enemy and check that they were hit by the attack and that the damage was calculated correctly. Each skeleton should take 5 damage from the Whirling Strike, so they should all have 15 health remaining
+        // Loop through each enemy and check that they were hit by the attack and that the damage was calculated correctly. Each skeleton should take 5 damage from the Whirling Strike, so they should all have 15 health remaining
+        foreach (var enemy in enemies) 
         {
             Assert.Equal(15, enemy.Health);
         }
