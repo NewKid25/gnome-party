@@ -24,6 +24,8 @@ public class CharacterActionFactory
             "Magic Missile" => new MagicMisslie(),
             "Mirror" => new Mirror(),
             
+            // Bard Attacks
+            "Mockery" => new Mockery(),
 
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),

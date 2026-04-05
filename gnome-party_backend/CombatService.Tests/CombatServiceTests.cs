@@ -581,6 +581,57 @@ public class CombatServiceTests
     }
 
     [Fact]
+    // Test: Mirror duplicates Ice Ray and applies 2 copies of Chill Status
+    public async Task MirrorCorrectlyDuplicatesIceRay()
+    {
+        var mage = new Mage("mage") { Health = 24, MaxHealth = 24 }; // Should have 6 health remaining after taking 2 Full Damage Bone Slashes and 2 Reduced Bone Slashes
+        
+        // Create 2 skeleton enemies for testing
+        // Both shoulf have 5 health left after taking an Ice Ray each
+        var enemy1 = new Skeleton() { Id = "skeleton1", Health = 10, MaxHealth = 10 };
+        var enemy2 = new Skeleton() { Id = "skeleton2", Health = 10, MaxHealth = 10 };
+
+        var enemies = new List<Character> { enemy1, enemy2 };
+
+        // Create the encounter and initialize the service to test
+        var encounter = new ActiveCombatEncounter(new List<Character> { mage }, enemies);
+
+        // Initialize the mockdb and service
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+
+        // Cast Mirror on enemy1
+        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = enemy1.Id,
+            Action = "Mirror"
+        });
+
+        Assert.NotEmpty(results); // Check that results were returned 
+        Assert.Contains(mage.StatusEffects, s => s is MirrorStatus); // Check that the Mirror Status was applied to the user
+        Assert.Equal(12, mage.Health); // Check for the result of 2 Full Damage Bone Slash attacks
+
+        // Cast Ice Ray on enemy2 which should also be mirrored onto enemy1
+        var results2 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = enemy2.Id,
+            Action = "Ice Ray",
+        });
+
+        // Verify that both skeleton have taken 5 damage from Ice Ray
+        Assert.Equal(5, enemy1.Health);
+        Assert.Equal(5, enemy2.Health);
+
+        Assert.Equal(6, mage.Health); // Check for the result of 2 reduced damage Bone Slashes
+    }
+
+    [Fact]
     // Test: Parry prevents enemy slash attack
     public async Task ParryPreventsEnemySlash()
     {

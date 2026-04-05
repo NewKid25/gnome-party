@@ -6,7 +6,7 @@ using Models.Status;
 namespace Models.Actions
 {
     // Ice Ray: Deals 5 damage and applies a chill status effect to the target, reducing their attack power 
-    public class IceRay : CharacterAction
+    public sealed class IceRay : CharacterAction
     {
         public IceRay() : base("Ice Ray") // Pass the name of the action to the base constructor
         {

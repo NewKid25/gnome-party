@@ -5,7 +5,7 @@ using Models.CombatData;
 namespace Models.Actions
 {
     // Bone Slash: A basic melee attack that deals 6 damage to a single target.
-    public class BoneSlash : CharacterAction
+    public sealed class BoneSlash : CharacterAction
     {
         public BoneSlash() : base("Bone Slash") // Call the base constructor with the action name
         {

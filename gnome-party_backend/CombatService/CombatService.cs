@@ -21,8 +21,13 @@ namespace CombatService
         {
             this.databaseService = databaseService;
         }
+
+        // Method for refreshing or adding a new copy of a status effect
+        // * Status effects do not stack, they simply refresh their duration and modifiers *
         private void ApplyStatusEffects(Character character, StatusEffect newStatus)
         {
+            // Checks for an existing copy of a status. Makes a new status if 
+            // there isn't one, otherwise refreshes the existing one.
             var existingStatus = character.StatusEffects.FirstOrDefault(s => s.GetType() == newStatus.GetType());
             if (existingStatus == null)
             {
@@ -74,8 +79,11 @@ namespace CombatService
             combatResults.AddRange(enemyCombatResults);
             return combatResults;
         }
+        
+        // Method for finding a character (player or enemy) in the game state
         private Character FindCharacter(CombatEncounterGameState gameState, string id)
         {
+            // Search for a character by id in either the player or enemy list
             Character character = gameState.PlayerCharacters.FirstOrDefault(c => c.Id == id);
             if (character != null)
             {
@@ -84,12 +92,17 @@ namespace CombatService
             character = gameState.EnemyCharacters.FirstOrDefault(c => c.Id == id);
             return character;
         }
+
+        // Method for getting all characters (player and enemy) in the game state
         private IEnumerable<Character> GetAllCharacters(CombatEncounterGameState gameState)
         {
             return gameState.PlayerCharacters.Concat(gameState.EnemyCharacters);
         }
+
+        // Method for calculating damage reduction modifiers from status effects
         private double GetDamageReduction(Character source, Character target, bool isUnblockable)
         {
+            // Iterate through all status effects on the target to find damage reduction modifiers
             double reduction = 0.0;
             foreach (var status in target.StatusEffects)
             {
@@ -97,8 +110,11 @@ namespace CombatService
             }
             return Math.Min(reduction, 1.0);
         }
+
+        // Method for calculating incoming damage multiplier from status effects
         private double GetIncomingDamageMultiplier(Character source, Character target, bool isUnblockable)
         {
+            // Iterate through all status effects on the target to find incoming damage multiplier modifiers
             double multiplier = 1.0;
             foreach (var status in target.StatusEffects)
             {
@@ -106,8 +122,11 @@ namespace CombatService
             }
             return multiplier;
         }
+
+        // Method for calculating outgoing damage multiplier from status effects
         private double GetOutgoingDamageMultiplier(Character source, Character target, bool isUnblockable)
         {
+            // Iterate through all status effects on the source to find outgoing damage multiplier modifiers
             double multiplier = 1.0;
             foreach (var status in source.StatusEffects)
             {
@@ -115,6 +134,8 @@ namespace CombatService
             }
             return multiplier;
         }
+        
+        // Method for processing combat requests and returning the results
         async Task<List<CombatResult>> ProcessCombatRequestsAsync(CombatRequest[] combatRequests, ActiveCombatEncounter encounter)
         {
             var combatResults = new List<CombatResult>();
@@ -126,9 +147,12 @@ namespace CombatService
                 {
                     continue;
                 }
+
+                // Variables to hold the combat state and events
                 var roundEvents = new List<CombatEvent>();
                 var action = CharacterActionFactory.CreateCharacterAction(request.Action);
-                //looks for character in            
+
+                //looks for characters and null checks them        
                 var srcCharacter = FindCharacter(encounter.GameState, request.SourceCharacterId);
                 var originalTargetCharacter = FindCharacter(encounter.GameState, request.TargetCharacterId);
                 if (srcCharacter == null)
@@ -139,13 +163,15 @@ namespace CombatService
                 {
                     throw new InvalidOperationException($"Target character '{request.TargetCharacterId}' was not found.");
                 }
-                ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents);
-                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable);
-                var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id;
-                var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected);
-                resolution = ResolveMirror(encounter.GameState, srcCharacter, action, request.Action, resolution);
-                foreach (var attack in resolution.AttackInstances)
+
+                ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents); // Process status triggers that happen at the beginning of a character's turn
+                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable); // Resolve any target changes
+                var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
+                var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected); // Get the action instance with status effects applied
+                resolution = ResolveMirror(encounter.GameState, srcCharacter, action, request.Action, resolution); // Run a second copy of the action instance to the target associated with the mirror status
+                foreach (var attack in resolution.AttackInstances) // iterate through each attack instance in the resolution
                 {
+                    // Find and null check who is attacking and who is receiving that attack
                     var attackSource = FindCharacter(encounter.GameState, attack.SourceCharacterId);
                     var finalTarget = FindCharacter(encounter.GameState, attack.TargetCharacterId);
                     if (attackSource == null)
@@ -156,6 +182,8 @@ namespace CombatService
                     {
                         throw new InvalidOperationException("Attack target was not found.");
                     }
+
+                    // Calculating final damage after all modifiers
                     var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var damageReduction = GetDamageReduction(attackSource, finalTarget, attack.IsUnblockable);
@@ -180,6 +208,8 @@ namespace CombatService
                         TargetName = finalTarget.Name
                     }));
                 }
+
+                // Iterate through each status effect in the resolution and apply it to the appropriate character
                 foreach (var status in resolution.StatusEffectsToApply)
                 {
                     var owner = FindCharacter(encounter.GameState, status.StatusOwnerCharacterId);
@@ -189,17 +219,22 @@ namespace CombatService
                     }
                     ApplyStatusEffects(owner, status);
                 }
-                roundEvents.AddRange(resolution.Events);
-                roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState));
-                ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents);
+                roundEvents.AddRange(resolution.Events); // Store events from the given round/turn
+                roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
+                ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
+                
+                // Produce the final result to send to the client
                 var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
                 combatResults.Add(result);
             }
             await databaseService.SaveAsync(encounter);
-            return combatResults;
+            return combatResults; // Return the results
         }
+        
+        // Method for processing status triggers (effects that occur at the start or end of a turn)
         public void ProcessStatusTriggers(CombatEncounterGameState gameState, Character character, DurationUnit trigger, List<CombatEvent> events)
         {
+            // Iterate through all status effects on the character, update duration, and remove expired statuses
             var expiredStatuses = new List<StatusEffect>();
             foreach (var status in character.StatusEffects.Where(s => s.DurationUnit == trigger).ToList())
             {
@@ -220,8 +255,11 @@ namespace CombatService
                 }));
             }
         }
+        
+        // Method for removing dead *ENEMY* characters from the game state
         List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)
         {
+            // Iterate through all enemy characters and remove those that have been defeated
             var events = new List<CombatEvent>();
             var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
 
@@ -233,6 +271,8 @@ namespace CombatService
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
             return events;
         }
+        
+        // Method for resolving the target of an action, taking redirection from status effects into account
         private Character ResolveActionTarget(
             Character source,
             CharacterAction action,
@@ -240,13 +280,14 @@ namespace CombatService
             Character originalTarget,
             bool isUnblockable)
         {
+            // Iterate through all characters to check for redirecting status effects
             Character resolvedTarget = originalTarget;
             foreach (var character in gameState.PlayerCharacters.Concat(gameState.EnemyCharacters))
             {
                 foreach (var status in character.StatusEffects)
                 {
                     resolvedTarget = status.ModifyRedirectTarget(
-                        source,
+                        attacker,
                         originalTarget,
                         resolvedTarget,
                         gameState,
@@ -255,6 +296,8 @@ namespace CombatService
             }
             return resolvedTarget;
         }
+        
+        // Method for resolving the mirror status effect
         private AttackResolution ResolveMirror(
             CombatEncounterGameState gameState, 
             Character character, 

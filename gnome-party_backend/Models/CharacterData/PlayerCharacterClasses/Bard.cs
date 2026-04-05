@@ -7,6 +7,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
 {
     public sealed class Bard : Character
     {
+        public string CurrentSong;
         public Bard() : base(Guid.NewGuid().ToString())
         {
             // List of actions availiable to the Bard
@@ -17,6 +18,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             Health = 25;
             MaxHealth = 25;
             Name = "Bard";
+            CurrentSong = "Soothing Song";
         }
         public Bard(string id) : base(id)
         {
@@ -28,6 +30,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
             Health = 25;
             MaxHealth = 25;
             Name = "Bard";
+            CurrentSong = "Soothing Song";
         }
     }
 }

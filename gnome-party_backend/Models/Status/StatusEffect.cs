@@ -71,7 +71,7 @@ namespace Models.Status
 
         // Provides a method to modify the redirect target of an attack
         public virtual Character ModifyRedirectTarget(
-            Character source,
+            Character attacker,
             Character originalTarget,
             Character currentTarget,
             CombatEncounterGameState gameState,

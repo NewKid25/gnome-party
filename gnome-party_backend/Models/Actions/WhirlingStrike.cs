@@ -8,7 +8,7 @@ using Models.CombatData;
 namespace Models.Actions
 {
     // Whirling Strike: Deal 5 damage to all enemies.
-    public class WhirlingStrike : CharacterAction
+    public sealed class WhirlingStrike : CharacterAction
     {
         public WhirlingStrike() : base("Whirling Strike") // Call the base constructor with the name of the action
         {

@@ -5,7 +5,7 @@ using Models.CombatData;
 namespace Models.Actions
 {
     // Magic Missile: Deal 10 damage to target enemy uninterrupted
-    public class MagicMisslie : CharacterAction
+    public sealed class MagicMisslie : CharacterAction
     {
         public MagicMisslie() : base("Magic Missile") // Pass the action name to the base constructor
         {

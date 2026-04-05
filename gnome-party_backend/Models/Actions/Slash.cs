@@ -5,7 +5,7 @@ using Models.CombatData;
 namespace Models.Actions
 {
     // Slash: Deal 10 damage to target enemy
-    public class Slash : CharacterAction
+    public sealed class Slash : CharacterAction
     {
         public Slash() : base("Slash") // Pass the name of the action to the base constructor
         {
