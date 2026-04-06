@@ -5,9 +5,9 @@ using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
 using Xunit;
 
-namespace Models.Tests
+namespace Models.Tests.CharacterAITests.EasyEnemyPoolAI
 {
-    public class CharacterAITests
+    public class SkeletonAITests
     {
         [Theory] // Test cases for a skeleton with low health
         [InlineData(0.2, "Rattle Guard")]

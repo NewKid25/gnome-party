@@ -9,7 +9,7 @@ using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Tests
+namespace Models.Tests.PlayerClassActionTests
 {
     public class WarriorActionTests
     {

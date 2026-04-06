@@ -8,7 +8,7 @@ using Models.Status;
 using Moq;
 using Xunit;
 
-namespace CombatService.Tests;
+namespace CombatService.Tests.PlayerClassCSTests;
 
 public class BardCSTests
 {
