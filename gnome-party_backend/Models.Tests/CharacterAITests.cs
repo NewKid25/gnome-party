@@ -13,6 +13,7 @@ namespace Models.Tests
         [InlineData(0.2, "Rattle Guard")]
         [InlineData(0.4, "Rattle Guard")]
         [InlineData(0.8, "Bone Slash")]
+        // Test: Skeleton AI chooses "Rattle Guard" when health is low and random roll is less than or equal to 40%
         public void RattleGuardOnLowHealthAndCorrectRoll(double roll, string expectedAction)
         {
             var rng = new TestRandomGenerator(roll); // Create a TestRandomGenerator with the specified roll value
