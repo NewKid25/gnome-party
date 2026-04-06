@@ -5,6 +5,7 @@ using System.Text;
 using Models.AI;
 using Models.CombatData;
 using Models.CharacterData.EasyEnemyPoolClasses;
+using Models.AI.EasyEnemyPoolAI;
 
 namespace Models;
 

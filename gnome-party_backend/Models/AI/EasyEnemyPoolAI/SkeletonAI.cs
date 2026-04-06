@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.TestHelperData;
 
-namespace Models.AI;
+namespace Models.AI.EasyEnemyPoolAI;
 
 internal class SkeletonAI : CharacterAI
 {

@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.Actions;
+﻿using Models.Actions;
+using Models.Actions.BardActions;
+using Models.Actions.MageActions;
+using Models.Actions.SkeletonActions;
+using Models.Actions.WarriorActions;
 
 namespace Models.CharacterData;
 
@@ -26,6 +27,7 @@ public class CharacterActionFactory
             
             // Bard Attacks
             "Mockery" => new Mockery(),
+            "Discord" => new Discord(),
 
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),

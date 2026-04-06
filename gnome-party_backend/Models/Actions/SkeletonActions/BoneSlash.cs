@@ -2,7 +2,7 @@
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions
+namespace Models.Actions.SkeletonActions
 {
     // Bone Slash: A basic melee attack that deals 6 damage to a single target.
     public sealed class BoneSlash : CharacterAction

@@ -1,4 +1,5 @@
 ﻿using Models.Actions;
+using Models.Actions.MageActions;
 
 namespace Models.CharacterData.PlayerCharacterClasses
 {

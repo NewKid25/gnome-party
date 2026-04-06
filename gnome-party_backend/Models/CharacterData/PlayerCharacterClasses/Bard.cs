@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text;
 
@@ -31,6 +32,27 @@ namespace Models.CharacterData.PlayerCharacterClasses
             MaxHealth = 25;
             Name = "Bard";
             CurrentSong = "Soothing Song";
+        }
+
+        public string ChangeBardicSong(string currentSong)
+        {
+            // Switch statement to change the song that is being played after the Song Action was taken
+            string songToChange = null;
+            switch(currentSong)
+            {
+                case "Soothing Song":
+                    songToChange = "Inspiring Song";
+                    break;
+                case "Inspiring Song":
+                    songToChange = "Frightening Song";
+                    break;
+                case  "Frightening Song":
+                    songToChange = "Soothing Song";
+                    break;
+                default:
+                    return currentSong;
+            }
+            return songToChange;
         }
     }
 }

@@ -2,7 +2,7 @@
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions
+namespace Models.Actions.WarriorActions
 {
     // Slash: Deal 10 damage to target enemy
     public sealed class Slash : CharacterAction

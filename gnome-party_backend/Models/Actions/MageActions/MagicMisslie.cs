@@ -2,7 +2,7 @@
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions
+namespace Models.Actions.MageActions
 {
     // Magic Missile: Deal 10 damage to target enemy uninterrupted
     public sealed class MagicMisslie : CharacterAction

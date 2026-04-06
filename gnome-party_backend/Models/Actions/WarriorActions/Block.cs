@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions
+namespace Models.Actions.WarriorActions
 {
     // Block: Target an ally and apply a Block status to them
     // BlockStatus: Redirect the damage from the next attack that would hit the ally to the user instead and reduce damage by 50%

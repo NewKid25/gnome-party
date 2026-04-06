@@ -3,11 +3,11 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions
+namespace Models.Actions.BardActions
 {
     public sealed class Mockery : CharacterAction
     {
-        public Mockery() : base ("Mockery") // Pass thename of the action to the base constructor
+        public Mockery() : base ("Mockery") // Pass the name of the action to the base constructor
         {
             ActionDescription = new CharacterActionDescription("Mockery", "Dwals 6 damage and causes mocked enemy to target you");
         }

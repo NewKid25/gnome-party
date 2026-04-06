@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions
+namespace Models.Actions.MageActions
 {
     // Ice Ray: Deals 5 damage and applies a chill status effect to the target, reducing their attack power 
     public sealed class IceRay : CharacterAction
