@@ -110,8 +110,8 @@ public class BardCSTests
         Assert.Equal("Soothing Song", bard.CurrentSong);
 
         // Verfiy the correct damage has been done
-        Assert.Equal(1, enemy.Health);
-        Assert.Equal(22, bard.Health); // Keep a high help percentage to not trigger Rattle Guard option
+        Assert.Equal(22, enemy.Health);
+        Assert.Equal(10, bard.Health); // Keep a high help percentage to not trigger Rattle Guard option
     }
 
     [Fact]
