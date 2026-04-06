@@ -219,6 +219,31 @@ namespace CombatService
                     }
                     ApplyStatusEffects(owner, status);
                 }
+
+                // Iterate through each instance of healing to process and apply it to the appropriate character
+                foreach(var heal in resolution.HealInstances)
+                {
+                    // Null check for healing source and target
+                    var healingSource = FindCharacter(encounter.GameState, heal.SourceCharacterId);
+                    var healingTarget = FindCharacter(encounter.GameState, heal.TargetCharacterId);
+                    if(healingSource == null) { throw new InvalidOperationException("Healing source was not found."); }
+                    if(healingTarget == null) { throw new InvalidOperationException("Healing target was not found."); }
+
+                    // Calculate final healing after all modifiers
+                    var finalHealing = heal.BaseHealing;
+                    heal.FinalHealing = finalHealing;
+
+                    HealCharacter(healingTarget, finalHealing); // Apply the healing to the target
+
+                    roundEvents.Add(new CombatEvent("healed", new
+                    {
+                        SourceId = healingSource.Id,
+                        TargetId = healingTarget.Id,
+                        TargetName = healingTarget.Name,
+                        HealingAmount = finalHealing
+                    }));
+                }
+
                 roundEvents.AddRange(resolution.Events); // Store events from the given round/turn
                 roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
@@ -342,6 +367,20 @@ namespace CombatService
             targetResolution.Events.AddRange(mirrorAction.Events);
 
             return targetResolution; // The original resolution is returned but with the mirror action's effects combined in. 
+        }
+
+        // Method for healing a character
+        public void HealCharacter(Character character, int amount)
+        {
+            // Null check character for healing and healing amount
+            if(character == null) { throw new ArgumentNullException(nameof(character)); }
+            if(amount < 0) { throw new ArgumentOutOfRangeException(nameof(amount)); }
+
+            if(character.Health + amount >= character.MaxHealth) {  character.Health = character.MaxHealth; } // Check if the character would be over-healed
+            else // Heal character normally
+            {
+                character.Health += amount;
+            }
         }
     }
 }

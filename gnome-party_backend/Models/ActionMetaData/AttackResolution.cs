@@ -9,5 +9,6 @@ namespace Models.ActionMetaData
         public List<AttackInstance> AttackInstances { get; set; } = new();
         public List<CombatEvent> Events { get; set; } = new();
         public List<StatusEffect> StatusEffectsToApply { get; set; } = new();
+        public List<HealInstance> HealInstances { get; set; } = new();
     }
 }

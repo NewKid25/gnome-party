@@ -24,10 +24,14 @@ public class CharacterActionFactory
             "Ice Ray" => new IceRay(),
             "Magic Missile" => new MagicMisslie(),
             "Mirror" => new Mirror(),
-            
+
             // Bard Attacks
             "Mockery" => new Mockery(),
             "Discord" => new Discord(),
+            "Song" => new Song(),
+            "Soothing Song" => new SoothingSong(),
+            "Inspiring Song" => new InspiringSong(),
+            "Frightening Song" => new FrighteningSong(),
 
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),

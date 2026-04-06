@@ -79,11 +79,12 @@ public class ExtraActionsCSTests
     {
         // Initialize player and enemy for testing
         var player = new Warrior("player");
+        var player2 = new Warrior("player2");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
 
         // Create combat encounter and service
         var encounter = new ActiveCombatEncounter(
-            new List<Character> { player },
+            new List<Character> { player, player2 },
             new List<Character> { enemy });
 
         // Initialize mockdb and service for testing
@@ -97,6 +98,16 @@ public class ExtraActionsCSTests
             GameSessionId = "game1",
             SourceCharacterId = player.Id,
             TargetCharacterId = enemy.Id,
+            Action = "Fury Strikes"
+        });
+
+        // Player2 uses Fury Strikes, which should throw an error because of ineligible target
+        var result2 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = player2.Id,
+            TargetCharacterId = player.Id,
             Action = "Fury Strikes"
         });
 

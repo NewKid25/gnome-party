@@ -45,5 +45,10 @@ namespace Models.Actions.BardActions
 
             return resolution;
         }
+
+        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

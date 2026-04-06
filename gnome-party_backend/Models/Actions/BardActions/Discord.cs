@@ -21,8 +21,8 @@ namespace Models.Actions.BardActions
             bool isUnblockable = false)
         {
             // Add validation to ensure that the user and target are not null
-            if(user == null) {throw new ArgumentNullException("user");}
-            if (target == null) { throw new ArgumentNullException("target"); }
+            if(user == null) throw new ArgumentNullException(nameof(user));
+            if (user == null) throw new ArgumentNullException(nameof(target));
 
             var resolution = new AttackResolution(); // Create a new attack resolution to hold the results of the attack
 
@@ -46,6 +46,11 @@ namespace Models.Actions.BardActions
             }
 
             return resolution;
+        }
+
+        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
+        {
+            throw new NotImplementedException();
         }
     }
 }
