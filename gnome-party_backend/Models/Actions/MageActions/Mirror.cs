@@ -23,6 +23,10 @@ namespace Models.Actions.MageActions
             if(user == null) throw new ArgumentNullException(nameof(user)); // Check if the user is null and throw an exception if it is
             if (target == null) throw new ArgumentNullException(nameof(target)); // Check if the target is null and throw an exception if it is
 
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the action
             resolution.StatusEffectsToApply.Add(new MirrorStatus(user, target)); // Add a new MirrorStatus effect to the list of status effects to apply
             resolution.Events.Add(new CombatEvent("mirror_status_applied", new StatusAppliedEventParams /// Add a new CombatEvent to the list of events to trigger

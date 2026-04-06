@@ -36,11 +36,11 @@ namespace Models.Actions.WarriorActions
             }
 
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
-            List<Character> eligibleTargets = ReturnEligibleTargets(user, target, gameState);
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
             for (int i = 0; i < whirlStrikeTargets.Count; i++) // Iterate through each target and create an AttackInstance for each one
             {
-                if (!eligibleTargets.Contains(target)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); } // validate that the target is eligible for this attack
+                if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); } // validate that the target is eligible for this attack
 
                 resolution.AttackInstances.Add(new AttackInstance
                 {
@@ -53,14 +53,6 @@ namespace Models.Actions.WarriorActions
                 });
             }
             return resolution;
-        }
-
-        // Override the ReturnEligibleTargets method to return all members of the opposing team as eligible targets
-        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
-        {
-            List<Character> eligibleTargets = new List<Character>();
-            eligibleTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
-            return eligibleTargets;
         }
     }
 }

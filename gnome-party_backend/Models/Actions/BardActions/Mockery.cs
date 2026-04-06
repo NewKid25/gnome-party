@@ -25,7 +25,11 @@ namespace Models.Actions.BardActions
             if(target == null) { throw new ArgumentNullException(nameof(target));}
 
             var resolution = new AttackResolution(); // Creare a new attack resolution to hold the results of the attack
-            
+
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
             // Create a new AttackInstance for the Mockery attack and add it to the resolution
             resolution.AttackInstances = new List<AttackInstance>
             {
@@ -44,11 +48,6 @@ namespace Models.Actions.BardActions
             resolution.Events.Add(new CombatEvent("mock_status_applied", new StatusAppliedEventParams { OwnerId = user.Id }));
 
             return resolution;
-        }
-
-        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
-        {
-            throw new NotImplementedException();
         }
     }
 }

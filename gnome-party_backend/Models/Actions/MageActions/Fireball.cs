@@ -43,7 +43,12 @@ namespace Models.Actions.MageActions
             {
                 burnTargeets = TargetingService.GetTargetAndAdjacentAllies(gameState, target.Id);
             }
-            foreach(var burnTarget in burnTargeets) // Apply the burn status effect to each burn target and add a combat event for the status application
+
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
+            foreach (var burnTarget in burnTargeets) // Apply the burn status effect to each burn target and add a combat event for the status application
             {
                 resolution.StatusEffectsToApply.Add(new BurnStatus(user, burnTarget, burnDuration, burnTickDamage));
                 resolution.Events.Add(new CombatEvent("burn_status_applied", new StatusAppliedEventParams

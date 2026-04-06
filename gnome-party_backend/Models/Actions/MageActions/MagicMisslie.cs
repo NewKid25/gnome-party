@@ -20,6 +20,11 @@ namespace Models.Actions.MageActions
         {
             if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user character is not null
             if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that the target character is not null
+
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
             return new AttackResolution // Return a new AttackResolution object with the details of the attack
             {
                 AttackInstances = new List<AttackInstance>

@@ -23,10 +23,22 @@ namespace Models.Actions.WarriorActions
         {
             if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user is not null
             if (ally == null) throw new ArgumentNullException(nameof(ally)); // Validate that the ally is not null
+
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Contains(ally)) { throw new ArgumentException("Target is not eligible for this attack", nameof(ally)); }
+
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the action
             resolution.StatusEffectsToApply.Add(new BlockStatus(user, ally)); // Add a new BlockStatus to the list of status effects to apply
             resolution.Events.Add(new CombatEvent("block_status_applied", new {sourceId = user.Id, ownerId = user.Id, targetId = ally.Id})); // Add a new combat event to indicate that the block status has been applied
             return resolution;
+        }
+
+        public override List<Character> ReturnEligibleTargets(Character user, CombatEncounterGameState gameState)
+        {
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (gameState == null) { throw new ArgumentNullException(nameof(gameState)); }
+            return TargetingService.GetTargetsTeam(gameState, user.Id);
         }
     }
 }

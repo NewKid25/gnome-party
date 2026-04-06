@@ -24,6 +24,10 @@ namespace Models.Actions.BardActions
             if(user == null) throw new ArgumentNullException(nameof(user));
             if (user == null) throw new ArgumentNullException(nameof(target));
 
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
             var resolution = new AttackResolution(); // Create a new attack resolution to hold the results of the attack
 
             // Create a new AttackInstance for the Discord attack and add it to the resolution
@@ -46,11 +50,6 @@ namespace Models.Actions.BardActions
             }
 
             return resolution;
-        }
-
-        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
-        {
-            throw new NotImplementedException();
         }
     }
 }

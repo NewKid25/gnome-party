@@ -93,6 +93,39 @@ namespace CombatService
             return character;
         }
 
+        // Method for retreiving the eligible targets for a given character
+        public List<ActionTargetInfo> GetActionTargets(string encounterId, string characterId)
+        {
+            // Gets the encounter and character associated with the ids
+            var encounter = databaseService.LoadAsync<ActiveCombatEncounter>(encounterId).Result;
+            var character = FindCharacter(encounter.GameState, characterId);
+
+            if(character == null) { throw new InvalidOperationException("Character was not found."); } // Verify the character is no null
+
+            var results = new List<ActionTargetInfo>(); // variable to store the eligible action targets
+
+            foreach(var actionDescription in character.ActionsDescriptions)
+            {
+                // Find the action and targets associated with that action
+                var action = CharacterActionFactory.CreateCharacterAction(actionDescription.Name);
+                var eligibleTargets = action.ReturnEligibleTargets(character, encounter.GameState);
+
+                results.Add(new ActionTargetInfo
+                {
+                    ActionName = action.AttackName,
+                    EligibleTarget = eligibleTargets.Select(c => new TargetInfo
+                    {
+                        CharacterId = c.Id,
+                        Name = c.Name,
+                        CharacterType = c.CharacterType,
+                        Health = c.Health,
+                        MaxHealth = c.MaxHealth
+                    }).ToList()
+                });
+            }
+            return results;
+        }
+
         // Method for getting all characters (player and enemy) in the game state
         private IEnumerable<Character> GetAllCharacters(CombatEncounterGameState gameState)
         {

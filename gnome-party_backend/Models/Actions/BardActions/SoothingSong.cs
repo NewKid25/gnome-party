@@ -16,6 +16,11 @@ namespace Models.Actions.BardActions
             if (user == null) throw new ArgumentNullException(nameof(user)); // Validate the user, target, and gameState parameters
             if (target == null) throw new ArgumentNullException(nameof(target));
             if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the attack
             resolution.HealInstances.Add(new HealInstance
             { 
@@ -26,6 +31,13 @@ namespace Models.Actions.BardActions
                 TargetCharacterId = target.Id,
             });
             return resolution;
+        }
+
+        public override List<Character> ReturnEligibleTargets(Character user, CombatEncounterGameState gameState)
+        {
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+            return TargetingService.GetTargetsTeam(gameState, user.Id);
         }
     }
 }

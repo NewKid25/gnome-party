@@ -17,6 +17,11 @@ namespace Models.CharacterData
         }
         public CharacterActionDescription ActionDescription { get; set; }
         public abstract AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false, bool isUnblockable = false);
-        public abstract List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState);
+        public virtual List<Character> ReturnEligibleTargets(Character user, CombatEncounterGameState gameState)
+        {
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+            return TargetingService.GetOpposingTeam(gameState, user.Id);
+        }
     }
 }

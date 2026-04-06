@@ -32,8 +32,8 @@ namespace Models.Actions
             if (target == null) throw new ArgumentNullException(nameof(target)); // Validate target is not null
 
             // Validate that the target is eligible for this attack
-            List<Character> eligibleTargets = ReturnEligibleTargets(user, target, gameState);
-            if(!eligibleTargets.Contains(target)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target));}
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); 
+            if(!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target));}
 
             var resolution = new AttackResolution(); // Create new AttackResolution to hold the results of the attack
             for (int i = 0; i < hitCount; i++) // Loop through the number of hits and add an AttackInstance for each hit
@@ -48,14 +48,6 @@ namespace Models.Actions
                 });
             }
             return resolution;
-        }
-
-        // Override the ReturnEligibleTargets method to return all members of the opposing team as eligible targets
-        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
-        {
-            List<Character> eligibleTargets = new List<Character>();
-            eligibleTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
-            return eligibleTargets;
         }
     }
 }

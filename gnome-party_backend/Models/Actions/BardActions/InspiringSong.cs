@@ -15,10 +15,5 @@ namespace Models.Actions.BardActions
         {
             throw new NotImplementedException();
         }
-
-        public override List<Character> ReturnEligibleTargets(Character user, Character target, CombatEncounterGameState gameState)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -45,6 +45,26 @@ namespace Models.Tests.PlayerClassActionTests
         }
 
         [Fact]
+        // Test: Block throws an error when the target is not an ally
+        public void BlockErrorWhenTargetIsNotAnAlly()
+        {
+            var blocker = new Warrior("blocker");
+            var ally = new Warrior("ally");
+            var enemy = new Skeleton { Id = "enemy" };
+
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { blocker, ally },
+                new List<Character> { enemy });
+
+            var action = new Block();
+
+            var ex = Assert.Throws<ArgumentException>(() =>
+                action.ResolveAttack(blocker, enemy, gameState));
+
+            Assert.Contains("Target is not eligible for this attack", ex.Message);
+        }
+
+        [Fact]
         // Test: Parry applies the parry status to the user when countering an enemy
         public void ParryAppliesParryStatusToUserAgainstTargetEnemy()
         {
@@ -73,6 +93,26 @@ namespace Models.Tests.PlayerClassActionTests
             Assert.Equal(1, status.Duration);
             Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
             Assert.Contains("enemy", status.AffectedCharacterIds);
+        }
+
+        [Fact]
+        // Test: Parry throws an error when the target is an ally
+        public void ParryErrorWhenTargetIsAlly()
+        {
+            var parrier = new Warrior("blocker");
+            var ally = new Warrior("ally");
+            var enemy = new Skeleton { Id = "enemy" };
+
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { parrier, ally },
+                new List<Character> { enemy });
+
+            var action = new Parry();
+
+            var ex = Assert.Throws<ArgumentException>(() =>
+                action.ResolveAttack(parrier, ally, gameState));
+
+            Assert.Contains("Target is not eligible for this attack", ex.Message);
         }
 
         [Fact]

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Models.ActionMetaData
 {
+    // Data Transfer Object for Healing Actions
     public class HealInstance
     {
         public string SourceCharacterId { get; set; } = "";
