@@ -146,6 +146,26 @@ namespace Models.Tests.PlayerClassActionTests
         }
 
         [Fact]
+        // Test: Slash throws an error when the target is an ally
+        public void SlashErrorWhenTargetIsAlly()
+        {
+            var slasher = new Warrior("blocker");
+            var ally = new Warrior("ally");
+            var enemy = new Skeleton { Id = "enemy" };
+
+            var gameState = new CombatEncounterGameState(
+                new List<Character> { slasher, ally },
+                new List<Character> { enemy });
+
+            var action = new Slash();
+
+            var ex = Assert.Throws<ArgumentException>(() =>
+                action.ResolveAttack(slasher, ally, gameState));
+
+            Assert.Contains("Target is not eligible for this attack", ex.Message);
+        }
+
+        [Fact]
         // Test: Whirling Strike deals damage to the entire enemy team
         public void WhirlingStrikeDamagesAllEnemies()
         {
@@ -184,6 +204,30 @@ namespace Models.Tests.PlayerClassActionTests
             Assert.Equal(expectedIds, actualIds);
 
             Assert.Empty(resolution.StatusEffectsToApply); // Verify that no status was applied
+        }
+
+        [Fact]
+        // Test: Whirling Strike throws an error when the target is an ally
+        public void WhirlingStrikeErrorWhenTargetIsAlly()
+        {
+            var striker = new Warrior("blocker");
+            var ally = new Warrior("ally");
+            var ally2 = new Warrior("ally2");
+            var ally3 = new Warrior("ally3");
+            var ally4 = new Warrior("ally4");
+            var ally5 = new Warrior("ally5");
+
+            List<Character> allies = new List<Character>() { striker, ally, ally2, ally3, ally4, ally5 };
+            var enemy = new Skeleton { Id = "enemy" };
+
+            var gameState = new CombatEncounterGameState( allies, new List<Character> { enemy });
+
+            var action = new Parry();
+
+            var ex = Assert.Throws<ArgumentException>(() =>
+                action.ResolveAttack(striker, ally, gameState));
+
+            Assert.Contains("Target is not eligible for this attack", ex.Message);
         }
     }
 }

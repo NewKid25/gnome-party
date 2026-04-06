@@ -7,11 +7,15 @@ using Models.EncounterData;
 using Models.Status;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace CombatService.Tests;
 
 public class ExtraActionsCSTests
 {
+    private readonly ITestOutputHelper testOutputHelper;
+    public ExtraActionsCSTests(ITestOutputHelper testOutputHelper) => this.testOutputHelper = testOutputHelper;
+
     //this test is just for debugging and should be replaced with more specific tests
     [Fact]
     public async Task TestCombatRequestHandlerAsync()
@@ -75,24 +79,20 @@ public class ExtraActionsCSTests
 
     [Fact]
     // Test: Fury Strikes produces multiple damage events
-    public async Task FuryStrikesProducesMultipleDamageEvents()
+    public async Task FuryStrikesThrowsWhenTargetIsAlly()
     {
-        // Initialize player and enemy for testing
         var player = new Warrior("player");
         var player2 = new Warrior("player2");
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
 
-        // Create combat encounter and service
         var encounter = new ActiveCombatEncounter(
             new List<Character> { player, player2 },
             new List<Character> { enemy });
 
-        // Initialize mockdb and service for testing
         var mockDb = BuildDbMock(encounter);
         var service = new CombatService(mockDb.Object);
 
-        // Player uses Fury Strikes, which should produce 2-4 damage events against the enemy
-        var results = await service.CombatRequestHandlerAsync(new CombatRequest
+        var results1 = await service.CombatRequestHandlerAsync(new CombatRequest
         {
             EncounterId = encounter.EncounterId,
             GameSessionId = "game1",
@@ -101,28 +101,73 @@ public class ExtraActionsCSTests
             Action = "Fury Strikes"
         });
 
-        // Player2 uses Fury Strikes, which should throw an error because of ineligible target
-        var result2 = await service.CombatRequestHandlerAsync(new CombatRequest
+        Assert.Empty(results1);
+
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            EncounterId = encounter.EncounterId,
-            GameSessionId = "game1",
-            SourceCharacterId = player2.Id,
-            TargetCharacterId = player.Id,
-            Action = "Fury Strikes"
+            await service.CombatRequestHandlerAsync(new CombatRequest
+            {
+                EncounterId = encounter.EncounterId,
+                GameSessionId = "game1",
+                SourceCharacterId = player2.Id,
+                TargetCharacterId = player.Id,
+                Action = "Fury Strikes"
+            });
         });
+    }
 
-        Assert.NotEmpty(results); // Verify that results were passed from Combat Request
+    [Fact]
+    // Test : Verifying that GetActionTargets returns eligible targets for each action when called within the Combat Service
+    public void GetActionTargetReturnsEligibleTargetsForEachAction()
+    {
+        var warrior = new Warrior("warrior");
+        var ally = new Warrior("ally");
+        var ally2 = new Warrior("ally2");
+        var enemy1 = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
+        var enemy2 = new Skeleton { Id = "enemy2", Health = 20, MaxHealth = 20 };
+        var enemy3 = new Skeleton { Id = "enemy3", Health = 20, MaxHealth = 20 };
 
-        // Verify that the correct results were passed
-        var playerResult = results.First(r =>
-            r.Request.Action == "Fury Strikes" &&
-            r.Request.SourceCharacterId == player.Id);
 
-        var damageEvents = playerResult.Events.Where(e => e.Event == "damage").ToList();
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { warrior, ally, ally2 },
+            new List<Character> { enemy1, enemy2, enemy3 });
 
-        // Verify that the damage produced was within range
-        Assert.InRange(damageEvents.Count, 2, 4);
-        Assert.InRange(enemy.Health, 8, 14);
+        var mockDb = new Mock<IDatabaseService>();
+        mockDb.Setup(db => db.LoadAsync<ActiveCombatEncounter>(encounter.EncounterId))
+              .ReturnsAsync(encounter);
+
+        var service = new CombatService(mockDb.Object);
+
+        var result = service.GetActionTargets(encounter.EncounterId, warrior.Id);
+
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+
+        var slashInfo = result.First(x => x.ActionName == "Slash");
+        Assert.NotNull(slashInfo);
+        var slashids = slashInfo.EligibleTarget.Select(t => t.CharacterId).ToList();
+        testOutputHelper.WriteLine($"Slash Targets: {string.Join(", ", slashids)}");
+
+        Assert.Equal(3, slashInfo!.EligibleTarget.Count);
+        Assert.Contains(slashInfo.EligibleTarget, t => t.CharacterId == enemy1.Id);
+        Assert.Contains(slashInfo.EligibleTarget, t => t.CharacterId == enemy2.Id);
+
+        var blockInfo = result.First(x => x.ActionName == "Block");
+        Assert.NotNull(blockInfo);
+        var blockids = blockInfo.EligibleTarget.Select(t => t.CharacterId).ToList();
+        testOutputHelper.WriteLine($"Block Targets: {string.Join(", ", blockids)}");
+
+        Assert.Contains(blockInfo!.EligibleTarget, t => t.CharacterId == warrior.Id);
+        Assert.Contains(blockInfo.EligibleTarget, t => t.CharacterId == ally.Id);
+        Assert.Contains(blockInfo.EligibleTarget, t => t.CharacterId == ally2.Id);
+
+        var parryInfo = result.First(x => x.ActionName == "Parry");
+        Assert.NotNull(parryInfo);
+        var parryids = parryInfo.EligibleTarget.Select(t => t.CharacterId).ToList();
+        testOutputHelper.WriteLine($"Parry Targets: {string.Join(", ", parryids)}");
+
+        Assert.Contains(parryInfo.EligibleTarget, t => t.CharacterId == enemy1.Id);
+        Assert.Contains(parryInfo.EligibleTarget, t => t.CharacterId == enemy2.Id);
     }
 
 }

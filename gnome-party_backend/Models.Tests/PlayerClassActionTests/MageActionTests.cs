@@ -61,30 +61,25 @@ namespace Models.Tests.PlayerClassActionTests
         // Test: Fireball redirected hits blocker and burns only the blocker
         public void FireballRedirectedHitsOnlyBlockerAndBurnsOnlyBlocker()
         {
-            // Initialize caster and blocker and 2 allies for testing
             var caster = new Warrior("caster");
             var blocker = new Warrior("blocker");
             var ally1 = new Warrior("ally1");
             var ally2 = new Warrior("ally2");
 
-            // Create a combat encounter for testing
             var gameState = new CombatEncounterGameState(
-                new List<Character> { blocker, ally1, ally2, caster },
-                new List<Character>());
+                new List<Character> { caster },
+                new List<Character> { blocker, ally1, ally2 });
 
-            // Execute Fireball with redirection
             var action = new Fireball();
             var resolution = action.ResolveAttack(caster, blocker, gameState, true);
 
-            Assert.Single(resolution.AttackInstances); // Verify attack instance occured
+            Assert.Single(resolution.AttackInstances);
 
-            // Verify Fireball redirected damage
             var hit = resolution.AttackInstances[0];
             Assert.Equal("blocker", hit.TargetCharacterId);
             Assert.Equal(6, hit.BaseDamage);
             Assert.True(hit.IsRedirected);
 
-            // Verify that only the blocker was burned
             Assert.Single(resolution.StatusEffectsToApply);
             var burn = resolution.StatusEffectsToApply[0];
             Assert.IsType<BurnStatus>(burn);
