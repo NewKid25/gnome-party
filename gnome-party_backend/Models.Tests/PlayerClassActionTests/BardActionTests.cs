@@ -79,8 +79,7 @@ namespace Models.Tests.PlayerClassActionTests
             Assert.Equal(8, hit.FinalDamage);
 
             // Verify Bardic Song was reset correctly
-            string verifiedSong = bard.CurrentSong;
-            Assert.Equal(verifiedSong, bard.CurrentSong);
+            Assert.Equal("Soothing Song", bard.CurrentSong);
         }
     }
 }

@@ -40,11 +40,9 @@ namespace Models.Actions.BardActions
             };
 
             // Reset the song attach to Bard
-            if(user.CharacterType == "Bard")
+            if(user is Bard resetBard)
             {
-                Bard bard = new Bard(user.Id);
-                bard.CurrentSong = "Soothing Song";
-                user = bard;
+                resetBard.CurrentSong = "Soothing Song";
             }
 
             return resolution;

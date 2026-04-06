@@ -76,11 +76,49 @@ public class BardCSTests
     /*******************************************************************************************************************/
 
     [Fact]
+    // Test: Discord does 8 damage and resets the current Bard song to Soothing Song
+    public async Task DiscordAppliesDamageAndChangesBardSong()
+    {
+        // Initialize a bard and an enemy skeleton for testing
+        var bard = new Bard("bard") { Health = 16, MaxHealth = 16 };
+        var enemy = new Skeleton() { Id = "enemy",  Health = 30, MaxHealth = 30 };
+
+        var encounter = new ActiveCombatEncounter( // Create the encounter with the bard and enemy skeleton
+            new List<Character> { bard },
+            new List<Character> { enemy }
+        );
+
+        var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
+        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+
+        // Make the combat request for the bard to use Discord on the enemy skeleton
+        var result = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = bard.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Discord"
+        });
+
+        // Verify the correct result was returned
+        Assert.NotEmpty(result);
+
+        var enemyResult = result.FirstOrDefault(res => res.Request.SourceCharacterId == enemy.Id);
+        Assert.NotNull(enemyResult);
+
+        Assert.Equal("Soothing Song", bard.CurrentSong);
+
+        // Verfiy the correct damage has been done
+        Assert.Equal(1, enemy.Health);
+        Assert.Equal(22, bard.Health); // Keep a high help percentage to not trigger Rattle Guard option
+    }
+
+    [Fact]
     // Test: Mockery does 6 damage, applies Mock status to user, and making affected character target the user
     public async Task MockeryAttacksAndRedirectsEnemyAttention()
     {
         // The bard that will use mockery. Should take 6 damage from the enemy instead of the ally, leaving it with 10 health remaining
-
         var bard = new Bard("bard") { Health = 16, MaxHealth = 16 }; // Character that will use Mockery
         var ally = new Warrior() { Id = "ally", Health = 6, MaxHealth = 6 }; // Original target of enemy attack
         var enemy = new Skeleton() { Id = "enemy", Health = 26, MaxHealth = 26 }; // Enemy that will attack the ally warrior
@@ -132,7 +170,5 @@ public class BardCSTests
         Assert.Equal(10, bard.Health); // Received 6 damage from the enemy's Bone Slash instead of the ally being attacked
         Assert.Equal(6, ally.Health); // Received no damage froom the enemy mage
     }
-
-
 
 }
