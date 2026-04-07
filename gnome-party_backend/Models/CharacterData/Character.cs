@@ -36,7 +36,7 @@ public class Character
             Health = Health,
             MaxHealth = MaxHealth,
             ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions),
-            StatusEffects = new List<StatusEffect>()
+            StatusEffects = StatusEffects.Select(s => s.DeepCopy()).ToList(),
         };
         return copy;
 

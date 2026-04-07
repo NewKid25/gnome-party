@@ -1,5 +1,6 @@
 ﻿using Models.Actions;
 using Models.Actions.BardActions;
+using Models.Actions.ExtraActions;
 using Models.Actions.MageActions;
 using Models.Actions.SkeletonActions;
 using Models.Actions.WarriorActions;
@@ -32,6 +33,7 @@ public class CharacterActionFactory
             "Soothing Song" => new SoothingSong(),
             "Inspiring Song" => new InspiringSong(),
             "Frightening Song" => new FrighteningSong(),
+            "Power Cord" => new PowerCord(),
 
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),

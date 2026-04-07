@@ -2,7 +2,7 @@
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions
+namespace Models.Actions.ExtraActions
 {
     // Fury Strikes: Hit the same target 2 to 4 times for 3 damage each
     public sealed class FuryStrikes : CharacterAction

@@ -197,6 +197,21 @@ namespace CombatService
                     throw new InvalidOperationException($"Target character '{request.TargetCharacterId}' was not found.");
                 }
 
+                // Check if the srcCharacter is stunned
+                var isStunned = srcCharacter.StatusEffects.OfType<StunStatus>().Any();
+                if(isStunned)
+                {
+                    ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents);
+                    roundEvents.Add(new CombatEvent("stunned", new 
+                    { 
+                        sourceId = srcCharacter.Id,
+                        targetId = srcCharacter.Id,
+                    }));
+                    var stunnedResults = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
+                    combatResults.Add(stunnedResults);
+                    continue;
+                }
+
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents); // Process status triggers that happen at the beginning of a character's turn
                 var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable); // Resolve any target changes
                 var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
@@ -415,5 +430,6 @@ namespace CombatService
                 character.Health += amount;
             }
         }
+
     }
 }

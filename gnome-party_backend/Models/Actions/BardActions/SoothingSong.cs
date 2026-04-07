@@ -33,6 +33,7 @@ namespace Models.Actions.BardActions
             return resolution;
         }
 
+        // Method to determine which targets are eligible for this attack
         public override List<Character> ReturnEligibleTargets(Character user, CombatEncounterGameState gameState)
         {
             if (user == null) throw new ArgumentNullException(nameof(user));

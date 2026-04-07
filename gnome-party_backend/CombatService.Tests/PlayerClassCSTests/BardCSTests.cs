@@ -1,4 +1,5 @@
 ﻿using GnomeParty.Database;
+using Models.Actions.BardActions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
@@ -7,6 +8,7 @@ using Models.EncounterData;
 using Models.Status;
 using Moq;
 using Xunit;
+using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
 namespace CombatService.Tests.PlayerClassCSTests;
 
@@ -169,6 +171,236 @@ public class BardCSTests
         Assert.Equal(10, enemy.Health); // Received 6 damage from the bard's mockery and 10 damage from the ally's slash
         Assert.Equal(10, bard.Health); // Received 6 damage from the enemy's Bone Slash instead of the ally being attacked
         Assert.Equal(6, ally.Health); // Received no damage froom the enemy mage
+    }
+
+    [Fact]
+    // Test: Song cycles through all songs
+    public void SongCyclesThroughAllSongs()
+    {
+        // Initialize a bard, ally, and enemy for testing
+        var bard = new Bard("bard");
+        var ally = new Bard("ally");
+        var enemy = new Skeleton { Id = "enemy" };
+
+        // Test that the bard's current song cycles through all 3 songs properly
+        var gameState = new CombatEncounterGameState(
+            new List<Character> { bard, ally },
+            new List<Character> { enemy });
+
+        // Execute the song action 3 times to cycle through all songs
+        var action = new Song(); 
+
+        action.ResolveAttack(bard, ally, gameState);
+        Assert.Equal(BardSongs.Inspiring, bard.CurrentSong);
+
+        action.ResolveAttack(bard, ally, gameState);
+        Assert.Equal(BardSongs.Frightening, bard.CurrentSong);
+
+        action.ResolveAttack(bard, enemy, gameState);
+        Assert.Equal(BardSongs.Soothing, bard.CurrentSong);
+    }
+
+    [Fact]
+    // Test: Soothing Song heals the target and then cycles to Inspiring Song
+    public async Task SongPlaysSoothingSongAndThenCyclesToInspiringSong()
+    {
+        // Initialize bard, ally, and enemy for testing
+        var bard = new Bard("bard")
+        {
+            Health = 25,
+            MaxHealth = 25
+        };
+        var ally = new Warrior("ally")
+        {
+            Health = 10,
+            MaxHealth = 30
+        };
+        var enemy = new Skeleton
+        {
+            Id = "enemy",
+            Health = 20,
+            MaxHealth = 20
+        };
+
+        bard.CurrentSong = BardSongs.Soothing; // Get the current bardic song
+
+        // Create the encounter with the bard, ally, and enemy
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { bard, ally },
+            new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter); // Mock db for testing
+        var service = new CombatService(mockDb.Object); // Make an instance of combat service for testing
+
+        // Have the bard execute song
+        var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = bard.Id,
+            TargetCharacterId = ally.Id,
+            Action = "Song"
+        });
+
+        Assert.Empty(firstResult);
+
+        // Have the ally use slash
+        var secondResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = ally.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+
+        Assert.NotEmpty(secondResult); // Make sure no results are sent until both player characters take an action
+        Assert.Equal(12, ally.Health); // Healed for 8 health, but targeted by Skeleton for 6 Bone Slash damage
+        Assert.Equal(BardSongs.Inspiring, bard.CurrentSong); // Verify that the bardic song has changed
+
+        var bardResult = secondResult.FirstOrDefault(r =>
+            r.Request.SourceCharacterId == bard.Id &&
+            r.Request.Action == "Song");
+
+        Assert.NotNull(bardResult);
+        Assert.Contains(bardResult!.Events, e => e.Event == "healed");
+    }
+
+    [Fact]
+    // Test: Inspiring Song buffs the ally and then cycles to Frightening Song
+    public async Task SongPlaysInspiringSongAndBuffsAlliesNextAttack()
+    {
+        var bard = new Bard("bard")
+        {
+            Health = 25,
+            MaxHealth = 25
+        };
+
+        var ally = new Warrior("ally")
+        {
+            Health = 30,
+            MaxHealth = 30
+        };
+
+        var enemy = new Skeleton
+        {
+            Id = "enemy",
+            Health = 20,
+            MaxHealth = 20
+        };
+
+        bard.CurrentSong = BardSongs.Inspiring;
+
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { bard, ally },
+            new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+
+        var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = bard.Id,
+            TargetCharacterId = ally.Id,
+            Action = "Song"
+        });
+
+        Assert.Empty(firstResult);
+
+        var secondResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = ally.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+
+        Assert.NotEmpty(secondResult);
+        Assert.Equal(BardSongs.Frightening, bard.CurrentSong);
+
+        // 20 HP enemy takes 15 from inspired Slash
+        Assert.Equal(5, enemy.Health);
+
+        var allyResult = secondResult.FirstOrDefault(r =>
+            r.Request.SourceCharacterId == ally.Id &&
+            r.Request.Action == "Slash");
+
+        Assert.NotNull(allyResult);
+
+        var damageEvent = allyResult!.Events.FirstOrDefault(e => e.Event == "damage");
+        Assert.NotNull(damageEvent);
+
+        var damageParams = Assert.IsType<DamageEventParams>(damageEvent!.Params);
+        Assert.Equal(enemy.Id, damageParams.TargetId);
+        Assert.Equal(15, damageParams.DamageAmount);
+    }
+
+    [Fact]
+    // Test: Frightening Song stuns the target and then cycles to Soothing Song
+    public async Task SongPlaysFrighteningSongAndStunsEnemy()
+    {
+        var bard = new Bard("bard")
+        {
+            Health = 25,
+            MaxHealth = 25
+        };
+
+        var ally = new Warrior("ally")
+        {
+            Health = 30,
+            MaxHealth = 30
+        };
+
+        var enemy = new Skeleton
+        {
+            Id = "enemy",
+            Health = 20,
+            MaxHealth = 20
+        };
+
+        bard.CurrentSong = BardSongs.Frightening;
+
+        var encounter = new ActiveCombatEncounter(
+            new List<Character> { bard, ally },
+            new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object);
+
+        var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = bard.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Song"
+        });
+
+        Assert.Empty(firstResult);
+
+        var secondResult = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = ally.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+
+        Assert.NotEmpty(secondResult);
+        Assert.Equal(BardSongs.Soothing, bard.CurrentSong);
+
+        var enemyResult = secondResult.FirstOrDefault(r =>
+            r.Request.SourceCharacterId == enemy.Id);
+
+        Assert.NotNull(enemyResult);
+
+        // This assumes your stun logic prevents the attack and emits a stun event
+        Assert.Contains(enemyResult!.Events, e => e.Event == "stunned");
+        Assert.DoesNotContain(enemyResult.Events, e => e.Event == "damage");
     }
 
 }

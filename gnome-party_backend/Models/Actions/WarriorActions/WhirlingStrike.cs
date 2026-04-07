@@ -38,9 +38,10 @@ namespace Models.Actions.WarriorActions
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
-            for (int i = 0; i < whirlStrikeTargets.Count; i++) // Iterate through each target and create an AttackInstance for each one
+            foreach (var currentTarget in whirlStrikeTargets) // Iterate through each target and create an AttackInstance for each one
             {
-                if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); } // validate that the target is eligible for this attack
+                // validate that the target is eligible for this attack
+                if (!isRedirected && !eligibleTargets.Any(c => c.Id == currentTarget.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); } 
 
                 resolution.AttackInstances.Add(new AttackInstance
                 {
@@ -49,7 +50,7 @@ namespace Models.Actions.WarriorActions
                     FinalDamage = 5,
                     IsRedirected = isRedirected,
                     SourceCharacterId = user.Id,
-                    TargetCharacterId = whirlStrikeTargets[i].Id,
+                    TargetCharacterId = currentTarget.Id,
                 });
             }
             return resolution;
