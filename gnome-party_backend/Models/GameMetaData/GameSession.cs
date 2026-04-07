@@ -27,14 +27,12 @@ public class GameSession
     public void AddParticipant(GameConnection connection)
     {
         Participants.Add(connection);
-        var character = new Character(connection.UserId);
+    }
+    public void AddPlayerCharacter(Character character)
+    {
         Campaign.PlayerCharacters.Add(character);
     }
-    public void AddParticipant(string connectionId, string userId)
-    {
-        var connection = new GameConnection(connectionId, userId, GameSessionId);
-        AddParticipant(connection);
-    }
+
     public void RemoveParticipant(string connectionId)
     {
         var connection = Participants.FirstOrDefault(c => c.ConnectionId == connectionId);

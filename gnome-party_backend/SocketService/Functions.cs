@@ -1,17 +1,20 @@
+using Amazon;
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using CombatService;
+using GnomeParty.Database;
+using Models;
+using Models.CharacterData;
+using Models.CharacterData.PlayerCharacterClasses;
+using Models.CombatData;
+using Models.EncounterData;
+using Models.GameMetaData;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using GnomeParty.Database;
-using CombatService;
-using Amazon;
-using Models.CombatData;
-using Models.GameMetaData;
-using Models.EncounterData;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -194,7 +197,7 @@ public class Functions
         };
     }
 
-    //{"route":"join-game"}
+    //{"route":"join-game", "InviteCode":849175}
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -274,7 +277,7 @@ public class Functions
         }
     }
 
-    //{"route":"join-game"}
+    //{"route":"host-game"}
     public async Task<APIGatewayProxyResponse> HostGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -318,6 +321,56 @@ public class Functions
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
                 Body = $"Failed to join game: {e.Message}"
+            };
+        }
+    }
+
+    //{"route":"lobby-ready", "CharacterType":"Mage"}
+    public async Task<APIGatewayProxyResponse> LobbyParticipantReadyHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            JsonDocument message = JsonDocument.Parse(request.Body);
+            var lobbyReadyRequest = message.Deserialize<LobbyReadyRequest>();
+
+            var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
+            var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
+
+            Character character = lobbyReadyRequest!.CharacterType switch
+            {
+                "Mage" => new Mage(),
+                "Warrior" => new Warrior(),
+                _ => throw new ArgumentException($"Unknown character type: {lobbyReadyRequest.CharacterType}")
+
+            };
+
+            gameSession.AddPlayerCharacter(character);
+
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(gameSession),
+                SendToConnectionAsync(connectionId, request, new ConnectionMessage("lobby-ready-success", character)),
+                SendToConnectionAsync(gameSession.Host.ConnectionId, request, new ConnectionMessage("lobby-ready", character))
+            };
+            await Task.WhenAll(tasks);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("LobbyParticipantReadyHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to ready up: {e.Message}"
             };
         }
     }
