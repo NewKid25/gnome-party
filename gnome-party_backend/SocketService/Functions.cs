@@ -414,6 +414,36 @@ public class Functions
         }
     }
 
+    //{"route":"lobby-unready"}
+    public async Task<APIGatewayProxyResponse> StartCampaignHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
+            var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
+            await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("start-campaign", gameSession));
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("StartCampaignHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to start campaign up: {e.Message}"
+            };
+        }
+    }
+
 
     public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {

@@ -363,6 +363,45 @@
         }
       }
     },
+    "StartCampaignFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "SocketService::SocketService.Functions::StartCampaignHandler",
+        "Runtime": "dotnet10",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": {
+                "Ref": "ConnectionMappingTableName"
+              }
+            }
+          },
+                    {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+          {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ConnectionMappingTableName"
+            }
+          }
+        }
+      }
+    },
     "GPWebSocketApi": {
       "Type": "AWS::ApiGatewayV2::Api",
       "Properties": {
@@ -747,6 +786,53 @@
         }
       }
     },
+      "StartCampaignRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "RouteKey": "start-campaign",
+        "AuthorizationType": "NONE",
+        "OperationName": "ConnectRoute",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "StartCampaignInteg"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "StartCampaignInteg": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Sub": [
+            "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${function}/invocations",
+            {
+              "region": {
+                "Ref": "AWS::Region"
+              },
+              "function": {
+                "Fn::GetAtt": [
+                  "StartCampaignFunction",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "Deployment": {
       "Type": "AWS::ApiGatewayV2::Deployment",
       "DependsOn": [
@@ -757,7 +843,8 @@
         "HostGameSessionRoute",
         "BeginCombatEncounterRoute",
         "LobbyParticipantReadyRoute",
-        "LobbyParticipantUnreadyRoute"
+        "LobbyParticipantUnreadyRoute",
+        "StartCampaignRoute"
       ],
       "Properties": {
         "ApiId": {
@@ -887,6 +974,20 @@
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Ref": "LobbyParticipantUnreadyFunction"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "StartCampaignPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "StartCampaignFunction",
+        "GPWebSocketApi"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "StartCampaignFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }
