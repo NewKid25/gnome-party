@@ -39,11 +39,16 @@ public class GameSession
         if (connection != null)
         {
             Participants.Remove(connection);
-            var character = Campaign.PlayerCharacters.FirstOrDefault(pc => pc.Id == connection.UserId);
-            if (character != null)
-            {
-                Campaign.PlayerCharacters.Remove(character);
-            }
+            RemovePlayerCharacter(connectionId);
+        }
+    }
+
+    public void RemovePlayerCharacter(string characterId)
+    {
+        var character = Campaign.PlayerCharacters.FirstOrDefault(pc => pc.Id == characterId);
+        if (character != null)
+        {
+            Campaign.PlayerCharacters.Remove(character);
         }
     }
 }

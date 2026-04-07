@@ -324,6 +324,45 @@
         }
       }
     },
+    "LobbyParticipantUnreadyFunction": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "SocketService::SocketService.Functions::LobbyParticipantUnreadyHandler",
+        "Runtime": "dotnet10",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": {
+                "Ref": "ConnectionMappingTableName"
+              }
+            }
+          },
+                    {
+            "DynamoDBCrudPolicy": {
+              "TableName": "GameTable"
+            }
+          },
+          {
+            "Statement": {
+              "Effect": "Allow",
+              "Action": "execute-api:ManageConnections",
+              "Resource": "arn:aws:execute-api:*:*:*/@connections/*"
+            }
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "ConnectionMappingTableName"
+            }
+          }
+        }
+      }
+    },
     "GPWebSocketApi": {
       "Type": "AWS::ApiGatewayV2::Api",
       "Properties": {
@@ -661,6 +700,53 @@
         }
       }
     },
+    "LobbyParticipantUnreadyRoute": {
+      "Type": "AWS::ApiGatewayV2::Route",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "RouteKey": "lobby-unready",
+        "AuthorizationType": "NONE",
+        "OperationName": "ConnectRoute",
+        "Target": {
+          "Fn::Join": [
+            "/",
+            [
+              "integrations",
+              {
+                "Ref": "LobbyParticipantUnreadyInteg"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "LobbyParticipantUnreadyInteg": {
+      "Type": "AWS::ApiGatewayV2::Integration",
+      "Properties": {
+        "ApiId": {
+          "Ref": "GPWebSocketApi"
+        },
+        "IntegrationType": "AWS_PROXY",
+        "IntegrationUri": {
+          "Fn::Sub": [
+            "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${function}/invocations",
+            {
+              "region": {
+                "Ref": "AWS::Region"
+              },
+              "function": {
+                "Fn::GetAtt": [
+                  "LobbyParticipantUnreadyFunction",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "Deployment": {
       "Type": "AWS::ApiGatewayV2::Deployment",
       "DependsOn": [
@@ -670,7 +756,8 @@
         "JoinGameSessionRoute",
         "HostGameSessionRoute",
         "BeginCombatEncounterRoute",
-        "LobbyParticipantReadyRoute"
+        "LobbyParticipantReadyRoute",
+        "LobbyParticipantUnreadyRoute"
       ],
       "Properties": {
         "ApiId": {
@@ -776,7 +863,7 @@
         "Principal": "apigateway.amazonaws.com"
       }
     },
-   "LobbyParticipantReadyPermission": {
+    "LobbyParticipantReadyPermission": {
       "Type": "AWS::Lambda::Permission",
       "DependsOn": [
         "LobbyParticipantReadyFunction",
@@ -786,6 +873,20 @@
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Ref": "LobbyParticipantReadyFunction"
+        },
+        "Principal": "apigateway.amazonaws.com"
+      }
+    },
+    "LobbyParticipantUnreadyPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "DependsOn": [
+        "LobbyParticipantUnreadyFunction",
+        "GPWebSocketApi"
+      ],
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "LobbyParticipantUnreadyFunction"
         },
         "Principal": "apigateway.amazonaws.com"
       }

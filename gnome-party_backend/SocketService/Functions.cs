@@ -375,6 +375,45 @@ public class Functions
         }
     }
 
+    //{"route":"lobby-unready"}
+    public async Task<APIGatewayProxyResponse> LobbyParticipantUnreadyHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
+            var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
+
+            gameSession.RemovePlayerCharacter(connectionId);
+
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(gameSession),
+                SendToConnectionAsync(connectionId, request, new ConnectionMessage("lobby-unready-success", "")),
+                SendToConnectionAsync(gameSession.Host.ConnectionId, request, new ConnectionMessage("lobby-unready", connection))
+            };
+            await Task.WhenAll(tasks);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("LobbyParticipantUnreadyHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to unready up: {e.Message}"
+            };
+        }
+    }
+
 
     public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
