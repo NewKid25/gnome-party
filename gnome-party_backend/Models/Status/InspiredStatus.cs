@@ -2,11 +2,11 @@
 
 namespace Models.Status
 {
-    public sealed class InspiringSongStatus : StatusEffect
+    public sealed class InspiredStatus : StatusEffect
     {
-        public InspiringSongStatus() { }
+        public InspiredStatus() { }
 
-        public InspiringSongStatus(Character source, Character ally)
+        public InspiredStatus(Character source, Character ally)
         {
             SourceCharacterId = source.Id;
             StatusOwnerCharacterId = ally.Id;
@@ -15,7 +15,7 @@ namespace Models.Status
 
             ModifierValues = new Dictionary<string, double>
             {
-                [StatusModifierKeys.OutgoingDamageMultiplier] = 1.5
+                [StatusModifierKeys.OutgoingDamageMultiplier] = 1.5 // Boost damage by 50% (150 % attack power)
             };
 
             AffectedCharacterIds = new List<string> { ally.Id };
@@ -30,7 +30,7 @@ namespace Models.Status
 
         public override StatusEffect DeepCopy()
         {
-            return new InspiringSongStatus
+            return new InspiredStatus
             {
                 SourceCharacterId = SourceCharacterId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,

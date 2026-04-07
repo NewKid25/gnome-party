@@ -30,7 +30,7 @@ namespace Models.Actions.BardActions
 
             // Apply the status effect to the ally
             var resolution = new AttackResolution();
-            resolution.StatusEffectsToApply.Add(new InspiringSongStatus(user, ally));
+            resolution.StatusEffectsToApply.Add(new InspiredStatus(user, ally));
             resolution.Events.Add(new CombatEvent("inspiring_song_applied", new StatusAppliedEventParams
             {
                 OwnerId = ally.Id

@@ -1,4 +1,6 @@
-﻿using Models.Actions.BardActions;
+﻿using System.ComponentModel.DataAnnotations;
+using Models.Actions.BardActions;
+using Models.Actions.WarriorActions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
@@ -87,13 +89,93 @@ namespace Models.Tests.PlayerClassActionTests
         // Test: Power Cord uses Soothing Song on all allies
         public void PowerCordSoothingSongOnAllAllies()
         {
+            // Initialize characters for testing
             var bard = new Bard("bard");
-            var warrior1 = new Warrior("warrior1") { Health = 20, MaxHealth = 30 };
+            var warrior1 = new Warrior("warrior1") { Health = 14, MaxHealth = 30 }; 
             var warrior2 = new Warrior("warrior2") { Health = 20, MaxHealth = 30 };
             var warrior3 = new Warrior("warrior3") { Health = 20, MaxHealth = 30 };
+            var enemy = new Skeleton() { Id = "skeleton", Health = 40, MaxHealth = 40 };
+            var allies = new List<Character> { bard, warrior1, warrior2, warrior3 };
 
-            var enemy = new Skeleton("")
+            var gameState = new CombatEncounterGameState( allies , new List<Character> { enemy }); // Initialize a gameState for testing
 
+            // Choose Soothing Song manually then execute Power Cord
+            bard.CurrentSong = BardSongs.Soothing;
+            var action = new PowerCord();
+            var resolution = action.ResolveAttack(bard, warrior2, gameState);
+
+            // Verify no attack was registered but rather a healing instance
+            Assert.Empty(resolution.AttackInstances);
+            Assert.Equal(4, resolution.HealInstances.Count);
+
+            // Verify that the healing affect went through
+            var healTargetIds = resolution.HealInstances.Select(h => h.TargetCharacterId).ToList();
+            Assert.Contains(bard.Id, healTargetIds);
+            Assert.Contains(warrior1.Id, healTargetIds);
+            Assert.Contains(warrior2.Id, healTargetIds);
+            Assert.Contains(warrior3.Id, healTargetIds);
+            Assert.All(resolution.HealInstances, heal => 
+            {
+                Assert.Equal(BardSongs.Soothing, heal.ActionName);
+                Assert.Equal(bard.Id, heal.SourceCharacterId);
+                Assert.Equal(8, heal.BaseHealing);
+                Assert.Equal(8, heal.FinalHealing);
+            });
+
+            // Verify that a status was given (should be stun)
+            Assert.NotEmpty(resolution.StatusEffectsToApply);
+            var status = resolution.StatusEffectsToApply[0];
+            Assert.IsType<StunStatus>(status);
+            Assert.Equal("bard", status.SourceCharacterId);
+            Assert.Equal("bard", status.StatusOwnerCharacterId);
+            Assert.Equal(1, status.Duration);
+            Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
+
+        }
+
+        [Fact]
+        // Test: Power Cord uses Inspiring Song on all allies
+        public void PowerCordInspiringOnAllAllies()
+        {
+            // Initialize characters for testing
+            var bard = new Bard("bard");
+            var warrior1 = new Warrior("warrior1") { Health = 14, MaxHealth = 30 };
+            var warrior2 = new Warrior("warrior2") { Health = 20, MaxHealth = 30 };
+            var warrior3 = new Warrior("warrior3") { Health = 20, MaxHealth = 30 };
+            var enemy = new Skeleton() { Id = "skeleton", Health = 40, MaxHealth = 40 };
+            var allies = new List<Character> { bard, warrior1, warrior2, warrior3 };
+
+            var gameState = new CombatEncounterGameState(allies, new List<Character> { enemy }); // Initialize a gameState for testing
+
+            // Choose Inspiring Song manually then execute Power Cord
+            bard.CurrentSong = BardSongs.Inspiring;
+            var action = new PowerCord();
+            var resolution = action.ResolveAttack(bard, warrior2, gameState);
+
+            // Verify that no attack or healing instance was generated
+            Assert.Empty(resolution.AttackInstances);
+            Assert.Empty(resolution.HealInstances);
+
+            // Verify 4 new instances of Inspired Status (for the ally team)
+            // 1 instance of stun against the Bard
+            Assert.Equal(5, resolution.StatusEffectsToApply.Count);
+
+            // Verify that the Bard was stunned after using Power Cord
+            var stunStatus = resolution.StatusEffectsToApply.SingleOrDefault(s => s is StunStatus);
+            Assert.NotNull(stunStatus);
+            Assert.Equal(bard.Id, stunStatus!.SourceCharacterId);
+            Assert.Equal(bard.Id, stunStatus.StatusOwnerCharacterId);
+            Assert.Equal(1, stunStatus.Duration);
+            Assert.Equal(DurationUnit.TurnStart, stunStatus.DurationUnit);
+
+            // Verify 4 Inspired Statuses (1 for each member of the ally team)
+            var inspiredTargets = resolution.StatusEffectsToApply.Where(s => s is InspiredStatus).Cast<InspiredStatus>().ToList();
+            Assert.Equal(4, inspiredTargets.Count);
+            var inspiredIds = inspiredTargets.Select(s => s.StatusOwnerCharacterId).ToList();
+            Assert.Contains(bard.Id, inspiredIds);
+            Assert.Contains(warrior1.Id, inspiredIds);
+            Assert.Contains(warrior2.Id, inspiredIds);
+            Assert.Contains(warrior3.Id, inspiredIds);
         }
 
         [Fact]
@@ -158,7 +240,7 @@ namespace Models.Tests.PlayerClassActionTests
             Assert.Single(resolution.StatusEffectsToApply);
 
             var status = resolution.StatusEffectsToApply[0];
-            Assert.IsType<InspiringSongStatus>(status);
+            Assert.IsType<InspiredStatus>(status);
             Assert.Equal(bard.Id, status.SourceCharacterId);
             Assert.Equal(ally.Id, status.StatusOwnerCharacterId);
             Assert.Equal(1, status.Duration);
