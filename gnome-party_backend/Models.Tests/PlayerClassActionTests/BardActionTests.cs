@@ -84,6 +84,19 @@ namespace Models.Tests.PlayerClassActionTests
         }
 
         [Fact]
+        // Test: Power Cord uses Soothing Song on all allies
+        public void PowerCordSoothingSongOnAllAllies()
+        {
+            var bard = new Bard("bard");
+            var warrior1 = new Warrior("warrior1") { Health = 20, MaxHealth = 30 };
+            var warrior2 = new Warrior("warrior2") { Health = 20, MaxHealth = 30 };
+            var warrior3 = new Warrior("warrior3") { Health = 20, MaxHealth = 30 };
+
+            var enemy = new Skeleton("")
+
+        }
+
+        [Fact]
         // Test: Song uses Soothing Song and heals
         public void SongUsesSoothingSongAndCyclesToInspiringSong()
         {

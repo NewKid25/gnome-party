@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.VisualBasic;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.TestHelperData;
@@ -26,8 +27,34 @@ internal class SkeletonAI : CharacterAI
         }
         var action = ChooseActionName(self, actions, enemies, allies); // Determine which action to take based on the current state
 
-        // Target the enemy with the lowest health percentage, then lowest absolute health, then highest max health as a tiebreaker
-        var target = aliveEnemies.OrderBy(e => (double)e.Health / Math.Max(1, e.MaxHealth)).ThenBy(e => e.Health).ThenByDescending(e => e.MaxHealth).First(); 
+        // Check 1: Get the target(s) with the lowest health percentage
+        double lowestHealthPercentage = aliveEnemies.Min(e => (double)e.Health / Math.Max(1, e.MaxHealth));
+        var lowestPercentTargets = aliveEnemies.Where(e => (double)e.Health / Math.Max(1, e.MaxHealth) == lowestHealthPercentage).ToList();
+
+        // Cjheck 2: Get the target(s) with the lowest overall health
+        int lowestHealh = lowestPercentTargets.Min(e => e.Health);
+        var lowestHealhTargets = lowestPercentTargets.Where(e => e.Health == lowestHealh).ToList();
+
+        // Check 3: Get the target(s) with the highest max health
+        int highestMaxHealth = lowestHealhTargets.Max(e => e.Health);
+        var finalTargets = lowestHealhTargets.Where(e => e.MaxHealth == highestMaxHealth).ToList();
+
+        // Check 4: Pick a random victim from the final target list
+        int index;
+        if (finalTargets.Count == 1)
+        {
+            index = 0;
+        }
+        else
+        {
+            index = (int)(Rng.NextDouble() * finalTargets.Count);
+            if (index >= finalTargets.Count)
+            {
+                index = finalTargets.Count - 1;
+            }
+        }
+        var target = finalTargets[index];
+
         return new CombatRequest // Create and return a CombatRequest with the chosen action and target
         {
             Action = action,
@@ -50,4 +77,5 @@ internal class SkeletonAI : CharacterAI
         }
         return GetDefaultAction(actions);
     }
+
 }
