@@ -10,9 +10,9 @@ namespace Models.Actions.ExtraActions
 {
     public sealed class StunDefaultAction : CharacterAction
     {
-        public StunDefaultAction() : base("Stunned Default Action")
+        public StunDefaultAction() : base("Stunned")
         {
-            ActionDescription = new CharacterActionDescription("Stunned", "Unable to act because of the Stun Status");
+            ActionDescription = new CharacterActionDescription("Stunned", "Unable to act while stunned");
         }
 
         public override AttackResolution ResolveAttack(

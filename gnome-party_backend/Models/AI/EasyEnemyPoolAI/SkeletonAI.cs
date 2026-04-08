@@ -36,7 +36,7 @@ internal class SkeletonAI : CharacterAI
         var lowestHealhTargets = lowestPercentTargets.Where(e => e.Health == lowestHealh).ToList();
 
         // Check 3: Get the target(s) with the highest max health
-        int highestMaxHealth = lowestHealhTargets.Max(e => e.Health);
+        int highestMaxHealth = lowestHealhTargets.Max(e => e.MaxHealth);
         var finalTargets = lowestHealhTargets.Where(e => e.MaxHealth == highestMaxHealth).ToList();
 
         // Check 4: Pick a random victim from the final target list
@@ -54,6 +54,10 @@ internal class SkeletonAI : CharacterAI
             }
         }
         var target = finalTargets[index];
+        if (finalTargets.Count == 0)
+        {
+            throw new InvalidOperationException("No valid final target candidates were found.");
+        }
 
         return new CombatRequest // Create and return a CombatRequest with the chosen action and target
         {

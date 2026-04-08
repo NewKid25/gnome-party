@@ -130,7 +130,6 @@ namespace Models.Tests.PlayerClassActionTests
             Assert.Equal("bard", status.StatusOwnerCharacterId);
             Assert.Equal(1, status.Duration);
             Assert.Equal(DurationUnit.TurnStart, status.DurationUnit);
-
         }
 
         [Fact]
@@ -176,6 +175,44 @@ namespace Models.Tests.PlayerClassActionTests
             Assert.Contains(warrior1.Id, inspiredIds);
             Assert.Contains(warrior2.Id, inspiredIds);
             Assert.Contains(warrior3.Id, inspiredIds);
+        }
+
+        [Fact]
+        // Test: Power Cord uses Frightening Song on all enemeis
+        public void PowerCordFrighteningOnAllEnemies()
+        {
+            // Initialize characters for testing
+            var bard = new Bard("bard");
+            var enemy1 = new Skeleton() { Id = "skeleton1" };
+            var enemy2 = new Skeleton() { Id = "skeleton2" };
+            var enemy3 = new Skeleton() { Id = "skeleton3" };
+            var enemy4 = new Skeleton() { Id = "skeleton4" };
+            var enemies = new List<Character> { enemy1, enemy2, enemy3, enemy4 };
+
+            var gameState = new CombatEncounterGameState(new List<Character> { bard }, enemies); // Initialize a gameState for testing
+
+            // Chooose Frightening Song manually then execute Power Cord
+            bard.CurrentSong = BardSongs.Frightening;
+            var action = new PowerCord();
+            var resolution = action.ResolveAttack(bard, enemy1, gameState);
+
+            // Verify that no attack or healing instance was generated
+            Assert.Empty(resolution.AttackInstances);
+            Assert.Empty(resolution.HealInstances);
+
+            // Verify 4 new instances of Stun Status (for the enemy team)
+            // 1 instance of stun against the Bard
+            Assert.Equal(5, resolution.StatusEffectsToApply.Count);
+
+            // Verify 5 Stun Statuses (1 for each member of the enemies team and 1 for the bard)
+            var stunTargets = resolution.StatusEffectsToApply.Where(s => s is StunStatus).Cast<StunStatus>().ToList();
+            Assert.Equal(5, stunTargets.Count);
+            var stunnedIds = stunTargets.Select(s => s.StatusOwnerCharacterId).ToList();
+            Assert.Contains(bard.Id, stunnedIds);
+            Assert.Contains(enemy1.Id, stunnedIds);
+            Assert.Contains(enemy2.Id, stunnedIds);
+            Assert.Contains(enemy3.Id, stunnedIds);
+            Assert.Contains(enemy4.Id, stunnedIds);
         }
 
         [Fact]
