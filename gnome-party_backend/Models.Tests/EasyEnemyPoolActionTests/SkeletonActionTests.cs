@@ -1,4 +1,4 @@
-﻿using Models.Actions.SkeletonActions;
+﻿using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;

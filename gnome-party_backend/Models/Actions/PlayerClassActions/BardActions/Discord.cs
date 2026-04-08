@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.CharacterData.PlayerCharacterClasses;
 
-namespace Models.Actions.BardActions
+namespace Models.Actions.PlayerClassActions.BardActions
 {
     public sealed class Discord : CharacterAction
     {

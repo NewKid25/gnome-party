@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions.SkeletonActions
+namespace Models.Actions.EasyEnemyPoolActions.SkeletonActions
 {
     public sealed class RattleGuard : CharacterAction
     {

@@ -8,7 +8,7 @@ using Models.CombatData;
 using Models.Status;
 using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
-namespace Models.Actions.BardActions
+namespace Models.Actions.PlayerClassActions.BardActions
 {
     public sealed class PowerCord : CharacterAction
     {

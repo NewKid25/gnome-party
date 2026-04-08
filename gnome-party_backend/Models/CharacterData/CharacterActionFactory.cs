@@ -1,9 +1,9 @@
 ﻿using Models.Actions;
-using Models.Actions.BardActions;
+using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
-using Models.Actions.MageActions;
-using Models.Actions.SkeletonActions;
-using Models.Actions.WarriorActions;
+using Models.Actions.PlayerClassActions.BardActions;
+using Models.Actions.PlayerClassActions.MageActions;
+using Models.Actions.PlayerClassActions.WarriorActions;
 
 namespace Models.CharacterData;
 

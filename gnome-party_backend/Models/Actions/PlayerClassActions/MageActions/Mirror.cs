@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions.MageActions
+namespace Models.Actions.PlayerClassActions.MageActions
 {
     // Mirror: Target an enemy. Your next attack will also hit that enemy.
     public sealed class Mirror : CharacterAction

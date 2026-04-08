@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions.MageActions
+namespace Models.Actions.PlayerClassActions.MageActions
 {
     // Fireball: Deal 6 damage to the target and then burn the target and adjacent allies for 3 turns
     public sealed class Fireball : CharacterAction

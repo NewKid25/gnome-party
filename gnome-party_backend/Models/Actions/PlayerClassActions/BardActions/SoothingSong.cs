@@ -3,7 +3,7 @@ using Models.CharacterData;
 using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 
-namespace Models.Actions.BardActions
+namespace Models.Actions.PlayerClassActions.BardActions
 {
     public sealed class SoothingSong : CharacterAction
     {

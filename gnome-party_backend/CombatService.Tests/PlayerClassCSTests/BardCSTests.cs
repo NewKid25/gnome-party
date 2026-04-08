@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.Metrics;
 using GnomeParty.Database;
-using Models.Actions.BardActions;
+using Models.Actions.PlayerClassActions.BardActions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;

@@ -5,7 +5,7 @@ using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions.WarriorActions
+namespace Models.Actions.PlayerClassActions.WarriorActions
 {
     // Whirling Strike: Deal 5 damage to all enemies.
     public sealed class WhirlingStrike : CharacterAction

@@ -1,4 +1,4 @@
-﻿using Models.Actions.MageActions;
+﻿using Models.Actions.PlayerClassActions.MageActions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;

@@ -2,21 +2,21 @@
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions.MageActions
+namespace Models.Actions.PlayerClassActions.WarriorActions
 {
-    // Magic Missile: Deal 10 damage to target enemy uninterrupted
-    public sealed class MagicMisslie : CharacterAction
+    // Slash: Deal 10 damage to target enemy
+    public sealed class Slash : CharacterAction
     {
-        public MagicMisslie() : base("Magic Missile") // Pass the action name to the base constructor
+        public Slash() : base("Slash") // Pass the name of the action to the base constructor
         {
-            ActionDescription = new CharacterActionDescription("Magic Missile", "Deal 10 damage to target enemy uninterrupted"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Slash", "Deal 10 damage to target enemy"); // Set the action description
         }
-        public override AttackResolution ResolveAttack( // Override the ResolveAttack method to implement the specific logic for Magic Missile
+        public override AttackResolution ResolveAttack( // Override the ResolveAttack method to define the behavior of the Slash action
             Character user, 
             Character target, 
             CombatEncounterGameState gameState, 
-            bool isRedirected, 
-            bool unblockable)
+            bool isRedirected = false, 
+            bool isUnblockable = false)
         {
             if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user character is not null
             if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that the target character is not null
@@ -25,7 +25,7 @@ namespace Models.Actions.MageActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
-            return new AttackResolution // Return a new AttackResolution object with the details of the attack
+            return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
             {
                 AttackInstances = new List<AttackInstance>
                 {
@@ -36,8 +36,6 @@ namespace Models.Actions.MageActions
                         FinalDamage = 10,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
-                        IsUnblockable = true,
-                        IsBlocked = false,
                     }
                 }
             };

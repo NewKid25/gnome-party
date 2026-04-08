@@ -1,5 +1,5 @@
 ﻿using Models.Actions;
-using Models.Actions.WarriorActions;
+using Models.Actions.PlayerClassActions.WarriorActions;
 
 namespace Models.CharacterData.PlayerCharacterClasses
 {

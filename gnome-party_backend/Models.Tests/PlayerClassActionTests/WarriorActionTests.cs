@@ -1,8 +1,5 @@
 ﻿using Models.Actions;
-using Models.Actions.BardActions;
-using Models.Actions.MageActions;
-using Models.Actions.SkeletonActions;
-using Models.Actions.WarriorActions;
+using Models.Actions.PlayerClassActions.WarriorActions;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;

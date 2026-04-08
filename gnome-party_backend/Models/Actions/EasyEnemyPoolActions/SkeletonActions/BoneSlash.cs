@@ -2,17 +2,16 @@
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions.WarriorActions
+namespace Models.Actions.EasyEnemyPoolActions.SkeletonActions
 {
-    // Slash: Deal 10 damage to target enemy
-    public sealed class Slash : CharacterAction
+    // Bone Slash: A basic melee attack that deals 6 damage to a single target.
+    public sealed class BoneSlash : CharacterAction
     {
-        public Slash() : base("Slash") // Pass the name of the action to the base constructor
+        public BoneSlash() : base("Bone Slash") // Call the base constructor with the action name
         {
-            ActionDescription = new CharacterActionDescription("Slash", "Deal 10 damage to target enemy"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Bone Slash", "Deal 6 damage to target enemy"); // Set the action description
         }
-        public override AttackResolution ResolveAttack( // Override the ResolveAttack method to define the behavior of the Slash action
-            Character user, 
+        public override AttackResolution ResolveAttack(Character user, // Override the ResolveAttack method to define the attack's behavior
             Character target, 
             CombatEncounterGameState gameState, 
             bool isRedirected = false, 
@@ -25,15 +24,15 @@ namespace Models.Actions.WarriorActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
-            return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
+            return new AttackResolution // Return an AttackResolution object that describes the outcome of the attack
             {
                 AttackInstances = new List<AttackInstance>
                 {
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 10,
-                        FinalDamage = 10,
+                        BaseDamage = 6,
+                        FinalDamage = 6,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

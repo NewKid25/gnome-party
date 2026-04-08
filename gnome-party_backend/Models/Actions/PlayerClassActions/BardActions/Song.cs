@@ -4,7 +4,7 @@ using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
-namespace Models.Actions.BardActions
+namespace Models.Actions.PlayerClassActions.BardActions
 {
     public sealed class Song : CharacterAction
     {

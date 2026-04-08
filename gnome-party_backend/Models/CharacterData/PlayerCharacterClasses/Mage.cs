@@ -1,5 +1,5 @@
 ﻿using Models.Actions;
-using Models.Actions.MageActions;
+using Models.Actions.PlayerClassActions.MageActions;
 
 namespace Models.CharacterData.PlayerCharacterClasses
 {
