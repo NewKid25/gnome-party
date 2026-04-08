@@ -5,11 +5,12 @@ using Models.Status;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Mockery: Deal 6 damage to a target, but makes the mocked enemy target you
     public sealed class Mockery : CharacterAction
     {
         public Mockery() : base ("Mockery") // Pass the name of the action to the base constructor
         {
-            ActionDescription = new CharacterActionDescription("Mockery", "Dwals 6 damage and causes mocked enemy to target you");
+            ActionDescription = new CharacterActionDescription("Mockery", "Deal 6 damage but causes the mocked enemy to target you");
         }
 
         // Override the ResolveAttack method to define the behavior of the Mockery Action
@@ -20,9 +21,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
             bool isRedirected = false,
             bool isUnblockable = false)
         {
-            // Add validation to ensure that the user and target are not null
+            // Add validation to ensure that the user, target, and gameState are not null
             if(user == null) { throw new ArgumentNullException(nameof(user));}
             if(target == null) { throw new ArgumentNullException(nameof(target));}
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState)); 
+
 
             var resolution = new AttackResolution(); // Creare a new attack resolution to hold the results of the attack
 

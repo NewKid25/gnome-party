@@ -6,6 +6,7 @@ using Models.Status;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Frightening Song: Subset attack of Song. Stun an enemy for a turn
     public sealed class FrighteningSong : CharacterAction
     {
         public FrighteningSong() : base("Frightening Song") // Pass the name of the action to the base constructor

@@ -6,6 +6,7 @@ using Models.Status;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Inspiring Song: Subset of Song. Buffs an ally's damage for 1 turn
     public sealed class InspiringSong : CharacterAction
     {
         public InspiringSong() : base("Inspiring Song") // Pass the name of the action to the base constructor
@@ -22,7 +23,7 @@ namespace Models.Actions.PlayerClassActions.BardActions
         {
             if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user character is not null
             if (ally == null) throw new ArgumentNullException(nameof(ally)); // Validate that the ally is not null
-            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState)); // Validate the gameState is not null
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);

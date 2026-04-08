@@ -20,8 +20,10 @@ namespace Models.Actions.PlayerClassActions.MageActions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
-            if(user == null) throw new ArgumentNullException(nameof(user)); // Check if the user is null and throw an exception if it is
-            if (target == null) throw new ArgumentNullException(nameof(target)); // Check if the target is null and throw an exception if it is
+            // Add validation to ensure that the user, target, and gameState are not null
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);

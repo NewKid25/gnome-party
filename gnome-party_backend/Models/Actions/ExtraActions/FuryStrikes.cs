@@ -28,8 +28,9 @@ namespace Models.Actions.ExtraActions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user)); // Validate user is not null
-            if (target == null) throw new ArgumentNullException(nameof(target)); // Validate target is not null
+            if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user character is not null
+            if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that the target character is not null
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState)); // Validate that the gameState is not null
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); 

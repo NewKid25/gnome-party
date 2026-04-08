@@ -6,6 +6,7 @@ using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Song: Cycle through a series of song based subset attacks
     public sealed class Song : CharacterAction
     {
         public Song() : base("Song") // Pass the name of the action to the base constructor

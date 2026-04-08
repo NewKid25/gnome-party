@@ -22,8 +22,10 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
             bool isRedirected = false,
             bool isUnblockable = false)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that user is not null
-            if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that target is not null
+            // Add validation to ensure that the user, target, and gameState are not null
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);

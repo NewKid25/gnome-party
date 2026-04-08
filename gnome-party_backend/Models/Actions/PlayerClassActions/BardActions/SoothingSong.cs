@@ -5,6 +5,7 @@ using Models.CombatData;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Soothing Song. Subset of Song. Heal an ally for 8 health.
     public sealed class SoothingSong : CharacterAction
     {
         public SoothingSong() : base("Soothing Song") // Pass the name of the action to the base constructor

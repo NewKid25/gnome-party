@@ -19,11 +19,16 @@ namespace Models.Actions.PlayerClassActions.MageActions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
-            const int burnDuration = 3; // Set the burn duration and tick damage as constants
+            // Set the burn duration and tick damage as constants
+            const int burnDuration = 3; 
             const int burnTickDamage = 2;
-            if (user == null) throw new ArgumentNullException(nameof(user)); // Validate the user, target, and gameState parameters
+
+            // Validate the user, target, and gameState parameters
+            if (user == null) throw new ArgumentNullException(nameof(user)); 
             if (target == null) throw new ArgumentNullException(nameof(target));
             if(gameState == null) throw new ArgumentNullException(nameof(gameState));
+
+
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the attack
             resolution.AttackInstances.Add(new AttackInstance // Add an AttackInstance to the resolution for the initial damage of the Fireball
             {

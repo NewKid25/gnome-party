@@ -10,11 +10,12 @@ using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Power Cord: Amplify the power of your current song
     public sealed class PowerCord : CharacterAction
     {
         public PowerCord() : base("Power Cord") // Call the base constructor with the name of the action
         {
-            ActionDescription = new CharacterActionDescription("Power Cord", "Amplify your current song to all eligible targets"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Power Cord", "Amplify your current song."); // Set the action description
         }
 
         public override AttackResolution ResolveAttack(

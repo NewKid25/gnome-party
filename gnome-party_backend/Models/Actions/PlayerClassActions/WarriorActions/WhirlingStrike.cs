@@ -23,8 +23,11 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user is not null
-            if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that the target is not null
+            // Add validation to ensure that the user, target, and gameState are not null
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+
             List<Character> whirlStrikeTargets; // Initialize a list to hold the targets of the Whirling Strike
             if (isRedirected) // If the attack is redirected, only target the specified target
             {

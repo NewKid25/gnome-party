@@ -5,6 +5,7 @@ using Models.CharacterData.PlayerCharacterClasses;
 
 namespace Models.Actions.PlayerClassActions.BardActions
 {
+    // Discord: Deal 8 damage to your target, but reset your song to Soothing Song
     public sealed class Discord : CharacterAction
     {
         public Discord() : base("Discord") // Pass the name of the action to the base constructor
@@ -20,9 +21,10 @@ namespace Models.Actions.PlayerClassActions.BardActions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
-            // Add validation to ensure that the user and target are not null
+            // Add validation to ensure that the user, target, and gameState are not null
             if(user == null) throw new ArgumentNullException(nameof(user));
             if (target == null) throw new ArgumentNullException(nameof(target));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
