@@ -39,7 +39,7 @@ public class ExtraActionsCSTests
             .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
             .ReturnsAsync(encounter);
 
-        var combatService = new CombatService(mockDBService.Object);
+        var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0, 0.0));
 
         // Act
         var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
@@ -90,7 +90,7 @@ public class ExtraActionsCSTests
             new List<Character> { enemy });
 
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         var results1 = await service.CombatRequestHandlerAsync(new CombatRequest
         {
@@ -136,7 +136,7 @@ public class ExtraActionsCSTests
         mockDb.Setup(db => db.LoadAsync<ActiveCombatEncounter>(encounter.EncounterId))
               .ReturnsAsync(encounter);
 
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         var result = service.GetActionTargets(encounter.EncounterId, warrior.Id);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using CombatService.Tests;
 using Models.AI.DifficultEnemyPoolAI;
 using Models.CharacterData;
 using Models.CharacterData.DifficultEnemyPoolClasses;

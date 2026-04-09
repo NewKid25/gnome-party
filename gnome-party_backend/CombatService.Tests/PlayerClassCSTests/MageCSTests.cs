@@ -36,7 +36,7 @@ public class MageCSTests
             .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
             .ReturnsAsync(encounter);
 
-        var combatService = new CombatService(mockDBService.Object);
+        var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0));
 
         // Act
         var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
@@ -89,7 +89,7 @@ public class MageCSTests
             new List<Character> { enemy });
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the skeleton to use Slash on the mage
         {
@@ -132,7 +132,7 @@ public class MageCSTests
 
         // Initialize the mockdb and service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Cast fireball at enemy2, which should apply burn to enemy1, enemy2, and enemy3
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -190,7 +190,7 @@ public class MageCSTests
 
         // Initialize the mockdb and service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Cast the fireball at ally
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -225,7 +225,7 @@ public class MageCSTests
             new List<Character> { enemy });
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
         var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the mage to use Ice Ray on the skeleton
         {
             EncounterId = encounter.EncounterId,
@@ -264,7 +264,7 @@ public class MageCSTests
 
         // Initialize a mockdb and combat service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Cast magic missile at the skelly
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -305,7 +305,7 @@ public class MageCSTests
 
         // Initialize a mockdb and combat service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Create a combat request of mage doing Magic Missile to skeleton
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -363,7 +363,7 @@ public class MageCSTests
 
         // Create a mockdb and service for testing
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Create a combat request of caster calling Magic Missile
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -403,7 +403,7 @@ public class MageCSTests
 
         // Initialize the mockdb and service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Cast Mirror on enemy2
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -469,7 +469,7 @@ public class MageCSTests
 
         // Initialize the mockdb and service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Cast Mirror on enemy1
         var results = await service.CombatRequestHandlerAsync(new CombatRequest

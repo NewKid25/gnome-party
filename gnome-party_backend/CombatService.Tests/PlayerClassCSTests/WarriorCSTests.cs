@@ -35,7 +35,7 @@ public class WarriorCSTests
             .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
             .ReturnsAsync(encounter);
 
-        var combatService = new CombatService(mockDBService.Object);
+        var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0));
 
         // Act
         var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
@@ -90,7 +90,7 @@ public class WarriorCSTests
 
         // Initialize a mockdb and combat service
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Ally goes first and does slash
         var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -138,7 +138,7 @@ public class WarriorCSTests
             new List<Character> { enemy });
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         // Make the combat request for the parryer to use Parry on the enemy's attack
         var results = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -183,7 +183,7 @@ public class WarriorCSTests
             new List<Character> { skeleton1, skeleton2, skeleton3 });
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         skeleton2.StatusEffects.Add(new ParryStatus(skeleton2, mage)); // Manually attach the parry status to skeleton2
 
@@ -234,7 +234,7 @@ public class WarriorCSTests
             new List<Character> { enemy1, enemy2 });
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         // First player submits their action, but it should not be processed until both players have submitted an action
         var result1 = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -296,7 +296,7 @@ public class WarriorCSTests
         var encounter = new ActiveCombatEncounter(new List<Character> { warrior }, enemies); // Create encounter with the warrior and all six enemies
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
         var results = await service.CombatRequestHandlerAsync(new CombatRequest // Make the combat request for the warrior to use Whirling Strike on one of the enemies. The target should be ignored and all enemies should be hit by the attack
         {
             EncounterId = encounter.EncounterId,

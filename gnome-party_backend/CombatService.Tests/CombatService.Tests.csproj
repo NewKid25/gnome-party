@@ -16,7 +16,4 @@
   <ItemGroup>
     <ProjectReference Include="..\CombatService\CombatService.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DifficultEnemyPoolCSTests\" />
-  </ItemGroup>
 </Project>

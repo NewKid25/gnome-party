@@ -7,6 +7,7 @@ using Models.CharacterData;
 using Models.CombatData;
 using Models.EncounterData;
 using Models.Status;
+using Models.TestHelperData;
 
 
 namespace CombatService
@@ -14,13 +15,21 @@ namespace CombatService
     public class CombatService
     {
         IDatabaseService databaseService;
+        private readonly IRandomGenerator rng;
         public CombatService()
         {
             databaseService = new DatabaseService();
+            rng = new RandomNumGen();
         }
-        public CombatService(IDatabaseService databaseService)
+        public CombatService(IDatabaseService databaseService, IRandomGenerator rng)
         {
             this.databaseService = databaseService;
+
+            if(rng == null)
+            {
+                throw new ArgumentNullException(nameof(rng));
+            }
+            this.rng = rng;
         }
 
         // Method for refreshing or adding a new copy of a status effect

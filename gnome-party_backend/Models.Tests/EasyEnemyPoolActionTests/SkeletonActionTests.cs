@@ -11,7 +11,7 @@ namespace Models.Tests.EasyEnemyPoolActionTests
     {
         [Fact]
         // Test: Bone Slash damages target for 6
-        public void BoneSlashDeals6DamageToTarget()
+        public void BoneSlashDealsDamageToTarget()
         {
             // Insitialize user and target for testing
             var user = new Skeleton { Id = "enemy" };

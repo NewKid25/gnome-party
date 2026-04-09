@@ -39,7 +39,7 @@ public class BardCSTests
             .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
             .ReturnsAsync(encounter);
 
-        var combatService = new CombatService(mockDBService.Object);
+        var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0));
 
         // Act
         var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
@@ -92,7 +92,7 @@ public class BardCSTests
         );
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         // Make the combat request for the bard to use Discord on the enemy skeleton
         var result = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -131,7 +131,7 @@ public class BardCSTests
             new List<Character> { enemy });
 
         var mockdb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockdb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockdb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         // Make the combat request for the bard to use Mockery on the enemy mage
         var result1 = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -188,7 +188,7 @@ public class BardCSTests
 
         var encounter = new ActiveCombatEncounter(allies, new List<Character> { enemy }); // Create the encounter with the ally team and the enemy
         var mockdb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockdb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockdb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         bard.CurrentSong = BardSongs.Soothing; // Choose Soothing Song manually before executing Power Cord
 
@@ -267,7 +267,7 @@ public class BardCSTests
         
         var encounter = new ActiveCombatEncounter(allies, new List<Character> { enemy }); // Create the encounter with the ally team and the enemy
         var mockdb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded 
-        var service = new CombatService(mockdb.Object); // Create the combat service with the mocked database
+        var service = new CombatService(mockdb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
 
         bardPC.CurrentSong = BardSongs.Inspiring; // Choose Inspiring Song manually before executing Power Cord
 
@@ -349,7 +349,7 @@ public class BardCSTests
         // Create the encounter, mockdb, and combat service for testing
         var encounter = new ActiveCombatEncounter(new List<Character> { bardPC}, enemies);
         var mockdb = BuildDbMock(encounter);
-        var service = new CombatService(mockdb.Object);
+        var service = new CombatService(mockdb.Object, new TestRandomGenerator(0.0));
 
         bardPC.CurrentSong = BardSongs.Frightening; // Manually change the Bard's song to Frightening Song
 
@@ -444,7 +444,7 @@ public class BardCSTests
             new List<Character> { enemy });
 
         var mockDb = BuildDbMock(encounter); // Mock db for testing
-        var service = new CombatService(mockDb.Object); // Make an instance of combat service for testing
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Make an instance of combat service for testing
 
         // Have the bard execute song
         var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
@@ -510,7 +510,7 @@ public class BardCSTests
             new List<Character> { enemy });
 
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
         {
@@ -583,7 +583,7 @@ public class BardCSTests
             new List<Character> { bard, ally },
             new List<Character> { enemy });
         var mockDb = BuildDbMock(encounter);
-        var service = new CombatService(mockDb.Object);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
         // Execute Song - Frightening Song
         var firstResult = await service.CombatRequestHandlerAsync(new CombatRequest
