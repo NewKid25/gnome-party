@@ -1,17 +1,21 @@
-﻿using Models.ActionMetaData;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions.PlayerClassActions.WarriorActions
+namespace Models.Actions.BoosPoolActions.GnomeEaterActions
 {
-    // Slash: Deal 10 damage to target enemy
-    public sealed class Slash : CharacterAction
+    // Crushing Swipe: Deal 14 damage to a single target
+    public sealed class CrushingSwipe : CharacterAction
     {
-        public Slash() : base("Slash") // Pass the name of the action to the base constructor
+        public CrushingSwipe() : base("Crushing Swipe")
         {
-            ActionDescription = new CharacterActionDescription("Slash", "Deal 10 damage to a target enemy"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Crushing Swipe", "Deal 14 damage to a target enemy");
         }
-        public override AttackResolution ResolveAttack( // Override the ResolveAttack method to define the behavior of the Slash action
+
+        public override AttackResolution ResolveAttack(
             Character user, 
             Character target, 
             CombatEncounterGameState gameState, 
@@ -34,8 +38,8 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 10,
-                        FinalDamage = 10,
+                        BaseDamage = 14,
+                        FinalDamage = 14,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }
