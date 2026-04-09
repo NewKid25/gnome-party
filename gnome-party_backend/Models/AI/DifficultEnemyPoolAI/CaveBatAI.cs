@@ -38,7 +38,7 @@ namespace Models.AI.DifficultEnemyPoolAI
             bool enemiesWithLowHealth = false;
 
             // Check if any target's health is 30% or less
-            foreach(var enemy in enemies)
+            foreach(var enemy in aliveEnemies)
             {
                 double healthPercentage = (double)enemy.Health / Math.Max(1, enemy.MaxHealth);
                 if(healthPercentage <= 0.3)
@@ -92,11 +92,11 @@ namespace Models.AI.DifficultEnemyPoolAI
                     index = finalTargets.Count - 1;
                 }
             }
-            var target = finalTargets[index];
             if (finalTargets.Count == 0)
             {
                 throw new InvalidOperationException("No valid final target candidates were found.");
             }
+            var target = finalTargets[index];
 
             return new CombatRequest { Action = chosenAction, TargetCharacterId = target.Id }; // Create and return a CombatRequest with the chosen action and target
         }

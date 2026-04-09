@@ -80,11 +80,11 @@ internal class SkeletonAI : CharacterAI
                 index = finalTargets.Count - 1;
             }
         }
-        var target = finalTargets[index];
         if (finalTargets.Count == 0)
         {
             throw new InvalidOperationException("No valid final target candidates were found.");
         }
+        var target = finalTargets[index];
 
         return new CombatRequest // Create and return a CombatRequest with the chosen action and target
         {
