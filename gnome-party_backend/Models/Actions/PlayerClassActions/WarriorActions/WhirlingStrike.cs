@@ -28,23 +28,17 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
             if (target == null) throw new ArgumentNullException(nameof(target));
             if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
-            List<Character> whirlStrikeTargets; // Initialize a list to hold the targets of the Whirling Strike
-            if (isRedirected) // If the attack is redirected, only target the specified target
-            {
-                whirlStrikeTargets = new List<Character> { target };
-            }
-            else // If the attack is not redirected, target all opposing team members
-            {
-                whirlStrikeTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
-            }
+            // Initialize a list to hold the targets of the Whirling Strike
+            List<Character> whirlStrikeTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
 
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
-            foreach (var currentTarget in whirlStrikeTargets) // Iterate through each target and create an AttackInstance for each one
+            // Iterate through each target and create an AttackInstance for each one
+            foreach (var currentTarget in whirlStrikeTargets)
             {
                 // validate that the target is eligible for this attack
-                if (!isRedirected && !eligibleTargets.Any(c => c.Id == currentTarget.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); } 
+                if (!eligibleTargets.Any(c => c.Id == currentTarget.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(currentTarget)); } 
 
                 resolution.AttackInstances.Add(new AttackInstance
                 {

@@ -9,7 +9,7 @@ namespace Models.Tests.CharacterAITests.EasyEnemyPoolAI
 {
     public class SkeletonAITests
     {
-        [Theory] // Test cases for a skeleton with low health
+        [Theory] 
         [InlineData(0.2, "Rattle Guard")]
         [InlineData(0.4, "Rattle Guard")]
         [InlineData(0.8, "Bone Slash")]

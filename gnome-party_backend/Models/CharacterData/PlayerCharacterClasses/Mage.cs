@@ -25,8 +25,8 @@ namespace Models.CharacterData.PlayerCharacterClasses
             // List of actions available to the Mage
             ActionsDescriptions = new List<CharacterActionDescription>
             {
-                new Fireball().ActionDescription,
                 new MagicMisslie().ActionDescription,
+                new Fireball().ActionDescription,
                 new IceRay().ActionDescription,
                 new Mirror().ActionDescription,
             };

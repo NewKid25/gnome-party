@@ -1,11 +1,11 @@
-﻿using Models.Actions;
+﻿using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
 using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
 using Models.Actions.PlayerClassActions.BardActions;
 using Models.Actions.PlayerClassActions.MageActions;
 using Models.Actions.PlayerClassActions.WarriorActions;
 
-namespace Models.CharacterData;
+namespace Models.Actions;
 
 public class CharacterActionFactory
 {
@@ -15,20 +15,20 @@ public class CharacterActionFactory
         return actionName switch
         {
             // Warrior Attacks
+            "Slash" => new Slash(),
             "Block" => new Block(),
             "Parry" => new Parry(),
-            "Slash" => new Slash(),
             "Whirling Strike" => new WhirlingStrike(),
 
             // Mage Attacks
+            "Magic Missile" => new MagicMisslie(),
             "Fireball" => new Fireball(),
             "Ice Ray" => new IceRay(),
-            "Magic Missile" => new MagicMisslie(),
             "Mirror" => new Mirror(),
 
             // Bard Attacks
-            "Mockery" => new Mockery(),
             "Discord" => new Discord(),
+            "Mockery" => new Mockery(),
             "Song" => new Song(),
             "Soothing Song" => new SoothingSong(),
             "Inspiring Song" => new InspiringSong(),
@@ -38,6 +38,10 @@ public class CharacterActionFactory
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),
             "Rattle Guard" => new RattleGuard(),
+
+            // Cave Bat Attacks
+            "Sonic Squeal" => new SonicSqueal(),
+            "Blood Peck" => new BloodPeck(),
 
             // Extra/Practice Implementation Moves
             "Fury Strikes" => new FuryStrikes(),

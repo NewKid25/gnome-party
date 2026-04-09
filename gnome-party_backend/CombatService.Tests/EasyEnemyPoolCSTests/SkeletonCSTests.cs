@@ -80,7 +80,7 @@ public class SkeltonCSTests
     public async Task BoneSlashDealsCorrectDamage()
     {
         // Initialize player and enemy
-        var player = new Warrior("player");
+        var player = new Warrior("player") { Health = 20, MaxHealth = 20 };
         var enemy = new Skeleton { Id = "enemy1", Health = 20, MaxHealth = 20 };
 
         // Create a combat encounter with the player and enemy
@@ -99,22 +99,23 @@ public class SkeltonCSTests
             GameSessionId = "game1",
             SourceCharacterId = player.Id,
             TargetCharacterId = enemy.Id,
-            Action = "Bone Slash"
+            Action = "Slash"
         });
 
         Assert.NotEmpty(results); // Check that results were sent back
 
         var playerResult = results.First(r =>
             r.Request.Action == "Bone Slash" &&
-            r.Request.SourceCharacterId == player.Id);
+            r.Request.SourceCharacterId == enemy.Id);
 
         var damageEvent = playerResult.Events.First(e => e.Event == "damage");
         var damageParams = Assert.IsType<DamageEventParams>(damageEvent.Params);
 
         // Test for appropriate damage event response and health of character after their attacks
-        Assert.Equal(enemy.Id, damageParams.TargetId);
+        Assert.Equal(player.Id, damageParams.TargetId);
         Assert.Equal(6, damageParams.DamageAmount);
-        Assert.Equal(14, enemy.Health);
+        Assert.Equal(10, enemy.Health);
+        Assert.Equal(14, player.Health);
     }
 
     [Fact]

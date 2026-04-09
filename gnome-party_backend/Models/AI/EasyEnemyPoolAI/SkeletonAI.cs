@@ -12,7 +12,11 @@ internal class SkeletonAI : CharacterAI
     public SkeletonAI(IRandomGenerator rng) : base(rng) { }
     public override CombatRequest ChooseAction(Character self, List<string> actions, List<Character> enemies, List<Character> allies)
     {
-        if(actions == null || actions.Count == 0) // Defensive check to ensure we have actions to choose from
+        if (self == null)
+        {
+            throw new ArgumentNullException(nameof(self)); // Defensive check to ensure we have a reference to ourselves
+        }
+        if (actions == null || actions.Count == 0) // Defensive check to ensure we have actions to choose from
         {
             throw new ArgumentException("Actions list cannot be null or empty.");
         }
@@ -25,7 +29,30 @@ internal class SkeletonAI : CharacterAI
         {
             throw new InvalidOperationException("No alive enemies to target.");
         }
-        var action = ChooseActionName(self, actions, enemies, allies); // Determine which action to take based on the current state
+
+        // Verify if all Skeleton Actions are present
+        bool hasBoneSlash = actions.Contains("Bone Slash"); 
+        bool hasRattleGuard = actions.Contains("Rattle Guard");
+
+        string chosenAction = null;
+
+        double healthPercentage = (double)self.Health / Math.Max(1, self.MaxHealth); // Calculate the health percentage of the Skeleton, using Math.Max to avoid division by zero
+
+        // If health is at or below 30%, "Rattle Guard" is available. And if a random chance check passes (40% chance), choose "Rattle Guard"
+        if (healthPercentage <= 0.3 && hasRattleGuard && Rng.NextDouble() <= 0.4)
+        {
+            chosenAction = "Rattle Guard";
+        }
+        else if (hasBoneSlash)
+        {
+            chosenAction = "Bone Slash";
+        }
+        else
+        {
+            chosenAction = GetDefaultAction(actions);
+        }
+
+        // Four step lowest health priority targeting with a random factor for an ultimate tie breaker
 
         // Check 1: Get the target(s) with the lowest health percentage
         double lowestHealthPercentage = aliveEnemies.Min(e => (double)e.Health / Math.Max(1, e.MaxHealth));
@@ -61,25 +88,8 @@ internal class SkeletonAI : CharacterAI
 
         return new CombatRequest // Create and return a CombatRequest with the chosen action and target
         {
-            Action = action,
+            Action = chosenAction,
             TargetCharacterId = target.Id
         };
     }
-    protected override string ChooseActionName(Character self, List<string> actions, List<Character> enemies, List<Character> allies)
-    {
-        bool hasBoneSlash = actions.Contains("Bone Slash"); // Check if "Bone Slash" is available in the actions list
-        bool hasRattleGuard = actions.Contains("Rattle Guard"); // Check if "Rattle Guard" is available in the actions list
-
-        double healthPercentage = (double)self.Health / Math.Max(1, self.MaxHealth); // Calculate the health percentage of the Skeleton, using Math.Max to avoid division by zero
-        if (healthPercentage <= 0.3 && hasRattleGuard && Rng.NextDouble() <= 0.4) // If health is at or below 30%, "Rattle Guard" is available, and a random chance check passes (40% chance), choose "Rattle Guard"
-        {
-            return "Rattle Guard";
-        }
-        if(hasBoneSlash)
-        {
-            return "Bone Slash";
-        }
-        return GetDefaultAction(actions);
-    }
-
 }

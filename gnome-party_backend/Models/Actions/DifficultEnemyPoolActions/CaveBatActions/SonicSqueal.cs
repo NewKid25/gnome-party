@@ -25,8 +25,28 @@ namespace Models.Actions.DifficultEnemyPoolActions.CaveBatActions
             if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that the target character is not null
             if (gameState == null) throw new ArgumentNullException(nameof(gameState)); // Validate that the gameState is not null
 
+            // Initialize a list to hold the targets of Sonic Squeal
+            List<Character> sonicSquealTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
 
-            throw new NotImplementedException();
+            var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
+
+            // Iterate through each target and create an AttackInstance for each one
+            foreach(var currentTarget in sonicSquealTargets)
+            {
+                if(!eligibleTargets.Any(c => c.Id == currentTarget.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(currentTarget)); }
+
+                resolution.AttackInstances.Add(new AttackInstance 
+                {
+                    ActionName = AttackName,
+                    BaseDamage = 3,
+                    FinalDamage = 3,
+                    IsRedirected = isRedirected,
+                    SourceCharacterId = user.Id,
+                    TargetCharacterId = currentTarget.Id,
+                });
+            }
+            return resolution;
         }
     }
 }

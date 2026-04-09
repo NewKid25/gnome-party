@@ -18,7 +18,6 @@ public class Character
         Id = id;
         Name = "Default Name";
         CharacterType = "Default Character Type";
-        //Health = rnd.Next(1,21);
         Health = 30;
         MaxHealth = Health;
         ActionsDescriptions = [];

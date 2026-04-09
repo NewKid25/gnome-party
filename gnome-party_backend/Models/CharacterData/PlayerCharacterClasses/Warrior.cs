@@ -27,9 +27,9 @@ namespace Models.CharacterData.PlayerCharacterClasses
             // List of actions available to the Warrior
             ActionsDescriptions = new List<CharacterActionDescription>
             {
+                new Slash().ActionDescription,
                 new Block().ActionDescription,
                 new Parry().ActionDescription,
-                new Slash().ActionDescription,
                 new WhirlingStrike().ActionDescription,
                 
                 //new FuryStrikes().ActionDescription,

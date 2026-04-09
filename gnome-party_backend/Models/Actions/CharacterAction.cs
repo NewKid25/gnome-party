@@ -1,7 +1,8 @@
 ﻿using Models.ActionMetaData;
+using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.CharacterData
+namespace Models.Actions
 {
     // Base class for character actions
     public abstract class CharacterAction 

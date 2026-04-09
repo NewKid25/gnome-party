@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using Models;
 using Models.ActionMetaData;
+using Models.Actions;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.EncounterData;

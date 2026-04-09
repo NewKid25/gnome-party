@@ -6,6 +6,8 @@ using Models.AI;
 using Models.CombatData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.AI.EasyEnemyPoolAI;
+using Models.AI.DifficultEnemyPoolAI;
+using Models.CharacterData.DifficultEnemyPoolClasses;
 
 namespace Models;
 
@@ -21,6 +23,10 @@ public class Enemy
             case "Skeleton":
                 Character = character ?? new Skeleton();
                 AI = new SkeletonAI();
+                break;
+            case "Cave Bats":
+                Character = character ?? new CaveBat();
+                AI = new CaveBatAI();
                 break;
             default:
                 throw new ArgumentException($"Unknown character type: {characterType}");

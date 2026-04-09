@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Models.Actions;
 using Models.Actions.PlayerClassActions.BardActions;
 
 namespace Models.CharacterData.PlayerCharacterClasses
@@ -19,6 +20,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 new Discord().ActionDescription,
                 new Song().ActionDescription,
                 new Mockery().ActionDescription,
+                new PowerCord().ActionDescription,
             };
             CharacterType = "Bard";
             Health = 25;
@@ -34,6 +36,7 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 new Discord().ActionDescription,
                 new Song().ActionDescription,
                 new Mockery().ActionDescription,
+                new PowerCord().ActionDescription,
             };
             CharacterType = "Bard";
             Health = 25;
