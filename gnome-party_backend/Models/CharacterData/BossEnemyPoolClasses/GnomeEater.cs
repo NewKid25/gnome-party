@@ -9,6 +9,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses
     public class GnomeEater : Character
     {
         public int PermaDamageBoost = 0;
+        public int turnCounter = 0;
         public GnomeEater()
         {
             ActionsDescriptions = new List<CharacterActionDescription> 

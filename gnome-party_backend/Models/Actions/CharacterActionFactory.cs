@@ -1,4 +1,5 @@
-﻿using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
+﻿using Models.Actions.BoosPoolActions.GnomeEaterActions;
+using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
 using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
 using Models.Actions.PlayerClassActions.BardActions;
@@ -42,6 +43,12 @@ public class CharacterActionFactory
             // Cave Bat Attacks
             "Sonic Squeal" => new SonicSqueal(),
             "Blood Peck" => new BloodPeck(),
+
+            // Gnome Eater Attacks
+            "Crushing Swipe" => new CrushingSwipe(),
+            "Devour Essence" => new DevourEssence(),
+            "Primal Roar" => new PrimalRoar(),
+            "Ravenous Growth" => new RavenousGrowth(),
 
             // Extra/Practice Implementation Moves
             "Fury Strikes" => new FuryStrikes(),
