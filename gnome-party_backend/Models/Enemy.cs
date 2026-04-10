@@ -9,6 +9,7 @@ using Models.AI.EasyEnemyPoolAI;
 using Models.AI.DifficultEnemyPoolAI;
 using Models.CharacterData.DifficultEnemyPoolClasses;
 using Models.TestHelperData;
+using Models.CharacterData.BossEnemyPoolClasses;
 
 namespace Models;
 public class Enemy
@@ -32,6 +33,9 @@ public class Enemy
             case "Cave Bat":
                 Character = character ?? new CaveBat();
                 AI = new CaveBatAI(rng);
+                break;
+            case "Gnome Eater":
+                Character = character ?? new GnomeEater();
                 break;
             default:
                 throw new ArgumentException($"Unknown character type: {characterType}");

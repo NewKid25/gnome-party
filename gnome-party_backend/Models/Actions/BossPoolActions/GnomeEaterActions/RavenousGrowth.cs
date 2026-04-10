@@ -22,8 +22,23 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
             bool isRedirected = false, 
             bool isUnblockable = false)
         {
+            if (user == null) throw new ArgumentNullException(nameof(user)); // Null check the user
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState)); // Null check the gamestate
 
-            throw new NotImplementedException();
+            // Check if the user is a Gnome Eater
+            if(user is not GnomeEater gnomeEater) { throw new InvalidOperationException("Ravenous Growth can only be used by the Gnome Eater"); }
+
+            gnomeEater.PermaDamageBoost += 2; // Apply permanent damage buff
+
+            // Return an attack resolution
+            var resolution = new AttackResolution();
+            resolution.Events.Add(new CombatEvent("ravenous_growth_applied", new
+            {
+                sourceId = user.Id,
+                newDamageBoost = gnomeEater.PermaDamageBoost,
+            }));
+
+            return resolution;
         }
     }
 }

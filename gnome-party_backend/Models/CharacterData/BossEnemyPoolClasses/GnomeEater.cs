@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Models.Actions;
+using Models.Actions.BoosPoolActions.GnomeEaterActions;
 
 namespace Models.CharacterData.BossEnemyPoolClasses
 {
@@ -12,6 +13,10 @@ namespace Models.CharacterData.BossEnemyPoolClasses
         {
             ActionsDescriptions = new List<CharacterActionDescription> 
             {
+                new CrushingSwipe().ActionDescription,
+                new DevourEssence().ActionDescription,
+                new PrimalRoar().ActionDescription,
+                new RavenousGrowth().ActionDescription,
             };
             CharacterType = "Gnome Eater";
             Health = 55;

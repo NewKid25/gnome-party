@@ -14,6 +14,12 @@ namespace Models.Status
             StatusOwnerCharacterId = target.Id;
             Duration = 1;
             DurationUnit = DurationUnit.TurnStart;
+
+            ModifierValues = new Dictionary<string, double>
+            {
+                [StatusModifierKeys.OutgoingDamageMultiplier] = 0.75 // Reduce damage by 25% (75% % attack power)
+            };
+
             StatusDescription = new Dictionary<string, string>
             {
                 ["AppliedText"] = $"{target.Name} is now fearful.",
