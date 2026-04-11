@@ -10,6 +10,7 @@ using Models.AI.DifficultEnemyPoolAI;
 using Models.CharacterData.DifficultEnemyPoolClasses;
 using Models.TestHelperData;
 using Models.CharacterData.BossEnemyPoolClasses;
+using Models.AI.BossEnemyPoolAI;
 
 namespace Models;
 public class Enemy
@@ -36,6 +37,7 @@ public class Enemy
                 break;
             case "Gnome Eater":
                 Character = character ?? new GnomeEater();
+                AI = new GnomeEaterAI(rng);
                 break;
             default:
                 throw new ArgumentException($"Unknown character type: {characterType}");

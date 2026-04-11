@@ -23,7 +23,6 @@
 		<ProjectReference Include="..\Models\Models.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="CharacterAITests\BossEnemyPoolAITests\" />
 	  <Folder Include="BossEnemyPoolActionTests\" />
 	</ItemGroup>
 

@@ -24,6 +24,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses
             MaxHealth = 55;
             Name = "The Gnome Eater";
             PermaDamageBoost = 0;
+            turnCounter = 0;
         }
     }
 }
