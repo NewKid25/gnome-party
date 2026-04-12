@@ -82,7 +82,7 @@ namespace CombatService
             var enemyCombatResquests = new List<CombatRequest>();
             foreach (var enemyCharacter in activeEncounter.GameState.EnemyCharacters)
             {
-                var combatRequest = new Enemy(enemyCharacter).ChooseAction(activeEncounter.GameState.PlayerCharacters, activeEncounter.GameState.EnemyCharacters);
+                var combatRequest = new Enemy(enemyCharacter, rng).ChooseAction(activeEncounter.GameState.PlayerCharacters, activeEncounter.GameState.EnemyCharacters);
                 enemyCombatResquests.Add(combatRequest);
             }
             var enemyCombatResults = await ProcessCombatRequestsAsync(enemyCombatResquests.ToArray(), activeEncounter);

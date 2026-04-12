@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Models.ActionMetaData;
 using Models.CharacterData;
+using Models.CharacterData.BossEnemyPoolClasses;
 using Models.CombatData;
 
 namespace Models.Actions.BoosPoolActions.GnomeEaterActions
@@ -33,12 +34,15 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
 
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
 
+            int permBoost = 0;
+            if (user is GnomeEater gnomeEater) { permBoost = gnomeEater.PermaDamageBoost; }
+
             // Deal the 8 damage attack
             resolution.AttackInstances.Add(new AttackInstance
             {
                 ActionName = AttackName,
-                BaseDamage = 8,
-                FinalDamage = 8,
+                BaseDamage = 8 + permBoost,
+                FinalDamage = 8 + permBoost,
                 SourceCharacterId = user.Id,
                 TargetCharacterId = target.Id,
             });

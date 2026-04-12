@@ -222,6 +222,7 @@ public class WarriorCSTests
     // Test: Action is processed only after both players have submitted their actions
     public async Task SlashWithTwoPlayersProcessesAfterBothReadyAndProducesDamageEvent()
     {
+        var rng = new TestRandomGenerator(0.0, 0.0);
         // Create two player characters and two enemy skeletons for the encounter
         var player1 = new Warrior("player1");
         var player2 = new Warrior("player2");
@@ -234,7 +235,7 @@ public class WarriorCSTests
             new List<Character> { enemy1, enemy2 });
 
         var mockDb = BuildDbMock(encounter); // Build the mock database to return our encounter when loaded
-        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0)); // Create the combat service with the mocked database
+        var service = new CombatService(mockDb.Object, rng); // Create the combat service with the mocked database
 
         // First player submits their action, but it should not be processed until both players have submitted an action
         var result1 = await service.CombatRequestHandlerAsync(new CombatRequest

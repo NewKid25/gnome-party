@@ -37,7 +37,7 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
             {
                 if (!eligibleTargets.Any(c => c.Id == currentTarget.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(currentTarget)); }
                 {
-                    resolution.StatusEffectsToApply.Add(new FearStatus(user, target));
+                    resolution.StatusEffectsToApply.Add(new FearStatus(user, currentTarget));
                     resolution.Events.Add(new CombatEvent("fear_status_applied", new StatusAppliedEventParams
                     {
                         OwnerId = target.Id,

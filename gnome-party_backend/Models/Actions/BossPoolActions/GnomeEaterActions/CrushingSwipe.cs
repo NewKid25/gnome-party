@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Models.ActionMetaData;
 using Models.CharacterData;
+using Models.CharacterData.BossEnemyPoolClasses;
 using Models.CombatData;
 
 namespace Models.Actions.BoosPoolActions.GnomeEaterActions
@@ -31,6 +32,9 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int permBoost = 0;
+            if(user is GnomeEater gnomeEater) { permBoost = gnomeEater.PermaDamageBoost; }
+
             return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
             {
                 AttackInstances = new List<AttackInstance>
@@ -38,8 +42,8 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 14,
-                        FinalDamage = 14,
+                        BaseDamage = 14 + permBoost, 
+                        FinalDamage = 14 + permBoost,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

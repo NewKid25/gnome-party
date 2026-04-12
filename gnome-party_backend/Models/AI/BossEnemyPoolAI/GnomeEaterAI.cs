@@ -62,19 +62,30 @@ namespace Models.AI.BossEnemyPoolAI
             int healthyCountDivisor = 2;
             int aliveEnemyCount = aliveEnemies.Count(); // Get the number of alive enemies
             int healthyEnemyCount = aliveEnemies.Count(e => (double)e.Health / Math.Max(1, e.MaxHealth) >= healthyPercentMarker); // Healthy enemies = alive with more than the required health
-            bool healthyEnemyTeam = healthyEnemyCount >= (aliveEnemyCount / healthyCountDivisor); // True/False variable for if number of healthy enemies meets the required percentage
+            bool healthyEnemyTeam = healthyEnemyCount >= ((aliveEnemyCount + 1) / healthyCountDivisor); // True/False variable for if number of healthy enemies meets the required percentage
             double primalRoarChance = 0.4;
+
+            double devRoll = Rng.NextDouble();
+            Console.WriteLine($"[AI] Devour roll = {devRoll}");
+            double roarRoll = Rng.NextDouble();
+            Console.WriteLine($"[AI] Primal Roar roll = {roarRoll}");
 
             if (self is not GnomeEater gnomeEater) { throw new ArgumentException("Gnome Eater AI is only valid for the Gnome Eater"); }
 
             // Guaranteed use of Ravenous Growth every 4th turn 
-            if (hasRavenousGrowth && gnomeEater.turnCounter > 0 && (gnomeEater.turnCounter % ravGrowthRequiredTurnCount == 0)) { chosenAction = "Ravenous Growth"; }
+            if (hasRavenousGrowth && gnomeEater.turnCount > 0 && (gnomeEater.turnCount % ravGrowthRequiredTurnCount == 0))
+            {
+                chosenAction = "Ravenous Growth";
+                gnomeEater.turnCount++; // Increment turn counter each time the Gnome Eater attacks
+                return new CombatRequest { Action = chosenAction, TargetCharacterId = self.Id }; 
+            }
 
             // Choose Devour Essence when health is 50% or less and successful 60% roll
-            else if (hasDevourEssence && gnomeEaterHealthPercentage <= devEssRequiredHealthPercentage && Rng.NextDouble() <= devourEssenceChance) { chosenAction = "Devour Essence"; }
+
+            else if (hasDevourEssence && gnomeEaterHealthPercentage <= devEssRequiredHealthPercentage && devRoll <= devourEssenceChance){ chosenAction = "Devour Essence";}
 
             // Choose Primal Roar if half the enemy team has 60%+ health and successful 40% roll
-            else if(hasPrimalRoar && healthyEnemyTeam && Rng.NextDouble() <= primalRoarChance) { chosenAction = "Primal Roar"; }
+            else if(hasPrimalRoar && healthyEnemyTeam && roarRoll <= primalRoarChance) { chosenAction = "Primal Roar"; }
 
             // Choose Crushing Swipe if it was passed to the Gnome Eater (otherwise call the default action)
             else if (hasCrushingSwipe) { chosenAction = "Crushing Swipe"; }
@@ -119,8 +130,7 @@ namespace Models.AI.BossEnemyPoolAI
                 }
                 target = GetLowestHealthTarget(chosenGroup);
             }
-
-            gnomeEater.turnCounter++; // Increment turn counter each time the Gnome Eater attacks
+            gnomeEater.turnCount++; // Increment turn counter each time the Gnome Eater attacks
             return new CombatRequest // Create and return a CombatRequest with the chosen action and target
             {
                 Action = chosenAction,

@@ -9,7 +9,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses
     public class GnomeEater : Character
     {
         public int PermaDamageBoost = 0;
-        public int turnCounter = 0;
+        public int turnCount = 0;
         public GnomeEater()
         {
             ActionsDescriptions = new List<CharacterActionDescription> 
@@ -24,7 +24,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses
             MaxHealth = 55;
             Name = "The Gnome Eater";
             PermaDamageBoost = 0;
-            turnCounter = 0;
+            turnCount = 0;
         }
     }
 }

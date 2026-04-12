@@ -41,7 +41,7 @@ namespace CombatService.Tests.DifficultEnemyPoolCSTests
                 .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
                 .ReturnsAsync(encounter);
 
-            var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator());
+            var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0));
 
             // Act
             var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
