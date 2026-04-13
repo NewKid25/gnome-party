@@ -33,7 +33,7 @@ namespace Models.Status
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
             };
         }
-        public override Character ModifyRedirectTarget(Character attacker, Character originalTarget, Character currentTarget, CombatEncounterGameState gameState, bool isUnblockable)
+        public override Character ModifyRedirectTarget(Character attacker, Character originalTarget, Character currentTarget, CombatEncounterGameState gameState, bool isUnblockable, bool isUnRedirectable)
         {
             // Null checking with error handling
             if(attacker == null) throw new ArgumentNullException(nameof(attacker));
@@ -41,7 +41,8 @@ namespace Models.Status
             if(currentTarget == null) throw new ArgumentNullException(nameof(currentTarget));
             if(gameState == null) throw new ArgumentNullException(nameof(gameState));
 
-            if (!AffectedCharacterIds.Contains(attacker.Id)) { return currentTarget; } // If the attacker is not affected by this mock, return the current target unchanged
+            if (isUnblockable || isUnRedirectable) { return currentTarget; }
+            else if (!AffectedCharacterIds.Contains(attacker.Id)) { return currentTarget; } // If the attacker is not affected by this mock, return the current target unchanged
             
             // Find the mocker character who applied this mock status
             var mocker = gameState.PlayerCharacters.Concat(gameState.EnemyCharacters).FirstOrDefault(c => c.Id == StatusOwnerCharacterId && c.Health > 0);

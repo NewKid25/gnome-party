@@ -14,13 +14,14 @@ namespace Models.AI.BossEnemyPoolAI
 {
     internal class GnomeEaterAI : CharacterAI
     {
-        // Calls 3 instances of Rng.
+        // Calls 4 instances of Rng.
         // 1. 60% chance to Use Devour Essence when having 50% health or less
         // 2. 40% channce to use Primal Roar when half of the enemy (or more) has 55% health or more
         // 3. Priority targeting for each player class:
-        //      * 50% chance to target the Warrior Class
-        //      * 30% chance to target the Mage Class
-        //      * 20% chance to target the Bard Class
+        //      * 0 - 49%: Warrior
+        //      * 50 - 79%: Mage
+        //      * 80 - 100% Bard
+        // 4. Targeting Tie Breaker Roll
         public GnomeEaterAI() { }
         public GnomeEaterAI(IRandomGenerator rng) : base(rng) { }
         public override CombatRequest ChooseAction(Character self, List<string> actions, List<Character> enemies, List<Character> allies)
@@ -66,9 +67,7 @@ namespace Models.AI.BossEnemyPoolAI
             double primalRoarChance = 0.4;
 
             double devRoll = Rng.NextDouble();
-            Console.WriteLine($"[AI] Devour roll = {devRoll}");
             double roarRoll = Rng.NextDouble();
-            Console.WriteLine($"[AI] Primal Roar roll = {roarRoll}");
 
             if (self is not GnomeEater gnomeEater) { throw new ArgumentException("Gnome Eater AI is only valid for the Gnome Eater"); }
 
@@ -81,7 +80,6 @@ namespace Models.AI.BossEnemyPoolAI
             }
 
             // Choose Devour Essence when health is 50% or less and successful 60% roll
-
             else if (hasDevourEssence && gnomeEaterHealthPercentage <= devEssRequiredHealthPercentage && devRoll <= devourEssenceChance){ chosenAction = "Devour Essence";}
 
             // Choose Primal Roar if half the enemy team has 60%+ health and successful 40% roll

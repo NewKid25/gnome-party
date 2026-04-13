@@ -1,5 +1,6 @@
 ﻿using Models.Actions.BoosPoolActions.GnomeEaterActions;
 using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
+using Models.Actions.EasyEnemyPoolActions.GoblinArcherActions;
 using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
 using Models.Actions.PlayerClassActions.BardActions;
@@ -39,6 +40,10 @@ public class CharacterActionFactory
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),
             "Rattle Guard" => new RattleGuard(),
+
+            // Goblin Archer Attacks
+            "Piercing Arrow" => new PiercingArrow(),
+            "Crippling Shot" => new CripplingShot(),
 
             // Cave Bat Attacks
             "Sonic Squeal" => new SonicSqueal(),

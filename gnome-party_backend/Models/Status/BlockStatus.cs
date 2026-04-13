@@ -70,8 +70,10 @@ namespace Models.Status
             Character originalTarget,
             Character currentTarget,
             CombatEncounterGameState gameState,
-            bool isUnblockable)
+            bool isUnblockable,
+            bool isUnRedirectable)
         {
+            if (isUnblockable || isUnRedirectable) { return currentTarget; }
             if (AffectedCharacterIds.Contains(originalTarget.Id)) // Check to see if the original target is being protected by Block
             {
                 // If the block status is active, and the character being attacked is the one being blocked, redirect to blocker

@@ -1,17 +1,21 @@
-﻿using Models.ActionMetaData;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
-namespace Models.Actions.PlayerClassActions.MageActions
+namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
 {
-    // Magic Missile: Deal 10 damage to target enemy uninterrupted
-    public sealed class MagicMisslie : CharacterAction
+    // Piercing Arrow: Deals 8 damage to a target and cannot be redirected by block
+    public sealed class PiercingArrow : CharacterAction
     {
-        public MagicMisslie() : base("Magic Missile", true, true) // Pass the action name to the base constructor
+        public PiercingArrow() : base("Piercing Arrow", false, true)
         {
-            ActionDescription = new CharacterActionDescription("Magic Missile", "Deal 10 damage to target enemy uninterrupted"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Piercing Arrow", "Deals 8 damage to a target that can't be redirected");
         }
-        public override AttackResolution ResolveAttack( // Override the ResolveAttack method to implement the specific logic for Magic Missile
+
+        public override AttackResolution ResolveAttack(
             Character user, 
             Character target, 
             CombatEncounterGameState gameState, 
@@ -34,12 +38,12 @@ namespace Models.Actions.PlayerClassActions.MageActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 10,
-                        FinalDamage = 10,
+                        BaseDamage = 8,
+                        FinalDamage = 8,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
-                        IsUnblockable = true,
-                        IsBlocked = false,
+                        IsUnblockable = false,
+                        IsUnRedirectable = true,
                     }
                 }
             };

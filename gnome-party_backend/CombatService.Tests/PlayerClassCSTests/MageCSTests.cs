@@ -333,8 +333,8 @@ public class MageCSTests
     }
 
     [Fact]
-    // Test: Magic Missile is redirected but damage isn't reduced 
-    public async Task MagicMissileRedirectedButFullDamage()
+    // Test: Magic Missile is not redirected or damage reduced
+    public async Task MagicMissileIgnoresBlock()
     {
         // Initialize caster, blocker, and ally for testing
         var caster = new Mage("caster");
@@ -377,9 +377,9 @@ public class MageCSTests
 
         Assert.NotEmpty(results); // Verify that results were passed
 
-        // Block is attempted, so damage is redirected to blocker, but Magic Missile is unblockable so no damage reduction is applied
-        Assert.Equal(30, ally.Health);
-        Assert.Equal(20, blocker.Health);
+        // Block is attempted, but damage from Magic Missile cannot be redirected or reduced
+        Assert.Equal(20, ally.Health);
+        Assert.Equal(30, blocker.Health);
     }
 
     [Fact]

@@ -9,11 +9,13 @@ namespace Models.Actions
     {
         public string AttackName { get; private set; }
         public bool Unblockable { get; private set; }
-        protected CharacterAction(string attackName) : this(attackName, false) { }
-        protected CharacterAction(string attackName, bool unblockable)
+        public bool UnRedirectable { get; private set; }
+        protected CharacterAction(string attackName) : this(attackName, false, false) { }
+        protected CharacterAction(string attackName, bool unblockable, bool unredirectable)
         {
             AttackName = attackName;
             Unblockable = unblockable;
+            UnRedirectable = unredirectable;
             ActionDescription = new CharacterActionDescription(attackName);
         }
         public CharacterActionDescription ActionDescription { get; set; }

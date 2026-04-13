@@ -1,30 +1,32 @@
-﻿using Models.ActionMetaData;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions.PlayerClassActions.BardActions
+namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
 {
-    // Mockery: Deal 6 damage to a target, but makes the mocked enemy target you
-    public sealed class Mockery : CharacterAction
+    // Crippling Shot: Deals 4 damage and reduces the target's damage for 1 turn
+    public sealed class CripplingShot : CharacterAction
     {
-        public Mockery() : base ("Mockery") // Pass the name of the action to the base constructor
+        public CripplingShot() : base("Crippling Shot")
         {
-            ActionDescription = new CharacterActionDescription("Mockery", "Deal 6 damage but causes the mocked enemy to target you");
+            ActionDescription = new CharacterActionDescription("Crippling Shot", "Deals 4 damage to a target and reduces the target's attack power");
         }
 
-        // Override the ResolveAttack method to define the behavior of the Mockery Action
         public override AttackResolution ResolveAttack(
             Character user, 
             Character target, 
             CombatEncounterGameState gameState, 
-            bool isRedirected = false,
-            bool isUnblockable = false)
+            bool isRedirected, 
+            bool isUnblockable)
         {
             // Add validation to ensure that the user, target, and gameState are not null
-            if(user == null) { throw new ArgumentNullException(nameof(user));}
-            if(target == null) { throw new ArgumentNullException(nameof(target));}
-            if (gameState == null) throw new ArgumentNullException(nameof(gameState)); 
+            if (user == null) { throw new ArgumentNullException(nameof(user)); }
+            if (target == null) { throw new ArgumentNullException(nameof(target)); }
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
             var resolution = new AttackResolution(); // Creare a new attack resolution to hold the results of the attack
 
@@ -38,16 +40,16 @@ namespace Models.Actions.PlayerClassActions.BardActions
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 6,
-                    FinalDamage = 6,
+                    BaseDamage = 4,
+                    FinalDamage = 4,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }
             };
 
             // Apply the mocked status effect to the target
-            resolution.StatusEffectsToApply.Add(new MockStatus(user, target));
-            resolution.Events.Add(new CombatEvent("mock_status_applied", new StatusAppliedEventParams { OwnerId = user.Id }));
+            resolution.StatusEffectsToApply.Add(new WeakenedStatus(user, target));
+            resolution.Events.Add(new CombatEvent("weakened_status_applied", new StatusAppliedEventParams { OwnerId = user.Id }));
 
             return resolution;
         }

@@ -22,8 +22,5 @@
 		<ProjectReference Include="..\CombatService\CombatService.csproj" />
 		<ProjectReference Include="..\Models\Models.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="BossEnemyPoolActionTests\" />
-	</ItemGroup>
 
 </Project>

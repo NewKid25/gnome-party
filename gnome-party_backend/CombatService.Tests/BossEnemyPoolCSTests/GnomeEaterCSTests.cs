@@ -628,6 +628,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
             // -------------------------
             // TEST-ONLY ROUND RESET
             // -------------------------
+            
             ResetEncounterForNextRound(encounter);
 
             // -------------------------

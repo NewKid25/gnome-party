@@ -223,7 +223,7 @@ namespace CombatService
                 }
 
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents); // Process status triggers that happen at the beginning of a character's turn
-                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable); // Resolve any target changes
+                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable); // Resolve any target changes
                 var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
                 var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected); // Get the action instance with status effects applied
                 resolution = ResolveMirror(encounter.GameState, srcCharacter, action, request.Action, resolution); // Run a second copy of the action instance to the target associated with the mirror status
@@ -361,7 +361,8 @@ namespace CombatService
             CharacterAction action,
             CombatEncounterGameState gameState,
             Character originalTarget,
-            bool isUnblockable)
+            bool isUnblockable, 
+            bool isUnRedirectable)
         {
             // Iterate through all characters to check for redirecting status effects
             Character resolvedTarget = originalTarget;
@@ -374,7 +375,8 @@ namespace CombatService
                         originalTarget,
                         resolvedTarget,
                         gameState,
-                        isUnblockable);
+                        isUnblockable,
+                        isUnRedirectable);
                 }
             }
             return resolvedTarget;
@@ -409,7 +411,7 @@ namespace CombatService
             if (mirrorTarget == null || mirrorTarget.Health <= 0) { return targetResolution; }
 
             // Resolve the mirror action as if the character had targeted the mirror target instead.
-            var resolvedMirrorTarget = ResolveActionTarget(character, action, gameState, mirrorTarget, action.Unblockable);
+            var resolvedMirrorTarget = ResolveActionTarget(character, action, gameState, mirrorTarget, action.Unblockable, action.UnRedirectable);
             var mirrorIsRedirected = resolvedMirrorTarget.Id != mirrorTarget.Id;
             var mirrorAction = action.ResolveAttack(character, resolvedMirrorTarget, gameState, mirrorIsRedirected, action.Unblockable);
             mirrorAction.Events.Add(new CombatEvent("mirror_activated", new  // This event can be used by the frontend to trigger mirror-specific animations or effects

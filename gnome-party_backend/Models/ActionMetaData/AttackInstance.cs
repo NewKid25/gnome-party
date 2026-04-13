@@ -13,5 +13,6 @@ namespace Models.ActionMetaData
         public string SourceCharacterId { get; set; } = "";
         public string TargetCharacterId { get; set; } = "";
         public bool IsUnblockable { get; set; }
+        public bool IsUnRedirectable { get; set; }
     }
 }

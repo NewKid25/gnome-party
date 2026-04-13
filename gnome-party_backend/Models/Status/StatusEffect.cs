@@ -75,6 +75,6 @@ namespace Models.Status
             Character originalTarget,
             Character currentTarget,
             CombatEncounterGameState gameState,
-            bool isUnblockable)  {   return currentTarget; }
+            bool isUnblockable, bool isUnRedirectable)  {   return currentTarget; }
     }
 }

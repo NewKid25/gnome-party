@@ -39,6 +39,10 @@ public class Enemy
                 Character = character ?? new GnomeEater();
                 AI = new GnomeEaterAI(rng);
                 break;
+            case "Goblin Archer":
+                Character = character ?? new GoblinArcher();
+                AI = new GoblinArcherAI(rng);
+                break;
             default:
                 throw new ArgumentException($"Unknown character type: {characterType}");
         }
