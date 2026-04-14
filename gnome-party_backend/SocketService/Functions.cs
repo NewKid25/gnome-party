@@ -156,8 +156,8 @@ public class Functions
     //{"route": "begin-combat-encounter", "GameSessionId": ""}
     public async Task<APIGatewayProxyResponse> BeginCombatEncounterHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        // example message body to trigger this route
-        //{"route": "begin-combat-encounter", "GameSessionId": "f4477afa-a9e8-48fc-9dcc-60e7ac64ac3b"}
+        //since connections now contain GameSessionId, this route could be rewrittent to get rid of the GameSessionId param
+        // and instead pull the game session id from the connection info in the database.
         // ripped most of this Json parsing code from WebSocket sample at https://github.com/aws/aws-lambda-dotnet/blob/master/Blueprints/BlueprintDefinitions/vs2026/WebSocketAPIServerless/template/src/BlueprintBaseName.1/Functions.cs
         JsonDocument message = JsonDocument.Parse(request.Body);
 
@@ -252,16 +252,15 @@ public class Functions
 
             gameSession.AddParticipant(connection);
 
-            await databaseService.SaveAsync(connection);
-            context.Logger.LogInformation("Saved connection");
-
-            await databaseService.SaveAsync(gameSession);
-            context.Logger.LogInformation("Saved game session");
-
-            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-connection", connection));
-            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session", gameSession));
-            context.Logger.LogInformation("Sent game session to connection");
-
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(connection),
+                 databaseService.SaveAsync(gameSession),
+                 SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-connection", connection)),
+                 SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session", gameSession)),
+            };
+            await Task.WhenAll(tasks);
+            
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.OK,
