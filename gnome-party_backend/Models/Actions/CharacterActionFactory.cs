@@ -1,5 +1,6 @@
 ﻿using Models.Actions.BoosPoolActions.GnomeEaterActions;
 using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
+using Models.Actions.EasyEnemyPoolActions.ForestSpriteActions;
 using Models.Actions.EasyEnemyPoolActions.GoblinArcherActions;
 using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
@@ -44,6 +45,10 @@ public class CharacterActionFactory
             // Goblin Archer Attacks
             "Piercing Arrow" => new PiercingArrow(),
             "Crippling Shot" => new CripplingShot(),
+
+            // Forest Sprite Attacks
+            "Leaf Dart" => new LeafDart(),
+            "Entangle" => new Entangle(),
 
             // Cave Bat Attacks
             "Sonic Squeal" => new SonicSqueal(),

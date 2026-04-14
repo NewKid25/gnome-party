@@ -8,7 +8,7 @@ using Models.TestHelperData;
 
 namespace Models.AI.EasyEnemyPoolAI
 {
-    // Call 5 instance of Rng.
+    /* Call 5 instance of Rng.
     //      1. 70% Chance to use Piercing Arrow on any player has 50% health or more
     //      2. 60% Chance to use Crippling Shot on any player is below 50% health
     //      3. Move decision tie breaker (50/50)
@@ -17,6 +17,7 @@ namespace Models.AI.EasyEnemyPoolAI
     //          * 50 - 79%: Warrior
     //          * 80 - 100% Bard 
     //      5. Targteing Tie breaker roll
+    */
     internal class GoblinArcherAI : CharacterAI
     {
         public GoblinArcherAI() { }

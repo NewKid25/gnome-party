@@ -112,7 +112,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
         [InlineData(1, 24, 34, 40, 138, 138, 0.41, 0.5, 0.9, 0.0, "Crushing Swipe", "target", "Bard", 74, 10)]
 
         /* Test: Crushing Strike correctly applies damage to the target enemy
-        // Test: Use Crushing Swipe on a Bard
+        // Test: Use Crushing Swipe on a Mage
         // Turn Count: 7
         // Player Class (enemy) with low health: 24
         // Player Class (enemies) Current Health: 34
@@ -130,7 +130,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
         [InlineData(7, 24, 34, 40, 80, 80, 0.85, 0.84, 0.55, 0.0, "Crushing Swipe", "target", "Mage", 14, 10)]
 
         /* Test: Crushing Strike correctly applies damage to the target enemy
-        // Test: Use Crushing Swipe on a Bard
+        // Test: Use Crushing Swipe on a Warrior
         // Turn Count: 9
         // Player Class (enemy) with low health: 24
         // Player Class (enemies) Current Health: 34
@@ -139,7 +139,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
         // Gnome Eater Max Health: 192
         // Devour Essence Chance Roll: 0.01 (Needs to be 60% or less for success. Should fail since health is above 50%)
         // Primal Roar Chance Roll: 0.74 (Needs to be 40% or less for success. Should fail)
-        // Targeting Roll: 0.35 (Should return Mage)
+        // Targeting Roll: 0.35 (Should return Warrior)
         //      * 0 - 49%: Warrior
         //      * 50 - 79%: Mage
         //      * 80 - 100% Bard 
@@ -158,7 +158,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
         // Gnome Eater Max Health: 80
         // Devour Essence Chance Roll: 0.01 (Needs to be 60% or less for success. Should succeed)
         // Primal Roar Chance Roll: 0.74 (Needs to be 40% or less for success. Should fail)
-        // Targeting Roll: 0.88 (Should return Mage)
+        // Targeting Roll: 0.88 (Should return Bard)
         //      * 0 - 49%: Warrior
         //      * 50 - 79%: Mage
         //      * 80 - 100% Bard 
@@ -183,7 +183,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
         */
         [InlineData(2, 24, 34, 40, 128, 128, 0.01, 0.2, 0.55, 0.0, "Devour Essence", "target", "Mage", 70, 16)]
 
-        /* Test: Use Devour Essence on a Mage
+        /* Test: Use Devour Essence on a Warrior
         // Turn Count: 11
         // Player Class (enemy) with low health: 24
         // Player Class (enemies) Current Health: 34
@@ -192,7 +192,7 @@ namespace CombatService.Tests.BossEnemyPoolCSTests
         // Gnome Eater Max Health: 69
         // Devour Essence Chance Roll: 0.01 (Needs to be 60% or less for success. Should succeed)
         // Primal Roar Chance Roll: 0.2 (Needs to be 40% or less for success. Should fail because Devour Essence triggered first)
-        // Targeting Roll: 0.55 (Should return Mage)
+        // Targeting Roll: 0.55 (Should return Warrior)
         //      * 0 - 49%: Warrior
         //      * 50 - 79%: Mage
         //      * 80 - 100% Bard 

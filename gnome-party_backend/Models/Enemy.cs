@@ -31,6 +31,14 @@ public class Enemy
                 Character = character ??  new Skeleton();
                 AI = new SkeletonAI(rng);
                 break;
+            case "Goblin Archer":
+                Character = character ?? new GoblinArcher();
+                AI = new GoblinArcherAI(rng);
+                break;
+            case "Forest Sprite":
+                Character = character ?? new ForestSprite();
+                AI = new ForestSpriteAI(rng);
+                break;
             case "Cave Bat":
                 Character = character ?? new CaveBat();
                 AI = new CaveBatAI(rng);
@@ -38,10 +46,6 @@ public class Enemy
             case "Gnome Eater":
                 Character = character ?? new GnomeEater();
                 AI = new GnomeEaterAI(rng);
-                break;
-            case "Goblin Archer":
-                Character = character ?? new GoblinArcher();
-                AI = new GoblinArcherAI(rng);
                 break;
             default:
                 throw new ArgumentException($"Unknown character type: {characterType}");

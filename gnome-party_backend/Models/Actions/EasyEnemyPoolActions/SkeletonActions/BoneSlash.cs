@@ -14,8 +14,8 @@ namespace Models.Actions.EasyEnemyPoolActions.SkeletonActions
         public override AttackResolution ResolveAttack(Character user, // Override the ResolveAttack method to define the attack's behavior
             Character target, 
             CombatEncounterGameState gameState, 
-            bool isRedirected = false, 
-            bool isUnblockable = false)
+            bool isRedirected, 
+            bool isUnblockable)
         {
             if (user == null) throw new ArgumentNullException(nameof(user)); // Validate that the user character is not null
             if (target == null) throw new ArgumentNullException(nameof(target)); // Validate that the target character is not null

@@ -24,7 +24,7 @@ namespace Models.Tests.EasyEnemyPoolActionTests
 
             // Execute attack action
             var action = new BoneSlash();
-            var resolution = action.ResolveAttack(user, target, gameState);
+            var resolution = action.ResolveAttack(user, target, gameState, false, false);
 
             Assert.Single(resolution.AttackInstances); // Verify a single attack resolution was passed
 
