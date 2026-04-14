@@ -155,6 +155,10 @@ class ViewManager {
 
 		if (msg.Subject === "start-campaign") {
 			console.log("Campaign started:", msg.Message);
+			this.socket.send(JSON.stringify({
+				route: "begin-combat-encounter",
+				GameSessionId: this.encounterData.gameSessionId
+			}))
 		}
 
 		if (msg.Subject == "begin-combat-encounter")
