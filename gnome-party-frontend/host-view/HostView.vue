@@ -13,8 +13,7 @@ onMounted(() => {
     console.log("Encounter:", vm.encounterData.encounterId);
     
     vm.socket.send(JSON.stringify({
-    route: "begin-combat-encounter",
-    GameSessionId: vm.encounterData.gameSessionId
+    route: "start-campaign",
   }))}
   // vm.testAnimation();
 })

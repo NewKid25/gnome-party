@@ -31,6 +31,9 @@ class ViewManager {
 
 	encounterData = useEncounterData();
 
+	// track participants in lobby on host side
+	readyPlayers:any[] = [];
+
 	constructor() {
 		this.socket = new WebSocket("wss://ws.gnome-party.com");
 
@@ -127,7 +130,37 @@ class ViewManager {
 		{
 			this.encounterData.gameSessionId = msg.Message.GameSessionId;
 			this.encounterData.localPlayerId = msg.Message.Host.UserId;
+
+			// for testing
+			console.log("Host game created");
+			console.log("Invite code:", msg.Message.InviteCode);
+			console.log("Game session:", msg.Message.GameSessionId);
 		}
+		if (msg.Subject === "lobby-ready") {
+			this.readyPlayers.push(msg.Message);
+			console.log("Participant readied:", msg.Message);
+			console.log("Ready player count:", this.readyPlayers.length);
+		}
+		if (msg.Subject === "lobby-unready") {
+			console.log("Participant unreadied:", msg.Message);
+		}
+
+		if (msg.Subject === "player-disconnected") {
+			console.log("Participant disconnected:", msg.Message);
+		}
+
+		if (msg.Subject === "host-disconnected") {
+			console.log("Host disconnected:", msg.Message);
+		}
+
+		if (msg.Subject === "start-campaign") {
+			console.log("Campaign started:", msg.Message);
+			this.socket.send(JSON.stringify({
+				route: "begin-combat-encounter",
+				GameSessionId: this.encounterData.gameSessionId
+			}))
+		}
+
 		if (msg.Subject == "begin-combat-encounter")
 		{
 			this.encounterData.encounterId = msg.Message.EncounterId;
@@ -233,7 +266,9 @@ class ViewManager {
 					]
 					}
 				]
-				}
+				},
+				"Events": []
+
 			},
 			{
 				"Request": {
@@ -291,7 +326,8 @@ class ViewManager {
 					]
 					}
 				]
-				}
+				},
+				"Events": []
 			}
 		];
 
