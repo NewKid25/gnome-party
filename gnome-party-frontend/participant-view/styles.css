@@ -309,3 +309,123 @@ hr {
 /* Made by James */
 feComponentTransfer :indeterminate function table
 {}
+
+/* Lobby Screen Styling */
+.lobby-view {
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eaf6fc;
+    padding: clamp(12px, 2vw, 28px);
+}
+
+.lobby-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(92vw, 38rem);
+    min-height: 420px;
+    position: relative;
+    gap: clamp(0.9rem, 2.2vh, 1.6rem);
+}
+
+.lobby-menu-panel {
+    width: 100%;
+    min-height: min(82dvh, 46rem);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(0.9rem, 2.2vh, 1.6rem);
+    padding: clamp(1rem, 2.5vh, 1.5rem);
+}
+
+.lobby-title-panel {
+    width: 100%;
+    background-color: #edd99b;
+    border: 2px solid #6b5a2d;
+    border-radius: clamp(8px, 1vw, 14px);
+    padding: clamp(0.8rem, 2vh, 1.1rem);
+    margin-bottom: clamp(1rem, 3vh, 1.8rem);
+}
+
+.lobby-title {
+    font-family: "Mystorica", serif;
+    color: #000;
+    font-weight: normal;
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    line-height: 1;
+    margin: 0;
+    text-align: center;
+}
+
+.lobby-label {
+    font-family: "Amasis MT Pro", serif;
+    color: #000;
+    font-weight: bold;
+    font-size: clamp(1.15rem, 3vw, 1.5rem);
+    margin: 0;
+}
+
+.lobby-menu-panel input {
+    border-radius: clamp(8px, 1vw, 14px);
+    border: 2px solid #4a4a4a;
+    padding: clamp(0.75rem, 1.6vh, 1rem);
+    width: 100%;
+    background-color: #bfe5f7;
+    color: #4a4a4a;
+    font-family: "Amasis MT Pro", serif;
+    font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+    text-align: center;
+    outline: none;
+}
+
+.lobby-menu-panel input::placeholder {
+    color: #4a4a4a;
+    opacity: 1;
+    text-transform: uppercase;
+}
+
+.lobby-menu-panel input:focus {
+    background-color: #cdebf8;
+}
+
+.lobby-menu-panel button {
+    border-radius: clamp(8px, 1vw, 14px);
+    border: 2px solid #4a4a4a;
+    padding: clamp(0.75rem, 1.6vh, 1rem);
+    width: 100%;
+    margin-top: auto;
+    background-color: #bfe5f7;
+    color: #3a3a3a;
+    font-weight: bold;
+    font-family: "Amasis MT Pro", serif;
+    text-transform: uppercase;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lobby-menu-panel button:hover:not(:disabled) {
+    background-color: #a0d0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.lobby-menu-panel button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.lobby-menu-panel button:disabled {
+    opacity: 0.75;
+    cursor: default;
+}
+
+.error-message {
+    margin: 0;
+    color: #8b1e1e;
+    font-family: "Amasis MT Pro", serif;
+    font-size: 0.95rem;
+    text-align: center;
+}
