@@ -60,14 +60,14 @@ namespace Models.Status
             Character source,
             Character target,
             double currentMultiplier,
-            bool isUnblockable)   {    return currentMultiplier; }
+            bool isUnblockable)   { return currentMultiplier; }
 
         // Provides a method to modify damage reduction
         public virtual double ModifyDamageReduction(
             Character source,
             Character target,
             double currentReduction,
-            bool isUnblockable)   {     return currentReduction;  }
+            bool isUnblockable)   { return currentReduction; }
 
         // Provides a method to modify the redirect target of an attack
         public virtual Character ModifyRedirectTarget(
@@ -75,6 +75,6 @@ namespace Models.Status
             Character originalTarget,
             Character currentTarget,
             CombatEncounterGameState gameState,
-            bool isUnblockable, bool isUnRedirectable)  {   return currentTarget; }
+            bool isUnblockable, bool isUnRedirectable)  { return currentTarget; }
     }
 }

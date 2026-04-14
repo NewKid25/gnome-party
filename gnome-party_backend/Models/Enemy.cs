@@ -39,6 +39,9 @@ public class Enemy
                 Character = character ?? new ForestSprite();
                 AI = new ForestSpriteAI(rng);
                 break;
+            case "Gnombie Brute":
+                Character = character ?? new GnombieBrute();
+                break;
             case "Cave Bat":
                 Character = character ?? new CaveBat();
                 AI = new CaveBatAI(rng);

@@ -256,7 +256,8 @@ namespace CombatService
                     {
                         finalDamage = 0;
                     }
-                    attack.FinalDamage = finalDamage;
+                    int extraIntDamage = ResolveAddExtraIntDamageStatuses(finalTarget);
+                    attack.FinalDamage = finalDamage + extraIntDamage;
                     attack.IsBlocked = damageReduction > 0;
                     finalTarget.Health -= finalDamage;
                     roundEvents.Add(new CombatEvent("damage", new DamageEventParams
@@ -442,6 +443,14 @@ namespace CombatService
             {
                 character.Health += amount;
             }
+        }
+
+        // Method for adding extra damage to target based off statuses
+        public int ResolveAddExtraIntDamageStatuses(Character target)
+        {
+            if (target == null || target.Health < 0) { return 0; }
+            else if(target.StatusEffects.OfType<VulnerableStatus>().FirstOrDefault() != null) { return 2; }
+            else { return 0; }
         }
 
     }

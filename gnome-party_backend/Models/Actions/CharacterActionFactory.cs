@@ -1,5 +1,6 @@
 ﻿using Models.Actions.BoosPoolActions.GnomeEaterActions;
 using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
+using Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions;
 using Models.Actions.EasyEnemyPoolActions.ForestSpriteActions;
 using Models.Actions.EasyEnemyPoolActions.GoblinArcherActions;
 using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
@@ -49,6 +50,10 @@ public class CharacterActionFactory
             // Forest Sprite Attacks
             "Leaf Dart" => new LeafDart(),
             "Entangle" => new Entangle(),
+
+            // Gnombie Brute Attacks
+            "Heavy Slam" => new HeavySlam(),
+            "Rotten Aura" => new RottenAura(),
 
             // Cave Bat Attacks
             "Sonic Squeal" => new SonicSqueal(),

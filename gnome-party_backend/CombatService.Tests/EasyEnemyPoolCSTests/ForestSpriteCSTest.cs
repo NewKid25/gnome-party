@@ -17,52 +17,6 @@ namespace CombatService.Tests.EasyEnemyPoolCSTests
     public class ForestSpriteCSTest
     {
         /*******************************************************************************************************************/
-        //this test is just for debugging and should be replaced with more specific tests
-        [Fact]
-        public async Task TestCombatRequestHandlerAsync()
-        {
-            // Arrange
-            var encounter = new ActiveCombatEncounter(
-                new List<Character>
-                {
-                new Character("test-source-character-id"),
-                new Character("test-source-character-id-2")
-                },
-                new List<Character>
-                {
-                new Skeleton { Id = "test-target-character-id" },
-                new Skeleton()
-                }
-            );
-
-            var mockDBService = new Mock<IDatabaseService>();
-            mockDBService
-                .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
-                .ReturnsAsync(encounter);
-
-            var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0));
-
-            // Act
-            var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
-            {
-                EncounterId = "test-encounter-id",
-                SourceCharacterId = "test-source-character-id",
-                TargetCharacterId = "test-target-character-id",
-                Action = "Slash",
-            });
-
-            var result2 = await combatService.CombatRequestHandlerAsync(new CombatRequest
-            {
-                EncounterId = "test-encounter-id",
-                SourceCharacterId = "test-source-character-id-2",
-                TargetCharacterId = "test-target-character-id",
-                Action = "Slash",
-            });
-
-            // Assert
-            Assert.NotNull(result1);
-            Assert.IsType<List<CombatResult>>(result1);
-        }
 
         // Helper method to build a mock database service that returns the provided encounter when LoadAsync is called
         private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter)
