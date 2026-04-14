@@ -62,4 +62,19 @@ public class Enemy
         combatRequest.SourceCharacterId = Character.Id; //i do this here because AI doesnt have reference to source, and feels silly to pass one in
         return combatRequest;
     }
+
+    // Special reference for enemy ai that require meta data on what actions a player has taken
+    // AKA ONLY FOR THIS GOD FORSAKEN FOREST SPRITE!!!!
+    public CombatRequest ChooseAction(List<Character> enemies, List<Character> allies, List<CombatRequest> playerRequests)
+    {
+        var actions = new List<string>();
+        foreach (var actionDescription in Character.ActionsDescriptions)
+        {
+            actions.Add(actionDescription.Name);
+        }
+
+        var combatRequest = AI.ChooseAction(Character, actions, enemies, allies, playerRequests);
+        combatRequest.SourceCharacterId = Character.Id;
+        return combatRequest;
+    }
 }
