@@ -9,7 +9,7 @@ import GnomePuppet from "./GnomePuppet";
 import HealthBar from "./HealthBar";
 import FunctionStep from "./FunctionStep";
 import AnimationStep from "./interfaces/AnimationStep";
-import { TurnStep } from "./interfaces/TurnStep";
+import { Character, GameState, TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
 import BoneSlashAnimation from "./animations/BoneSlashAnimation";
@@ -69,17 +69,6 @@ class ViewManager {
 	loadEncounter(gameState:any)
 	{
 		// Load player characters
-		/*
-		var playerCharacters: Object[] = [
-			{},
-			{},
-			{},
-			{},
-			{},
-			{}
-		]
-		*/
-
 		var playerCharacters = gameState.PlayerCharacters;
 
 		for (let i = 0; i < playerCharacters.length; i++) {
@@ -100,16 +89,11 @@ class ViewManager {
 		}
 
 		// Load enemy characters
-		/*
-		var enemyCharacters: Object[] = [
-			{}
-		]
-		*/
 		var enemyCharacters = gameState.EnemyCharacters;
 
 		for (let i = 0; i < enemyCharacters.length; i++) {
-			// Create puppet of corresponding enemy (using GnomePuppet as placeholder)
-			let puppet:SkeletonPuppet = new SkeletonPuppet();
+			// Create puppet of corresponding enemy
+			let puppet:Puppet = new SkeletonPuppet();
 			puppet.x(this.stage.width() - 300);
 			puppet.y((i + 1) * this.stage.height() / (enemyCharacters.length + 1));
 
@@ -208,126 +192,78 @@ class ViewManager {
 
 		// sequence.play();
 
+		
+		let gameState:GameState = {"EnemyCharacters":[{"CharacterType":"Skeleton","Health":30,"Id":"e1","MaxHealth":30,"Name":"Skeleton","ActionsDescriptions":[{"Description":"Deal 6 damage to target enemy","Name":"Bone Slash"},{"Description":"Reduce damage by 50% for one turn","Name":"Rattle Guard"}],"StatusEffects":[]}],"PlayerCharacters":[{"CharacterType":"Mage","Health":20,"Id":"p1","MaxHealth":20,"Name":"Mage","ActionsDescriptions":[{"Description":"Deal damage to the target and then burn the target and adjacent allies for 3 turns","Name":"Fireball"}],"StatusEffects":[]}]};
+		
+		this.loadEncounter(gameState);
+
 		let sampleSteps:TurnStep[] = 
 		[
 			{
-				"Request": {
-				"EncounterId": "50b8c0cf-e032-4625-ba07-dad08231081b",
-				"TargetCharacterId": "test-enemy",
-				"SourceCharacterId": "0",
-				"Action": "Slash"
+				Request:   {
+					EncounterId:       "",
+					TargetCharacterId: "p1",
+					SourceCharacterId: "e1",
+					Action:            "Glump",
 				},
-				"GameState": {
-				"PlayerCharacters": [
-					{
-					"Id": "0",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
+				GameState: {
+					PlayerCharacters: [
 						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
+							CharacterType:      "Mage",
+							Id:                  "p1",
+							Name:                "Mage",
+							Health:              10,
+							MaxHealth:           20,
+							ActionsDescriptions: [],
+							StatusEffects:      [],
 						}
-					]
-					},
-					{
-					"Id": "1",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
+					],
+					EnemyCharacters:  [
 						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
+							CharacterType:      "Skeleton",
+							Id:                  "e1",
+							Name:                "Skeleton",
+							Health:              30,
+							MaxHealth:           30,
+							ActionsDescriptions: [],
+							StatusEffects:      [],
 						}
-					]
-					}
-				],
-				"EnemyCharacters": [
-					{
-					"Id": "test-enemy",
-					"Name": "skeleton",
-					"Health": 12,
-					"MaxHealth": 10,
-					"ActionsDescriptions": [
-						{
-						"Name": "punch",
-						"Description": "A weak punch"
-						}
-					]
-					}
-				]
+					],
 				},
-				"Events": []
-
+				Events: [],
 			},
 			{
-				"Request": {
-				"EncounterId": "50b8c0cf-e032-4625-ba07-dad08231081b",
-				"TargetCharacterId": "test-enemy",
-				"SourceCharacterId": "1",
-				"Action": "Slash"
+				Request:   {
+					EncounterId:       "",
+					TargetCharacterId: "e1",
+					SourceCharacterId: "p1",
+					Action:            "Glump",
 				},
-				"GameState": {
-				"PlayerCharacters": [
-					{
-					"Id": "0",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
+				GameState: {
+					PlayerCharacters: [
 						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
+							CharacterType:      "Mage",
+							Id:                  "p1",
+							Name:                "Mage",
+							Health:              10,
+							MaxHealth:           20,
+							ActionsDescriptions: [],
+							StatusEffects:      [],
 						}
-					]
-					},
-					{
-					"Id": "1",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
+					],
+					EnemyCharacters:  [
 						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
+							CharacterType:      "Skeleton",
+							Id:                  "e1",
+							Name:                "Skeleton",
+							Health:              15,
+							MaxHealth:           30,
+							ActionsDescriptions: [],
+							StatusEffects:      [],
 						}
-					]
-					}
-				],
-				"EnemyCharacters": [
-					{
-					"Id": "test-enemy",
-					"Name": "skeleton",
-					"Health": 8,
-					"MaxHealth": 10,
-					"ActionsDescriptions": [
-						{
-						"Name": "punch",
-						"Description": "A weak punch"
-						}
-					]
-					}
-				]
+					],
 				},
-				"Events": []
+				Events: [],
 			}
 		];
 
@@ -342,6 +278,23 @@ class ViewManager {
 				return new SlashAnimation(step, this);
 			case "Bone Slash":
 				return new BoneSlashAnimation(step, this);
+			default:
+				let seq = new AnimationSequence();
+
+				for (let player of step.GameState.PlayerCharacters)
+				{
+					let pvc = this.playerVisualComponents.get(player.Id);
+					seq.steps.push(new FunctionStep(() => {pvc?.healthbar.changeHealth(player.Health);}));
+				}
+				for (let enemy of step.GameState.EnemyCharacters)
+				{
+					let evc = this.enemyVisualComponents.get(enemy.Id);
+					seq.steps.push(new FunctionStep(() => {evc?.healthbar.changeHealth(enemy.Health);}));
+				}
+
+				seq.steps.push(new AnimationPause(1000));
+
+				return seq;
 		}
 	}
 }

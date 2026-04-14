@@ -10,11 +10,13 @@ export interface GameState {
 }
 
 export interface Character {
+    CharacterType?:      string;
     Id:                  string;
     Name:                string;
     Health:              number;
     MaxHealth:           number;
     ActionsDescriptions: ActionsDescription[];
+    StatusEffects?:      object[];
 }
 
 export interface ActionsDescription {
