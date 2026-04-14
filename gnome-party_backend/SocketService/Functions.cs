@@ -178,17 +178,21 @@ public class Functions
         Console.WriteLine($"After load");
         Console.WriteLine($"Game session is {JsonSerializer.Serialize(gameSession)}");
 
+        var currentEncounter = gameSession.Campaign.Encounters[gameSession.Campaign.CurrentEncounterIndex];
+        var tasks = new List<Task>();
+        Console.WriteLine(currentEncounter.GetType().Name);
+        if (currentEncounter is CombatEncounter)
+        {
+            var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, (currentEncounter as CombatEncounter).Enemies);
+            Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
+            tasks.Add(databaseService.SaveAsync(activeEncounter));
+            tasks.Add(BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter)));
+        }
+
         var connectionId = request.RequestContext.ConnectionId;
-
-        var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, gameSession.Campaign.Encounters[0].Enemies);
-        Console.WriteLine($"Pre save");
-        Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
-
-        await databaseService.SaveAsync(activeEncounter);
-        Console.WriteLine($"After save");
-
-        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter));
-
+        gameSession.Campaign.CurrentEncounterIndex++;
+        tasks.Add(databaseService.SaveAsync(gameSession));
+        await Task.WhenAll(tasks);
 
         return new APIGatewayProxyResponse
         {
@@ -414,7 +418,7 @@ public class Functions
         }
     }
 
-    //{"route":"lobby-unready"}
+    //{"route":"start-campaign"}
     public async Task<APIGatewayProxyResponse> StartCampaignHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -425,7 +429,16 @@ public class Functions
 
             var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
             var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
-            await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("start-campaign", gameSession));
+            gameSession.Campaign.InitEncounters();
+
+            Console.WriteLine($"Game session post init is {JsonSerializer.Serialize(gameSession)}");
+
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(gameSession),
+                BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("start-campaign", gameSession))
+            };
+            await Task.WhenAll(tasks);
 
             return new APIGatewayProxyResponse
             {
