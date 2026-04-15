@@ -53,7 +53,7 @@ public class CharacterActionFactory
 
             // Gnombie Brute Attacks
             "Heavy Slam" => new HeavySlam(),
-            "Rotten Aura" => new RottenAura(),
+            "Rotting Aura" => new RottingAura(),
 
             // Cave Bat Attacks
             "Sonic Squeal" => new SonicSqueal(),

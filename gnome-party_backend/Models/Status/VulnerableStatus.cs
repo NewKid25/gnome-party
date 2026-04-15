@@ -10,7 +10,7 @@ namespace Models.Status
         public VulnerableStatus() { } 
         public VulnerableStatus(Character user, Character target)
         {
-            Duration = 1; // Lasts for 1 turn
+            Duration = 2; // Lasts for 1 turn
             DurationUnit = DurationUnit.TurnEnd; // Expires at the end of the turn
             SourceCharacterId = user.Id; // The character who applied the status
             StatusDescription = new Dictionary<string, string> // Descriptions for different stages of the status

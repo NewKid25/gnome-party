@@ -56,11 +56,15 @@ internal abstract class CharacterAI
 
         return target;
     }
-    protected static readonly HashSet<string> HighImpactActions = new()
+    protected static readonly HashSet<string> HighImpactActions = new() // List of actions deemed "High Impact"
     {
         "Whirling Strike",
         "Song",
-    }; // List of actions deemed "High Impact"
+    };
+    public static readonly HashSet<string> UnblockableActions = new()
+    {
+        "Magic Missile",
+    };
     protected static bool IsHighImpactAction(List<CombatRequest> playerRequests) // Method to see if an action is "High Impact"
     {
         if (playerRequests == null || playerRequests.Count == 0) { return false; } // Check that a valid player request was sent
@@ -127,5 +131,26 @@ internal abstract class CharacterAI
             target = GetLowestHealthTarget(chosenGroup);
         }
         return target;
+    }
+    protected Character GetRandomTarget(List<Character> aliveEnemies) // Method to get a random target
+    {
+        if (aliveEnemies.Count == 0 || aliveEnemies == null) 
+        { 
+            throw new InvalidOperationException("No alive enemies to target.");
+        }
+        int index;
+        if (aliveEnemies.Count == 1)
+        {
+            index = 0;
+        }
+        else
+        {
+            index = (int)(Rng.NextDouble() * aliveEnemies.Count);
+            if (index >= aliveEnemies.Count)
+            {
+                index = aliveEnemies.Count - 1;
+            }
+        }
+        return aliveEnemies[index];
     }
 }

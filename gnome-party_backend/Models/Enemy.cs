@@ -41,6 +41,7 @@ public class Enemy
                 break;
             case "Gnombie Brute":
                 Character = character ?? new GnombieBrute();
+                AI = new GnombieBruteAI(rng);
                 break;
             case "Cave Bat":
                 Character = character ?? new CaveBat();

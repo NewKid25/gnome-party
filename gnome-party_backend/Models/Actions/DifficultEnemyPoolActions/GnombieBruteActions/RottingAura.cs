@@ -9,11 +9,11 @@ using Models.Status;
 namespace Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions
 {
     // Rotten Aura: Debuff your target with +2 incoming damage
-    public sealed class RottenAura : CharacterAction
+    public sealed class RottingAura : CharacterAction
     {
-        public RottenAura() : base("Rotten Aura") // Call the base constructor with the action name
+        public RottingAura() : base("Rotting Aura") // Call the base constructor with the action name
         {
-            ActionDescription = new CharacterActionDescription("Rotten Aura", "Make your target vulnerable and receive extra damage"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Rotting Aura", "Make your target vulnerable and receive extra damage"); // Set the action description
         }
         public override AttackResolution ResolveAttack(
             Character user,

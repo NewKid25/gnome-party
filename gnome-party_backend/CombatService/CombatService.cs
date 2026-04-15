@@ -259,7 +259,7 @@ namespace CombatService
                     int extraIntDamage = ResolveAddExtraIntDamageStatuses(finalTarget);
                     attack.FinalDamage = finalDamage + extraIntDamage;
                     attack.IsBlocked = damageReduction > 0;
-                    finalTarget.Health -= finalDamage;
+                    finalTarget.Health -= attack.FinalDamage;
                     roundEvents.Add(new CombatEvent("damage", new DamageEventParams
                     {
                         DamageAmount = finalDamage,
