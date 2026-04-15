@@ -1,4 +1,5 @@
-﻿using Models.CharacterData;
+﻿using Amazon.DynamoDBv2.DataModel;
+using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.EncounterData;
 
@@ -20,6 +21,6 @@ public class CombatEncounter : Encounter
     public CombatEncounter(List<Character> _enemies)
     {
         Enemies = _enemies;
-    }   
+    }
     public List<Character> Enemies { get; set; }
 }
