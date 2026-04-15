@@ -5,7 +5,7 @@ import SimultaneousAnimation from "./SimultaneousAnimation";
 import TweenFromCurrent from "./TweenFromCurrent";
 import LeapAnimation from "./animations/LeapAnimation";
 import AnimationPause from "./AnimationPause";
-import GnomePuppet from "./GnomePuppet";
+import GnomePuppet from "./puppets/GnomePuppet";
 import HealthBar from "./HealthBar";
 import FunctionStep from "./FunctionStep";
 import AnimationStep from "./interfaces/AnimationStep";
@@ -14,7 +14,14 @@ import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
 import BoneSlashAnimation from "./animations/BoneSlashAnimation";
 import { useEncounterData } from "../../participant-view/stores/encounterData";
-import SkeletonPuppet from "./SkeletonPuppet";
+import SkeletonPuppet from "./puppets/SkeletonPuppet";
+import GoblinArcherPuppet from "./puppets/GoblinArcherPuppet";
+import { C } from "vue-router/dist/options-CjwwR_07.cjs";
+import ForestSpritePuppet from "./puppets/ForestSpritePuppet";
+import CaveBatPuppet from "./puppets/CaveBatPuppet";
+import GnombieBrutePuppet from "./puppets/GnombieBrutePuppet";
+import GnomeEaterPuppet from "./puppets/GnomeEaterPuppet";
+import NecrognomancerPuppet from "./puppets/NecrognomancerPuppet";
 
 export default
 class ViewManager {
@@ -68,6 +75,8 @@ class ViewManager {
 	
 	loadEncounter(gameState:any)
 	{
+		const HEALTHBAR_HEIGHT = 120;
+
 		// Load player characters
 		var playerCharacters = gameState.PlayerCharacters;
 
@@ -79,7 +88,7 @@ class ViewManager {
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
+			let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: HEALTHBAR_HEIGHT})
 			healthbar.x(puppet.x() - puppet.width() /2 - 50);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
@@ -93,13 +102,42 @@ class ViewManager {
 
 		for (let i = 0; i < enemyCharacters.length; i++) {
 			// Create puppet of corresponding enemy
-			let puppet:Puppet = new SkeletonPuppet();
+			let puppet:Puppet
+			let type:string = enemyCharacters[i].CharacterType;
+			console.log("This guy is a", type);
+			switch (type)
+			{
+				case "Skeleton":
+					puppet = new SkeletonPuppet();
+					break;
+				case "Goblin Archer":
+					puppet = new GoblinArcherPuppet();
+					break;
+				case "Forest Sprite":
+					puppet = new ForestSpritePuppet();
+					break;
+				case "Cave Bat":
+					puppet = new CaveBatPuppet();
+					break;
+				case "Gnombie Brute":
+					puppet = new GnombieBrutePuppet();
+					break;
+				case "Gnome Eater":
+					puppet = new GnomeEaterPuppet();
+					break;
+				case "Necrognomancer":
+					puppet = new NecrognomancerPuppet();
+					break;
+				default:
+					puppet = new SkeletonPuppet();
+					console.log("Default triggered because it was", enemyCharacters[i].CharacterType);
+			}
 			puppet.x(this.stage.width() - 300);
 			puppet.y((i + 1) * this.stage.height() / (enemyCharacters.length + 1));
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
+			let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: HEALTHBAR_HEIGHT})
 			healthbar.x(puppet.x() + puppet.width() /2 + 20);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
@@ -193,7 +231,7 @@ class ViewManager {
 		// sequence.play();
 
 		
-		let gameState:GameState = {"EnemyCharacters":[{"CharacterType":"Skeleton","Health":30,"Id":"e1","MaxHealth":30,"Name":"Skeleton","ActionsDescriptions":[{"Description":"Deal 6 damage to target enemy","Name":"Bone Slash"},{"Description":"Reduce damage by 50% for one turn","Name":"Rattle Guard"}],"StatusEffects":[]}],"PlayerCharacters":[{"CharacterType":"Mage","Health":20,"Id":"p1","MaxHealth":20,"Name":"Mage","ActionsDescriptions":[{"Description":"Deal damage to the target and then burn the target and adjacent allies for 3 turns","Name":"Fireball"}],"StatusEffects":[]}]};
+		let gameState:GameState = {"EnemyCharacters":[{"CharacterType":"Necrognomancer","Health":30,"Id":"e1","MaxHealth":30,"Name":"Goblin Archer","ActionsDescriptions":[{"Description":"Deal 6 damage to target enemy","Name":"Bone Slash"},{"Description":"Reduce damage by 50% for one turn","Name":"Rattle Guard"}],"StatusEffects":[]}],"PlayerCharacters":[{"CharacterType":"Mage","Health":20,"Id":"p1","MaxHealth":20,"Name":"Mage","ActionsDescriptions":[{"Description":"Deal damage to the target and then burn the target and adjacent allies for 3 turns","Name":"Fireball"}],"StatusEffects":[]}]};
 		
 		this.loadEncounter(gameState);
 
@@ -220,9 +258,9 @@ class ViewManager {
 					],
 					EnemyCharacters:  [
 						{
-							CharacterType:      "Skeleton",
+							CharacterType:      "Goblin Archer",
 							Id:                  "e1",
-							Name:                "Skeleton",
+							Name:                "Goblin Archer",
 							Health:              30,
 							MaxHealth:           30,
 							ActionsDescriptions: [],
@@ -253,9 +291,9 @@ class ViewManager {
 					],
 					EnemyCharacters:  [
 						{
-							CharacterType:      "Skeleton",
+							CharacterType:      "Goblin Archer",
 							Id:                  "e1",
-							Name:                "Skeleton",
+							Name:                "Goblin Archer",
 							Health:              15,
 							MaxHealth:           30,
 							ActionsDescriptions: [],

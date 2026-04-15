@@ -1,9 +1,9 @@
 import Konva from "konva";
 import { Vector2d } from "konva/lib/types";
-import Puppet from "./interfaces/Puppet";
+import Puppet from "../interfaces/Puppet";
 
 export default
-class SkeletonPuppet extends Konva.Group implements Puppet {
+class CaveBatPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
@@ -12,10 +12,10 @@ class SkeletonPuppet extends Konva.Group implements Puppet {
 		super();
 
 		// Why are these the numbers I need? I don't know. This was trial and error
-		const imgOffset:Vector2d = {x: 351 / 2.9, y: 2.05 * 449 / 5}
+		const imgOffset:Vector2d = {x: 351 / 2.9, y: 2.05 * 460 / 5}
 	
 		const bodyImg = new Image();
-		bodyImg.src = "/img/Skeleton.svg";
+		bodyImg.src = "/img/Cave Bat.svg";
 		this.body = new Konva.Image({
 			x: 0,
 			y: 0,
@@ -25,8 +25,8 @@ class SkeletonPuppet extends Konva.Group implements Puppet {
 		this.add(this.body);
 
 		
-		this.width(351/ 2);
-		this.height(449 / 2);
+		this.width(203/ 2);
+		this.height(300 / 2);
 		this.scale({x: 0.5, y: 0.5})
 		this.offset(imgOffset);
 		this.position({x: 0, y:0});

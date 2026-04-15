@@ -10,7 +10,7 @@ export interface GameState {
 }
 
 export interface Character {
-    CharacterType?:      string;
+    CharacterType:      string;
     Id:                  string;
     Name:                string;
     Health:              number;
