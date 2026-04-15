@@ -1,9 +1,11 @@
 ﻿using Models.Actions;
+using Models.Actions.PlayerClassActions.WarriorActions;
 using Models.Status;
 
 namespace Models.CharacterData;
 public class Character
 {
+    // Class for representing a character in the game
     public string CharacterType { get; set; }
     public int Health { get; set; }
     public string Id { get; set; }
@@ -16,7 +18,6 @@ public class Character
         Id = id;
         Name = "Default Name";
         CharacterType = "Default Character Type";
-        //Health = rnd.Next(1,21);
         Health = 30;
         MaxHealth = Health;
         ActionsDescriptions = [];
@@ -34,7 +35,7 @@ public class Character
             Health = Health,
             MaxHealth = MaxHealth,
             ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions),
-            StatusEffects = new List<StatusEffect>()
+            StatusEffects = StatusEffects.Select(s => s.DeepCopy()).ToList(),
         };
         return copy;
 

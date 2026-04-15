@@ -1,0 +1,43 @@
+﻿using Models.ActionMetaData;
+using Models.CharacterData;
+using Models.CombatData;
+using Models.Status;
+
+namespace Models.Actions.PlayerClassActions.MageActions
+{
+    // Mirror: Target an enemy. Your next attack will also hit that enemy.
+    public sealed class Mirror : CharacterAction
+    {
+        public Mirror() : base("Mirror") // Pass the name "Mirror" to the base constructor
+        {
+            ActionDescription = new CharacterActionDescription( "Mirror", "Target an enemy. Your next attack will also hit that enemy." ); // Set the action description
+        }
+
+        public override AttackResolution ResolveAttack( // Override the ResolveAttack method to define the behavior of the Mirror action
+            Character user, 
+            Character target, 
+            CombatEncounterGameState gameState, 
+            bool isRedirected = false, 
+            bool isUnblockable = false)
+        {
+            // Add validation to ensure that the user, target, and gameState are not null
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (target == null) throw new ArgumentNullException(nameof(target));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+
+            // Validate that the target is eligible for this attack
+            List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
+            if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
+
+            var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the action
+            resolution.StatusEffectsToApply.Add(new MirrorStatus(user, target)); // Add a new MirrorStatus effect to the list of status effects to apply
+            resolution.Events.Add(new CombatEvent("mirror_status_applied", new StatusAppliedEventParams /// Add a new CombatEvent to the list of events to trigger
+            { 
+                OwnerId = user.Id,
+
+            }));
+            return resolution;
+        }
+    }
+}
+

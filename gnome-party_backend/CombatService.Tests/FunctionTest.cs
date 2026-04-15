@@ -6,7 +6,7 @@ using CombatService;
 
 namespace CombatService.Tests
 {
-    public class CombatServiceTests
+    public class FunctionTests
     {
 
     }

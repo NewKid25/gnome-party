@@ -5,21 +5,51 @@ using System.Text;
 using Models.AI;
 using Models.CombatData;
 using Models.CharacterData.EasyEnemyPoolClasses;
+using Models.AI.EasyEnemyPoolAI;
+using Models.AI.DifficultEnemyPoolAI;
+using Models.CharacterData.DifficultEnemyPoolClasses;
+using Models.TestHelperData;
+using Models.CharacterData.BossEnemyPoolClasses;
+using Models.AI.BossEnemyPoolAI;
 
 namespace Models;
-
 public class Enemy
 {
     Character Character { get; set; }
     CharacterAI AI { get; set; }
-    public Enemy(Character character) : this(character.CharacterType, character) { }
-    public Enemy(string characterType, Character? character = null)
+    public Enemy(Character character) : this(character.CharacterType, character, new RandomNumGen()) { }
+    public Enemy(Character character, IRandomGenerator rng) : this(character.CharacterType, character, rng) { }
+    public Enemy(string characterType, Character? character = null, IRandomGenerator? rng = null)
     {
+        if (characterType == null)  { throw new ArgumentNullException(nameof(characterType)); }
+
+        rng ??= new RandomNumGen(); // threw in a random number generator functionality for testing
+
         switch (characterType)
         {
             case "Skeleton":
-                Character = character ?? new Skeleton();
-                AI = new SkeletonAI();
+                Character = character ??  new Skeleton();
+                AI = new SkeletonAI(rng);
+                break;
+            case "Goblin Archer":
+                Character = character ?? new GoblinArcher();
+                AI = new GoblinArcherAI(rng);
+                break;
+            case "Forest Sprite":
+                Character = character ?? new ForestSprite();
+                AI = new ForestSpriteAI(rng);
+                break;
+            case "Gnombie Brute":
+                Character = character ?? new GnombieBrute();
+                AI = new GnombieBruteAI(rng);
+                break;
+            case "Cave Bat":
+                Character = character ?? new CaveBat();
+                AI = new CaveBatAI(rng);
+                break;
+            case "Gnome Eater":
+                Character = character ?? new GnomeEater();
+                AI = new GnomeEaterAI(rng);
                 break;
             default:
                 throw new ArgumentException($"Unknown character type: {characterType}");
@@ -34,6 +64,21 @@ public class Enemy
         }
         var combatRequest = AI.ChooseAction(Character, actions, enemies, allies);
         combatRequest.SourceCharacterId = Character.Id; //i do this here because AI doesnt have reference to source, and feels silly to pass one in
+        return combatRequest;
+    }
+
+    // Special reference for enemy ai that require meta data on what actions a player has taken
+    // AKA ONLY FOR THIS GOD FORSAKEN FOREST SPRITE!!!!
+    public CombatRequest ChooseAction(List<Character> enemies, List<Character> allies, List<CombatRequest> playerRequests)
+    {
+        var actions = new List<string>();
+        foreach (var actionDescription in Character.ActionsDescriptions)
+        {
+            actions.Add(actionDescription.Name);
+        }
+
+        var combatRequest = AI.ChooseAction(Character, actions, enemies, allies, playerRequests);
+        combatRequest.SourceCharacterId = Character.Id;
         return combatRequest;
     }
 }

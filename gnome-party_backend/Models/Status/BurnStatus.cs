@@ -8,11 +8,11 @@ namespace Models.Status
 {
     public sealed class BurnStatus : StatusEffect
     {
-        public BurnStatus() { }
+        public BurnStatus() { } // Parameterless constructor for deserialization or manual property setting
 
+        // Constructor for creating a new BurnStatus instance with specified source, target, duration, and tick damage
         public BurnStatus(Character source, Character target, int duration = 3, int tickDamage = 2)
         {
-            StatusType = StatusTypes.Burn;
             SourceCharacterId = source.Id;
             StatusOwnerCharacterId = target.Id;
             Duration = duration;
@@ -23,12 +23,12 @@ namespace Models.Status
                 [StatusModifierKeys.TickDamage] = tickDamage
             };
         }
+
+        // Creates a deep copy of the BurnStatus instance
         public override StatusEffect DeepCopy()
         {
             return new BurnStatus
             {
-                StatusId = StatusId,
-                StatusType = StatusType,
                 SourceCharacterId = SourceCharacterId,
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
                 Duration = Duration,
@@ -38,21 +38,21 @@ namespace Models.Status
                 StatusDescription = new Dictionary<string, string>(StatusDescription)
             };
         }
-        public void Process(StatusEffect status, Character character, List<CombatEvent> events)
+
+        // Method for applying the burn damage at the start of the target's turn
+        public override void Process(Character character, List<CombatEvent> events)
         {
-            int tickDamage = (int)status.ModifierValues.GetValueOrDefault(StatusModifierKeys.TickDamage, 0);
+            int tickDamage = (int)ModifierValues.GetValueOrDefault(StatusModifierKeys.TickDamage, 0); // Get the tick damage from the modifier values, defaulting to 0 if not set
             if (tickDamage <= 0)
             {
                 return;
             }
-            character.Health -= tickDamage;
-            events.Add(new CombatEvent("BurnTick", new StatusTickEventParams
+            character.Health -= tickDamage; // Apply the burn damage to the character's health
+            events.Add(new CombatEvent("BurnTick", new StatusTickEventParams // Add a combat event to indicate that the burn damage has been applied
             {
-                SourceId = status.SourceCharacterId,
+                SourceId = SourceCharacterId,
                 StatusAmount = tickDamage,
-                StatusType = status.StatusType,
-                TargetId = character.Id,
-                TargetName = character.Name,
+                CharacterId = character.Id,
             }));
         }
     }
