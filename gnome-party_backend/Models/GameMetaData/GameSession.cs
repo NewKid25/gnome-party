@@ -20,32 +20,35 @@ public class GameSession
         GameSessionId = Guid.NewGuid().ToString();
         Host = _host;
         Participants = new List<GameConnection>();
-        InviteCode = 0;
+        InviteCode = Random.Shared.Next(100000, 1000000); //random 6 digit code
         Campaign = new Campaign();
     }
     public List<GameConnection> Participants { get; set; }
     public void AddParticipant(GameConnection connection)
     {
         Participants.Add(connection);
-        var character = new Character(connection.UserId);
+    }
+    public void AddPlayerCharacter(Character character)
+    {
         Campaign.PlayerCharacters.Add(character);
     }
-    public void AddParticipant(string connectionId, string userId)
-    {
-        var connection = new GameConnection(connectionId, userId, GameSessionId);
-        AddParticipant(connection);
-    }
+
     public void RemoveParticipant(string connectionId)
     {
         var connection = Participants.FirstOrDefault(c => c.ConnectionId == connectionId);
         if (connection != null)
         {
             Participants.Remove(connection);
-            var character = Campaign.PlayerCharacters.FirstOrDefault(pc => pc.Id == connection.UserId);
-            if (character != null)
-            {
-                Campaign.PlayerCharacters.Remove(character);
-            }
+            RemovePlayerCharacter(connectionId);
+        }
+    }
+
+    public void RemovePlayerCharacter(string characterId)
+    {
+        var character = Campaign.PlayerCharacters.FirstOrDefault(pc => pc.Id == characterId);
+        if (character != null)
+        {
+            Campaign.PlayerCharacters.Remove(character);
         }
     }
 }

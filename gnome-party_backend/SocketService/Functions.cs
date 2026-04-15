@@ -1,17 +1,20 @@
+using Amazon;
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using CombatService;
+using GnomeParty.Database;
+using Models;
+using Models.CharacterData;
+using Models.CharacterData.PlayerCharacterClasses;
+using Models.CombatData;
+using Models.EncounterData;
+using Models.GameMetaData;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using GnomeParty.Database;
-using CombatService;
-using Amazon;
-using Models.CombatData;
-using Models.GameMetaData;
-using Models.EncounterData;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -153,8 +156,8 @@ public class Functions
     //{"route": "begin-combat-encounter", "GameSessionId": ""}
     public async Task<APIGatewayProxyResponse> BeginCombatEncounterHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        // example message body to trigger this route
-        //{"route": "begin-combat-encounter", "GameSessionId": "f4477afa-a9e8-48fc-9dcc-60e7ac64ac3b"}
+        //since connections now contain GameSessionId, this route could be rewrittent to get rid of the GameSessionId param
+        // and instead pull the game session id from the connection info in the database.
         // ripped most of this Json parsing code from WebSocket sample at https://github.com/aws/aws-lambda-dotnet/blob/master/Blueprints/BlueprintDefinitions/vs2026/WebSocketAPIServerless/template/src/BlueprintBaseName.1/Functions.cs
         JsonDocument message = JsonDocument.Parse(request.Body);
 
@@ -175,17 +178,21 @@ public class Functions
         Console.WriteLine($"After load");
         Console.WriteLine($"Game session is {JsonSerializer.Serialize(gameSession)}");
 
+        var currentEncounter = gameSession.Campaign.Encounters[gameSession.Campaign.CurrentEncounterIndex];
+        var tasks = new List<Task>();
+        Console.WriteLine(currentEncounter.GetType().Name);
+        if (currentEncounter is CombatEncounter)
+        {
+            var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, (currentEncounter as CombatEncounter).Enemies);
+            Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
+            tasks.Add(databaseService.SaveAsync(activeEncounter));
+            tasks.Add(BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter)));
+        }
+
         var connectionId = request.RequestContext.ConnectionId;
-
-        var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, gameSession.Campaign.Encounters[0].Enemies);
-        Console.WriteLine($"Pre save");
-        Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
-
-        await databaseService.SaveAsync(activeEncounter);
-        Console.WriteLine($"After save");
-
-        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter));
-
+        gameSession.Campaign.CurrentEncounterIndex++;
+        tasks.Add(databaseService.SaveAsync(gameSession));
+        await Task.WhenAll(tasks);
 
         return new APIGatewayProxyResponse
         {
@@ -194,7 +201,7 @@ public class Functions
         };
     }
 
-    //{"route":"join-game"}
+    //{"route":"join-game", "InviteCode":849175}
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -210,25 +217,50 @@ public class Functions
             context.Logger.LogInformation($"Body: {request.Body}");
 
             var databaseService = new DatabaseService();
+            JsonDocument message = JsonDocument.Parse(request.Body);
+            //var inviteCode = message.Deserialize<int>();
+            //Console.WriteLine($"Invite code: {inviteCode}");
 
+            JsonElement inviteCodeJsonElement;
+            if (!message.RootElement.TryGetProperty("InviteCode", out inviteCodeJsonElement))
+            {
+                context.Logger.LogInformation("Could not find InviteCode in input");
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
+            }
+            var inviteCode = inviteCodeJsonElement.GetInt32();
             GameSession gameSession;
-            gameSession = await databaseService.GetGameSessionByInviteCodeAsync(0);
+            try
+            {
+                gameSession = await databaseService.GetGameSessionByInviteCodeAsync(inviteCode);
+            }
+            catch (KeyNotFoundException)
+            {
+                context.Logger.LogInformation($"No game session found with invite code {inviteCode}");
+                await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session-failed", $"No game session found with invite code {inviteCode}"));
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.NotFound,
+                    Body = $"No game session found with invite code {inviteCode}"
+                };
+            }
             context.Logger.LogInformation("Loaded existing game session");
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId, gameSession);
 
             gameSession.AddParticipant(connection);
 
-            await databaseService.SaveAsync(connection);
-            context.Logger.LogInformation("Saved connection");
-
-            await databaseService.SaveAsync(gameSession);
-            context.Logger.LogInformation("Saved game session");
-
-            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-connection", connection));
-            await SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session", gameSession));
-            context.Logger.LogInformation("Sent game session to connection");
-
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(connection),
+                 databaseService.SaveAsync(gameSession),
+                 SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-connection", connection)),
+                 SendToConnectionAsync(connectionId, request, new ConnectionMessage("join-game-session", gameSession)),
+            };
+            await Task.WhenAll(tasks);
+            
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.OK,
@@ -248,7 +280,7 @@ public class Functions
         }
     }
 
-    //{"route":"join-game"}
+    //{"route":"host-game"}
     public async Task<APIGatewayProxyResponse> HostGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -257,14 +289,23 @@ public class Functions
 
             var databaseService = new DatabaseService();
 
-            //deleting all the game sessions is temporary, because all games have the same invite code
-            //and we want keep it that way for now so participants can easily find the host. In the future we will want to generate unique invite codes for each game and remove this line
-            await databaseService.DeleteAllEntriesFromTableAsync<GameSession>();
-
             var playerId = CreateNewPlayerId();
             var connection = new GameConnection(connectionId, playerId);
             var gameSession = new GameSession(connection);
             connection.GameSessionId = gameSession.GameSessionId;
+            while (true)
+            {
+                try
+                {
+                    await databaseService.GetGameSessionByInviteCodeAsync(gameSession.InviteCode); //will throw error if no game session with this code, disregard return value, just want to check if it exists 
+                    context.Logger.LogInformation($"Generated invite code {gameSession.InviteCode} already exists. Generating a new code.");
+                    gameSession.InviteCode = new Random().Next(100000, 1000000);//generate a new 6 digit code
+                }
+                catch (KeyNotFoundException) //strangely, if it throws this error, that means there is no existing game session with the same invite code, which is what we want
+                { 
+                    break;
+                }
+            }
 
             await databaseService.SaveAsync(connection);
             await databaseService.SaveAsync(gameSession);
@@ -287,6 +328,134 @@ public class Functions
         }
     }
 
+    //{"route":"lobby-ready", "CharacterType":"Mage"}
+    public async Task<APIGatewayProxyResponse> LobbyParticipantReadyHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            JsonDocument message = JsonDocument.Parse(request.Body);
+            var lobbyReadyRequest = message.Deserialize<LobbyReadyRequest>();
+
+            var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
+            var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
+
+            Character character = lobbyReadyRequest!.CharacterType switch
+            {
+                "Mage" => new Mage(),
+                "Warrior" => new Warrior(),
+                _ => throw new ArgumentException($"Unknown character type: {lobbyReadyRequest.CharacterType}")
+
+            };
+
+            gameSession.AddPlayerCharacter(character);
+
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(gameSession),
+                SendToConnectionAsync(connectionId, request, new ConnectionMessage("lobby-ready-success", character)),
+                SendToConnectionAsync(gameSession.Host.ConnectionId, request, new ConnectionMessage("lobby-ready", character))
+            };
+            await Task.WhenAll(tasks);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("LobbyParticipantReadyHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to ready up: {e.Message}"
+            };
+        }
+    }
+
+    //{"route":"lobby-unready"}
+    public async Task<APIGatewayProxyResponse> LobbyParticipantUnreadyHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
+            var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
+
+            gameSession.RemovePlayerCharacter(connectionId);
+
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(gameSession),
+                SendToConnectionAsync(connectionId, request, new ConnectionMessage("lobby-unready-success", "")),
+                SendToConnectionAsync(gameSession.Host.ConnectionId, request, new ConnectionMessage("lobby-unready", connection))
+            };
+            await Task.WhenAll(tasks);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("LobbyParticipantUnreadyHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to unready up: {e.Message}"
+            };
+        }
+    }
+
+    //{"route":"start-campaign"}
+    public async Task<APIGatewayProxyResponse> StartCampaignHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    {
+        try
+        {
+            var connectionId = request.RequestContext.ConnectionId;
+
+            var databaseService = new DatabaseService();
+
+            var connection = await databaseService.LoadAsync<GameConnection>(connectionId);
+            var gameSession = await databaseService.LoadAsync<GameSession>(connection.GameSessionId);
+            gameSession.Campaign.InitEncounters();
+
+            Console.WriteLine($"Game session post init is {JsonSerializer.Serialize(gameSession)}");
+
+            var tasks = new List<Task>
+            {
+                databaseService.SaveAsync(gameSession),
+                BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("start-campaign", gameSession))
+            };
+            await Task.WhenAll(tasks);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.OK,
+                Body = "all good"
+            };
+        }
+        catch (Exception e)
+        {
+            context.Logger.LogInformation("StartCampaignHandler failed: " + e.Message);
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+                Body = $"Failed to start campaign up: {e.Message}"
+            };
+        }
+    }
+
 
     public async Task<APIGatewayProxyResponse> OnDisconnectHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
@@ -299,14 +468,29 @@ public class Functions
             var connection = await databaseClient.LoadAsync<GameConnection>(connectionId);
             await databaseClient.DeleteAsync(connection);
 
-            if (connection.GameSessionId != "not_inited")
+            if (connection.GameSessionId != "not_inited") //is connection in a game session?
             {
                 var gameSession = await databaseClient.LoadAsync<GameSession>(connection.GameSessionId);
+                Console.WriteLine($"Game Session = {gameSession}");
                 if (gameSession != null)
                 {
-                    gameSession.RemoveParticipant(connection.ConnectionId);
-                    await databaseClient.SaveAsync(gameSession);
-                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                    if (gameSession.Host.ConnectionId == connectionId)
+                    {
+                        context.Logger.LogInformation($"Host disconnected, deleting game session {gameSession.GameSessionId}");
+                        await databaseClient.DeleteAsync(gameSession);
+                        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("host-disconnected", connection));
+                        foreach(var participant in gameSession.Participants)
+                        {
+                            await databaseClient.DeleteAsync(participant);
+                        }
+                    }
+                    else
+                    {
+                        gameSession.RemoveParticipant(connection.ConnectionId);
+                        await databaseClient.SaveAsync(gameSession);
+                        await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("player-disconnected", connection));
+                    }
+                    Console.WriteLine($"disconnect complete");
                 }
             }
             return new APIGatewayProxyResponse

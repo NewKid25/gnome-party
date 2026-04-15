@@ -12,5 +12,5 @@
   "template": "serverless.template",
   "template-parameters": "\u0022ConnectionMappingTableName\u0022=\u0022ConnectionsTable\u0022;\u0022StageName\u0022=\u0022Prod\u0022",
   "s3-bucket": "gp-backend-bucket1",
-  "stack-name": "SocketServiceTemp"
+  "stack-name": "SocketService"
 }
