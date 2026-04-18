@@ -17,7 +17,6 @@ import { TargetListModel } from "../Models/TargetListModel";
 
 import { useCombatFlow } from "../Composables/useCombatFlow";
 
-import { useEncounterData } from "../stores/encounterData";
 import { useSocketData } from "../stores/socketData";
 
 // Combat models
@@ -55,7 +54,6 @@ const combatDeadMenuModel: MessageMenuModel = reactive({
 
 const SOCKET_URL = "wss://ws.gnome-party.com";
 
-const encounterData = useEncounterData();
 const socketStore = useSocketData();
 
 // Reuse existing socket or connect if needed
@@ -70,21 +68,18 @@ function onSocketMessage(event: MessageEvent) {
   const parsedJSON = JSON.parse(event.data);
 
   if (parsedJSON.Subject == "join-game-connection") {
-    encounterData.localPlayerId = parsedJSON.Message.UserId;
     socketStore.localPlayerId = parsedJSON.Message.UserId;
   }
 
   if (parsedJSON.Subject == "join-game-session") {
-    encounterData.gameSessionId = parsedJSON.Message.GameSessionId;
     socketStore.gameSessionId = parsedJSON.Message.GameSessionId;
   }
 
   if (parsedJSON.Subject == "begin-combat-encounter") {
-    encounterData.encounterId = parsedJSON.Message.EncounterId;
     socketStore.encounterId = parsedJSON.Message.EncounterId;
 
     const player: any = parsedJSON.Message.GameState.PlayerCharacters.find(
-      (pc: any) => pc.Id == encounterData.localPlayerId
+      (pc: any) => pc.Id == socketStore.localPlayerId
     );
 
     if (!player) {
@@ -122,7 +117,7 @@ function onSocketMessage(event: MessageEvent) {
 
     const playerHealth =
       latestState.GameState.PlayerCharacters.find(
-        (pc: any) => pc.Id == encounterData.localPlayerId
+        (pc: any) => pc.Id == socketStore.localPlayerId
       )?.Health ?? 0;
 
     const enemyList: TargetButtonModel[] = [];

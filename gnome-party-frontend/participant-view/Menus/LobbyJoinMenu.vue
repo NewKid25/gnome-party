@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, onBeforeUnmount } from 'vue';
-import { useEncounterData } from '../stores/encounterData';
 import { useSocketData } from '../stores/socketData';
 
-const encounterData = useEncounterData();
 const socketStore = useSocketData();
 
 const model = reactive({
@@ -27,11 +25,9 @@ function onSocketMessage(event: MessageEvent) {
     console.log("Lobby message ", data);
 
     if (data.Subject === "join-game-connection") {
-        encounterData.localPlayerId = data.Message.UserId;
         socketStore.localPlayerId = data.Message.UserId;
     } 
     else if (data.Subject === "join-game-session") {
-        encounterData.gameSessionId = data.Message.GameSessionId;
         socketStore.gameSessionId = data.Message.GameSessionId;
 
         if (data.Message.InviteCode !== undefined) {
@@ -41,7 +37,7 @@ function onSocketMessage(event: MessageEvent) {
         isJoining.value = false;
         hasJoined.value = true;
 
-        console.log("Joined game session:", encounterData.gameSessionId);
+        console.log("Joined game session:", socketStore.gameSessionId);
 
         emit("joined");
         // TODO: navigate to character customization screen then waiting room
@@ -50,7 +46,6 @@ function onSocketMessage(event: MessageEvent) {
         console.log("Participant successfully readied:", data.Message);
     }
     else if (data.Subject === "begin-combat-encounter") {
-        encounterData.encounterId = data.Message.EncounterId;
         socketStore.encounterId = data.Message.EncounterId;
     } 
     else if (data.Subject === "join-game-session-failed") {

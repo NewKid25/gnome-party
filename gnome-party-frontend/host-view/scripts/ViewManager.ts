@@ -13,7 +13,7 @@ import { TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
 import SlashAnimation from "./animations/SlashAnimation";
 import BoneSlashAnimation from "./animations/BoneSlashAnimation";
-import { useEncounterData } from "../../participant-view/stores/encounterData";
+import { useSocketData } from "../../participant-view/stores/socketData";
 import SkeletonPuppet from "./SkeletonPuppet";
 
 export default
@@ -29,7 +29,7 @@ class ViewManager {
 	playerVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 	enemyVisualComponents:Map<string, CharacterVisualComponents> = new Map<string, CharacterVisualComponents>()
 
-	encounterData = useEncounterData();
+	socketStore = useSocketData();
 
 	// track participants in lobby on host side
 	readyPlayers:any[] = [];
@@ -128,8 +128,8 @@ class ViewManager {
 	handleMessage(msg:any) {
 		if (msg.Subject == "host-game")
 		{
-			this.encounterData.gameSessionId = msg.Message.GameSessionId;
-			this.encounterData.localPlayerId = msg.Message.Host.UserId;
+			this.socketStore.gameSessionId = msg.Message.GameSessionId;
+			this.socketStore.localPlayerId = msg.Message.Host.UserId;
 
 			// for testing
 			console.log("Host game created");
@@ -157,13 +157,13 @@ class ViewManager {
 			console.log("Campaign started:", msg.Message);
 			this.socket.send(JSON.stringify({
 				route: "begin-combat-encounter",
-				GameSessionId: this.encounterData.gameSessionId
+				GameSessionId: this.socketStore.gameSessionId
 			}))
 		}
 
 		if (msg.Subject == "begin-combat-encounter")
 		{
-			this.encounterData.encounterId = msg.Message.EncounterId;
+			this.socketStore.encounterId = msg.Message.EncounterId;
 			this.loadEncounter(msg.Message.GameState);
 		}
 		if (msg.Subject == "action-handler")

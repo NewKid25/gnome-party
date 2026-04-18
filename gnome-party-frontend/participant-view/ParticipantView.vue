@@ -4,7 +4,6 @@ import ParticipantLobbyFlow from "./components/ParticipantLobbyFlow.vue";
 import ParticipantCombatFlow from "./components/ParticipantCombatFlow.vue";
 
 import "./styles.css";
-import { useEncounterData } from "./stores/encounterData";
 import { useSocketData } from "./stores/socketData";
 
 type ParticipantPhase = "lobby" | "combat";
@@ -13,7 +12,6 @@ const participantPhase = ref<ParticipantPhase>("lobby");
 
 const SOCKET_URL = "wss://ws.gnome-party.com";
 
-const encounterData = useEncounterData();
 const socketStore = useSocketData();
 const socket = socketStore.socket ?? socketStore.connect(SOCKET_URL);
 
@@ -21,12 +19,10 @@ function onSocketMessage(event: MessageEvent) {
   const parsedJSON = JSON.parse(event.data);
 
   if (parsedJSON.Subject === "join-game-connection") {
-    encounterData.localPlayerId = parsedJSON.Message.UserId;
     socketStore.localPlayerId = parsedJSON.Message.UserId;
   }
 
   if (parsedJSON.Subject === "join-game-session") {
-    encounterData.gameSessionId = parsedJSON.Message.GameSessionId;
     socketStore.gameSessionId = parsedJSON.Message.GameSessionId;
   }
 

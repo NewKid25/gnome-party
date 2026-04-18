@@ -8,9 +8,9 @@ onMounted(() => {
   const vm = new ViewManager();
 
   window.ondblclick = () => {
-    console.log("Game Session:", vm.encounterData.gameSessionId);
-    console.log("Local player:", vm.encounterData.localPlayerId);
-    console.log("Encounter:", vm.encounterData.encounterId);
+    console.log("Game Session:", vm.socketStore.gameSessionId);
+    console.log("Local player:", vm.socketStore.localPlayerId);
+    console.log("Encounter:", vm.socketStore.encounterId);
     
     vm.socket.send(JSON.stringify({
     route: "start-campaign",
