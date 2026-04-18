@@ -54,7 +54,7 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
             route: "player-action",
             EncounterId: socketStore.encounterId,
             TargetCharacterId: target.targetId, 
-            SourceCharacterId: socketStore.localPlayerId, 
+            SourceCharacterId: socketStore.localCharacterId, 
             Action: action.actionName, 
             GameSessionId: socketStore.gameSessionId,
         });

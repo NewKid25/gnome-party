@@ -6,7 +6,8 @@ export const useSocketData = defineStore("socketData", () => {
     const isConnected = ref(false);
 
     // shared session/game state data
-    const localPlayerId = ref("");
+    const localPlayerId = ref(""); // connection user id, set on host game creation or player join
+    const localCharacterId = ref(""); // character id, created on ready
     const gameSessionId = ref("");
     const encounterId = ref("");
     const inviteCode = ref<number | null>(null);
@@ -55,6 +56,7 @@ export const useSocketData = defineStore("socketData", () => {
         socket,
         isConnected,
         localPlayerId,
+        localCharacterId,
         gameSessionId,
         encounterId,
         inviteCode,

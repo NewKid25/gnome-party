@@ -87,6 +87,7 @@ function onSocketMessage(event: MessageEvent) {
     console.log("Class select message", data);
 
     if (data.Subject === "lobby-ready-success") {
+        socketStore.localCharacterId = data.Message.Id;
         isReadying.value = false;
         emit("readySuccess");
     }
