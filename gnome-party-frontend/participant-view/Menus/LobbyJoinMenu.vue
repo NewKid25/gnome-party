@@ -11,6 +11,10 @@ const model = reactive({
     playerName: "",
 });
 
+const emit = defineEmits<{
+    joined: []
+}>();
+
 const errorMessage = ref("");
 const isJoining = ref(false);
 const hasJoined = ref(false);
@@ -39,12 +43,7 @@ function onSocketMessage(event: MessageEvent) {
 
         console.log("Joined game session:", encounterData.gameSessionId);
 
-        // temp auto-ready message, remove after adding character customization and waiting room
-        socketStore.send({
-            route: "lobby-ready",
-            CharacterType: "Mage"
-        });
-
+        emit("joined");
         // TODO: navigate to character customization screen then waiting room
     }
     else if (data.Subject === "lobby-ready-success") {

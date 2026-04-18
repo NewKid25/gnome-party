@@ -429,3 +429,200 @@ feComponentTransfer :indeterminate function table
     font-size: 0.95rem;
     text-align: center;
 }
+
+/* Class Select Screen Styling */
+.class-select-menu {
+    width: 100%;
+    min-height: min(82dvh, 46rem);
+
+    display: grid;
+    grid-template-rows:
+        clamp(3.2rem, 8vh, 4.2rem)
+        auto
+        clamp(11.5rem, 26vh, 14rem)
+        clamp(2.1rem, 5vh, 2.7rem)
+        clamp(11rem, 24vh, 13.5rem)
+        auto
+        clamp(3.5rem, 8vh, 4.25rem)
+        auto;
+
+    gap: clamp(0.9rem, 2.2vh, 1.35rem);
+    padding: clamp(1rem, 2.5vh, 1.5rem) clamp(1.2rem, 4vw, 2rem);
+}
+
+.class-select-title {
+    font-family: "Mystorica", serif;
+    color: #2f2f2f;
+    font-weight: normal;
+
+    font-size: clamp(2.6rem, 6vw, 4rem); 
+
+    line-height: 1;
+    margin: 0;
+
+    display: flex;
+    align-items: center;      /* vertical centering */
+    justify-content: center;  /* horizontal centering */
+
+    text-align: center;
+    transform: translateY(4%);
+}
+
+.class-selector-row {
+    display: grid;
+    grid-template-columns: clamp(2rem, 8vw, 3rem) 1fr clamp(2rem, 8vw, 3rem);
+    align-items: center;
+    gap: clamp(0.5rem, 1.8vw, 0.9rem);
+    width: 100%;
+    min-height: 0;
+}
+
+.class-arrow {
+    border: none;
+    background: transparent;
+    color: #8a8a8a;
+    font-size: clamp(1.9rem, 5vw, 2.5rem);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: transform 0.1s ease, opacity 0.15s ease;
+}
+
+.class-arrow:hover {
+    transform: scale(1.06);
+    opacity: 0.8;
+}
+
+.class-arrow:active {
+    transform: scale(0.96);
+}
+
+.class-card {
+    height: 100%;
+    min-height: 0;
+
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    justify-items: center;
+
+    padding: clamp(0.9rem, 2vh, 1.15rem);
+    border-radius: clamp(18px, 3vw, 28px);
+    border: 1.5px solid #8f8f8f;
+    background-color: #dfeaf1;
+}
+
+.class-card-image-wrap {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.class-card-image {
+    width: min(48%, 7rem);
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.class-heart-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(0.2rem, 0.8vw, 0.35rem);
+    min-height: 1.5rem;
+}
+
+.class-heart {
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    line-height: 1;
+    color: #d97a3d;
+}
+
+.class-name-line {
+    font-family: "Amasis MT Pro", serif;
+    color: #1f1f1f;
+    font-size: clamp(1.45rem, 4vw, 1.9rem);
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.1;
+
+    min-height: clamp(2.1rem, 5vh, 2.7rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.class-abilities-panel {
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: clamp(0.7rem, 1.8vh, 1rem);
+
+    padding: 0;
+}
+
+.class-ability-row {
+    font-family: "Amasis MT Pro", serif;
+    color: #2f2f2f;
+    font-size: clamp(1rem, 2.3vw, 1.12rem);
+    line-height: 1.42;
+}
+
+.class-ability-name {
+    font-weight: bold;
+}
+
+.class-ability-description {
+    font-weight: normal;
+}
+
+.class-ready-button {
+    border-radius: clamp(8px, 1vw, 14px);
+    border: 2px solid #4a4a4a;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: #bfe5f7;
+    color: #3a3a3a;
+    font-weight: bold;
+    font-family: "Amasis MT Pro", serif;
+    text-transform: uppercase;
+    font-size: clamp(1.3rem, 3.4vw, 1.75rem);
+
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.class-ready-button:hover:not(:disabled) {
+    background-color: #a0d0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px);
+}
+
+.class-ready-button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.class-ready-button:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.class-select-error {
+    margin: 0;
+    color: #8b1e1e;
+    font-family: "Amasis MT Pro", serif;
+    font-size: 0.95rem;
+    text-align: center;
+}
