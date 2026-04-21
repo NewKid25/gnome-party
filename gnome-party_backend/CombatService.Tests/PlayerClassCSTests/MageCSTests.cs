@@ -136,7 +136,7 @@ public class MageCSTests
         };
 
         // Manually give blocker the Block Status
-        blocker.StatusEffects.Add(new BlockStatus(blocker, ally));
+        blocker.StatusEffects.Add(new BlockStatus(blocker, ally, 0.5));
 
         // Create the encounter and service
         var encounter = new ActiveCombatEncounter(
@@ -309,7 +309,7 @@ public class MageCSTests
         };
 
         // Manually apply Block Status 
-        blocker.StatusEffects.Add(new BlockStatus(blocker, ally));
+        blocker.StatusEffects.Add(new BlockStatus(blocker, ally, 0.5));
 
         // Initialize encounter and service
         var encounter = new ActiveCombatEncounter(

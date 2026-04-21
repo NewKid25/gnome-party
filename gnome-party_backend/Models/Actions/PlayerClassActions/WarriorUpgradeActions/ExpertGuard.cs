@@ -1,24 +1,24 @@
-﻿using Models.ActionMetaData;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
 
-namespace Models.Actions.PlayerClassActions.WarriorActions
+namespace Models.Actions.PlayerClassActions.WarriorUpgradeActions
 {
-    // Block: Target an ally and apply a Block status to them
-    // BlockStatus: Redirect the damage from the next attack that would hit the ally to the user instead and reduce damage by 50%
-
-    public sealed class Block : CharacterAction 
+    public sealed class ExpertGuard : CharacterAction
     {
-        public Block() : base("Block") // Pass the name of the action to the base constructor
+        public ExpertGuard() : base("Expert Guard") // Pass the name of the action to the base constructor
         {
-            ActionDescription = new CharacterActionDescription("Block", "Guard an ally"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Expert Guard", "Guard an ally for even more reduced"); // Set the action description
         }
         public override AttackResolution ResolveAttack( // Override the ResolveAttack method to implement the action's effect
-            Character user, 
-            Character ally, 
-            CombatEncounterGameState gameState, 
-            bool isRedirected = false, 
+            Character user,
+            Character ally,
+            CombatEncounterGameState gameState,
+            bool isRedirected = false,
             bool isUnblockable = false)
         {
             // Add validation to ensure that the user, target, and gameState are not null
@@ -31,9 +31,9 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
             if (!eligibleTargets.Contains(ally)) { throw new ArgumentException("Target is not eligible for this attack", nameof(ally)); }
 
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the action
-            double reduction = 0.5;
+            double reduction = 0.75;
             resolution.StatusEffectsToApply.Add(new BlockStatus(user, ally, reduction)); // Add a new BlockStatus to the list of status effects to apply
-            resolution.Events.Add(new CombatEvent("block_status_applied", new {sourceId = user.Id, ownerId = user.Id, targetId = ally.Id})); // Add a new combat event to indicate that the block status has been applied
+            resolution.Events.Add(new CombatEvent("block_status_applied", new { sourceId = user.Id, ownerId = user.Id, targetId = ally.Id })); // Add a new combat event to indicate that the block status has been applied
             return resolution;
         }
 

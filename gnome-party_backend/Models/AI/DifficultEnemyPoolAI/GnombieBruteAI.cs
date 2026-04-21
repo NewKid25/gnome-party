@@ -31,6 +31,8 @@ namespace Models.AI.DifficultEnemyPoolAI
             // If there are no alive enemies, we can't target anyone, so we should handle this case appropriately
             if (aliveEnemies.Count == 0) { throw new InvalidOperationException("No alive enemies to target."); }
 
+            Console.WriteLine("Self is: " + self.Name + " (ID: " + self.Id + ")" );
+
             if(self is not GnombieBrute gnombieBrute) { throw new InvalidCastException("Character is not a Gnombie Brute"); }
 
             // Verify if all the Gnombie Brute actions are present

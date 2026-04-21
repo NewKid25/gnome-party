@@ -34,6 +34,9 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
+            // ****************** PATCHWORK IMPLEMENTATION *****************************************
+            int healCount = 0;
+
             // Iterate through each target and create an AttackInstance for each one
             foreach (var currentTarget in soulDrainTargets)
             {
@@ -49,7 +52,20 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
                     SourceCharacterId = user.Id,
                     TargetCharacterId = currentTarget.Id,
                 });
+
+                healCount++;
             }
+
+            // ****************** PATCHWORK IMPLEMENTATION *****************************************
+            resolution.HealInstances.Add(new HealInstance
+            {
+                SourceCharacterId = user.Id,
+                TargetCharacterId = user.Id,
+                ActionName = AttackName,
+                BaseHealing = 6 * healCount,
+                FinalHealing = 6 * healCount,
+            });
+
             return resolution;
         }
     }

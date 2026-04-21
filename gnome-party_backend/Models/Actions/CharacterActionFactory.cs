@@ -9,6 +9,7 @@ using Models.Actions.ExtraActions;
 using Models.Actions.PlayerClassActions.BardActions;
 using Models.Actions.PlayerClassActions.MageActions;
 using Models.Actions.PlayerClassActions.WarriorActions;
+using Models.Actions.PlayerClassActions.WarriorUpgradeActions;
 
 namespace Models.Actions;
 
@@ -24,6 +25,9 @@ public class CharacterActionFactory
             "Block" => new Block(),
             "Parry" => new Parry(),
             "Whirling Strike" => new WhirlingStrike(),
+
+            // Warrior Upgrade Attacks
+            "Precise Strike" => new PreciseStrike(),
 
             // Mage Attacks
             "Magic Missile" => new MagicMisslie(),
@@ -63,6 +67,7 @@ public class CharacterActionFactory
             // Necrognomancer Attacks
             "Dark Bolt" => new DarkBolt(),
             "Soul Drain" => new SoulDrain(),
+            "Summon" => new Summon(),
 
             // Gnome Eater Attacks
             "Crushing Swipe" => new CrushingSwipe(),
