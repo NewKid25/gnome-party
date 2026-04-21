@@ -1,4 +1,5 @@
 ﻿using GnomeParty.Database;
+using Models;
 using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
@@ -13,52 +14,6 @@ namespace CombatService.Tests.PlayerClassCSTests;
 public class MageCSTests
 {
     /*******************************************************************************************************************/
-    //this test is just for debugging and should be replaced with more specific tests
-    [Fact]
-    public async Task TestCombatRequestHandlerAsync()
-    {
-        // Arrange
-        var encounter = new ActiveCombatEncounter(
-            new List<Character>
-            {
-                new Character("test-source-character-id"),
-                new Character("test-source-character-id-2")
-            },
-            new List<Character>
-            {
-                new Skeleton { Id = "test-target-character-id" },
-                new Skeleton()
-            }
-        );
-
-        var mockDBService = new Mock<IDatabaseService>();
-        mockDBService
-            .Setup(dbService => dbService.LoadAsync<ActiveCombatEncounter>(It.IsAny<object>()))
-            .ReturnsAsync(encounter);
-
-        var combatService = new CombatService(mockDBService.Object, new TestRandomGenerator(0.0));
-
-        // Act
-        var result1 = await combatService.CombatRequestHandlerAsync(new CombatRequest
-        {
-            EncounterId = "test-encounter-id",
-            SourceCharacterId = "test-source-character-id",
-            TargetCharacterId = "test-target-character-id",
-            Action = "Slash",
-        });
-
-        var result2 = await combatService.CombatRequestHandlerAsync(new CombatRequest
-        {
-            EncounterId = "test-encounter-id",
-            SourceCharacterId = "test-source-character-id-2",
-            TargetCharacterId = "test-target-character-id",
-            Action = "Slash",
-        });
-
-        // Assert
-        Assert.NotNull(result1);
-        Assert.IsType<List<CombatResult>>(result1);
-    }
 
     // Helper method to build a mock database service that returns the provided encounter when LoadAsync is called
     private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter)
@@ -382,6 +337,90 @@ public class MageCSTests
         Assert.Equal(30, blocker.Health);
     }
 
+    [Theory]
+    // Test: Magic Missile ignores status debuffs against the Mage
+    /* Piercing Arrow Chance: 0.88 (Needs to be 70% or less for success. Should fail)
+     // Crippling Shot Chance: 0.2 (Needs to be 60% or less for success. Should succeed so long as target's health is 50% or less)
+     // Decision Breaker Roll: 0.33 (Shouldn't be used, but would pick Piercing Shot on < 50%)
+     // Priority targeting roll for each player class: 0.55 (Should choose Warrior. But won't matter in this single enemy vs player test)
+     //          * 0 - 49%: Mage
+     //          * 50 - 79%: Warrior
+     //          * 80 - 100% Bard 
+     // Tie breaker between chosen class: 0.0 (Not used in this test)
+     */
+    [InlineData(0.88, 0.2, 0.33, 0.5, 0.0)]
+    public async Task MagicMissileFullDamageThroughStatusAffects(
+            double piercingArrowRoll,
+            double cripplingShotRoll,
+            double decisionBreakeerRoll,
+            double targetingRoll,
+            double targetTieRoll)
+    {
+        // Initialize random variables
+        var rng = new TestRandomGenerator(
+            piercingArrowRoll,
+            cripplingShotRoll,
+            decisionBreakeerRoll,
+            targetingRoll,
+            targetTieRoll,
+            piercingArrowRoll,
+            cripplingShotRoll,
+            decisionBreakeerRoll,
+            targetingRoll,
+            targetTieRoll);
+
+        // Initialize characters for testing
+        var mage = new Mage("mage") { Health = 24, MaxHealth = 50 };
+        var goblinArcher = new GoblinArcher() { Id = "goblinArcher", Health = 30, MaxHealth = 30 };
+
+        // Create encounter, mockdb, and combat service for testing
+        var encounter = new ActiveCombatEncounter(new List<Character> { mage }, new List<Character> { goblinArcher });
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object, rng);
+
+        // -------------------------
+        // ROUND 1
+        // -------------------------
+
+        // Execute combat request and verify results
+        var round1Results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = goblinArcher.Id,
+            Action = "Magic Missile",
+        });
+
+        Assert.NotEmpty(round1Results); // Verify we were passed round 1 results
+        Assert.Equal(20, goblinArcher.Health); // Verify first instance of Magic Missile went through
+        var enemyResult = round1Results.FirstOrDefault(r => r.Request.SourceCharacterId == goblinArcher.Id && r.Request.Action == "Crippling Shot"); // Find the result for the goblin archer's attack in the combat results
+        Assert.NotNull(enemyResult); // Check that we found the result for the goblin archer's attack
+
+        // -------------------------
+        // TEST-ONLY ROUND RESET
+        // -------------------------
+
+        ResetEncounterForNextRound(encounter);
+
+        // -------------------------
+        // ROUND 2
+        // -------------------------
+
+        // Execute combat request and verify results
+        var round2Results = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = mage.Id,
+            TargetCharacterId = goblinArcher.Id,
+            Action = "Magic Missile",
+        });
+
+        Assert.NotEmpty(round1Results); // Verify we were passed round 1 results
+        Assert.Equal(10, goblinArcher.Health); // Verify first instance of Magic Missile went through
+    }
+
     [Fact]
     // Test: Mirror duplicates Fireball and splits the damage
     public async Task MirrorCorrectlyDuplicatesFireball()
@@ -500,5 +539,23 @@ public class MageCSTests
         Assert.Equal(5, enemy2.Health);
 
         Assert.Equal(6, mage.Health); // Check for the result of 2 reduced damage Bone Slashes
+    }
+
+    private static void ResetEncounterForNextRound(ActiveCombatEncounter encounter)
+    {
+        if (encounter == null)
+        {
+            throw new ArgumentNullException(nameof(encounter));
+        }
+
+        for (int i = 0; i < encounter.PlayerReadied.Count; i++)
+        {
+            encounter.PlayerReadied[i] = false;
+        }
+
+        for (int i = 0; i < encounter.CombatRequests.Count; i++)
+        {
+            encounter.CombatRequests[i] = null;
+        }
     }
 }

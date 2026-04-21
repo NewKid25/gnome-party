@@ -1,4 +1,5 @@
 ﻿using Models.Actions.BoosPoolActions.GnomeEaterActions;
+using Models.Actions.BossPoolActions.NecrognomancerActions;
 using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
 using Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions;
 using Models.Actions.EasyEnemyPoolActions.ForestSpriteActions;
@@ -14,7 +15,7 @@ namespace Models.Actions;
 public class CharacterActionFactory
 {
     // Class that creates CharacterAction instances based on action names.
-        public static CharacterAction CreateCharacterAction(string actionName)
+    public static CharacterAction CreateCharacterAction(string actionName)
         {
         return actionName switch
         {
@@ -59,6 +60,10 @@ public class CharacterActionFactory
             "Sonic Squeal" => new SonicSqueal(),
             "Blood Peck" => new BloodPeck(),
 
+            // Necrognomancer Attacks
+            "Dark Bolt" => new DarkBolt(),
+            "Soul Drain" => new SoulDrain(),
+
             // Gnome Eater Attacks
             "Crushing Swipe" => new CrushingSwipe(),
             "Devour Essence" => new DevourEssence(),
@@ -69,5 +74,18 @@ public class CharacterActionFactory
             "Fury Strikes" => new FuryStrikes(),
             _ => throw new ArgumentException($"Unknown action name: {actionName}"),
         };
+    }
+
+    public static readonly HashSet<string> UnblockableActions = new()
+    {
+        "Magic Missile",
+    };
+
+    public  static bool IsUnblockableAction(CharacterAction action)
+    {
+        if(action == null) {  return false; }
+        if(string.IsNullOrEmpty(action.AttackName)) { return false; }
+        if(UnblockableActions.Contains(action.AttackName)) { return true; }
+        return false;
     }
 }

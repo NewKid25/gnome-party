@@ -196,6 +196,9 @@ namespace CombatService
                 var roundEvents = new List<CombatEvent>();
                 var action = CharacterActionFactory.CreateCharacterAction(request.Action);
 
+                // Check if attack is unblockable before statuses and other factors are processed
+                bool priorityAttack = CharacterActionFactory.IsUnblockableAction(action);
+
                 //looks for characters and null checks them        
                 var srcCharacter = FindCharacter(encounter.GameState, request.SourceCharacterId);
                 var originalTargetCharacter = FindCharacter(encounter.GameState, request.TargetCharacterId);
@@ -246,6 +249,7 @@ namespace CombatService
                     var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var damageReduction = GetDamageReduction(attackSource, finalTarget, attack.IsUnblockable);
+
                     var finalDamage = (int)Math.Floor(
                         attack.BaseDamage *
                         outgoingMultiplier *
@@ -256,8 +260,13 @@ namespace CombatService
                     {
                         finalDamage = 0;
                     }
+
                     int extraIntDamage = ResolveAddExtraIntDamageStatuses(finalTarget);
-                    attack.FinalDamage = finalDamage + extraIntDamage;
+
+                    // If the attack is unblockable, the final damage is the base damage, otherwise it is the calculated damage
+                    if(priorityAttack) { attack.FinalDamage = attack.BaseDamage; }
+                    else { attack.FinalDamage = finalDamage + extraIntDamage; }
+
                     attack.IsBlocked = damageReduction > 0;
                     finalTarget.Health -= attack.FinalDamage;
                     roundEvents.Add(new CombatEvent("damage", new DamageEventParams
@@ -304,7 +313,7 @@ namespace CombatService
                     }));
                 }
 
-                roundEvents.AddRange(resolution.Events); // Store events from the given round/turn
+                roundEvents.AddRange(resolution.Events);  // Store events from the given round/turn
                 roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
                 

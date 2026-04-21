@@ -61,10 +61,6 @@ internal abstract class CharacterAI
         "Whirling Strike",
         "Song",
     };
-    public static readonly HashSet<string> UnblockableActions = new()
-    {
-        "Magic Missile",
-    };
     protected static bool IsHighImpactAction(List<CombatRequest> playerRequests) // Method to see if an action is "High Impact"
     {
         if (playerRequests == null || playerRequests.Count == 0) { return false; } // Check that a valid player request was sent
