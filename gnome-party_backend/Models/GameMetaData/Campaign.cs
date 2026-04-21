@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using Models.CharacterData;
+using Models.CharacterData.DifficultEnemyPoolClasses;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CombatData;
 using Models.EncounterData;
@@ -29,24 +30,10 @@ public class Campaign
                 new CombatEncounter
                 {
                     Enemies = [
-                        new Skeleton()
-                        {
-                            Health = 10,
-                            MaxHealth = 10,
-                        },
-                        new Skeleton()
+                        new Skeleton(),
+                        new GoblinArcher(),
                     ]
                 },
-                new CombatEncounter
-                {
-                    Enemies = [
-                        new Skeleton()
-                        {
-                            Health = 30,
-                            MaxHealth = 30,
-                        }
-                    ]
-                }
             ],
             // medium pool
             [
