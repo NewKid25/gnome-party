@@ -1,5 +1,5 @@
 import Konva from "konva";
-import AnimationSequence from "../animationSequence";
+import AnimationSequence from "../AnimationSequence";
 import AnimationStep from "../interfaces/AnimationStep";
 import SimultaneousAnimation from "../SimultaneousAnimation";
 import { Easings } from "konva/lib/Tween";
