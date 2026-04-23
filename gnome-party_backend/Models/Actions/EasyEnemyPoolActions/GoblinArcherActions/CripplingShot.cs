@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
@@ -28,7 +25,7 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
             if (target == null) { throw new ArgumentNullException(nameof(target)); }
             if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
-            var resolution = new AttackResolution(); // Creare a new attack resolution to hold the results of the attack
+            var resolution = new AttackResolution(); // Create a new attack resolution to hold the results of the attack
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);

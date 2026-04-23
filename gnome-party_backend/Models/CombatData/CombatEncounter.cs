@@ -1,5 +1,4 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.EncounterData;
 

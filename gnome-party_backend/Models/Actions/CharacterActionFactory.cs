@@ -80,17 +80,4 @@ public class CharacterActionFactory
             _ => throw new ArgumentException($"Unknown action name: {actionName}"),
         };
     }
-
-    public static readonly HashSet<string> UnblockableActions = new()
-    {
-        "Magic Missile",
-    };
-
-    public  static bool IsUnblockableAction(CharacterAction action)
-    {
-        if(action == null) {  return false; }
-        if(string.IsNullOrEmpty(action.AttackName)) { return false; }
-        if(UnblockableActions.Contains(action.AttackName)) { return true; }
-        return false;
-    }
 }

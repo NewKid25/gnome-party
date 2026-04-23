@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.Actions;
+﻿using Models.Actions;
 using Models.Actions.BossPoolActions.NecrognomancerActions;
 
 namespace Models.CharacterData.BossEnemyPoolClasses
@@ -14,6 +11,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses
             {
                 new DarkBolt().ActionDescription,
                 new SoulDrain().ActionDescription,
+                new Summon().ActionDescription,
             };
             CharacterType = "Necrognomancer";
             Health = 40;

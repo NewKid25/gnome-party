@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 

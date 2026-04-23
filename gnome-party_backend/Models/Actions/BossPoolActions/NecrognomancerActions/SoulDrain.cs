@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -30,12 +27,9 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
 
             // Initialize a list to hold the targets of the Whirling Strike
             List<Character> soulDrainTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
-
-            var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
-            // ****************** PATCHWORK IMPLEMENTATION *****************************************
-            int healCount = 0;
+            var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
 
             // Iterate through each target and create an AttackInstance for each one
             foreach (var currentTarget in soulDrainTargets)
@@ -52,18 +46,18 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
                     SourceCharacterId = user.Id,
                     TargetCharacterId = currentTarget.Id,
                 });
-
-                healCount++;
             }
 
-            // ****************** PATCHWORK IMPLEMENTATION *****************************************
+            // Real healing will be calculated in the CombatService
             resolution.HealInstances.Add(new HealInstance
             {
                 SourceCharacterId = user.Id,
                 TargetCharacterId = user.Id,
                 ActionName = AttackName,
-                BaseHealing = 6 * healCount,
-                FinalHealing = 6 * healCount,
+                CalculationType = HealCalculationType.FromDamageDealt,
+                HealingRatio = 1.0,
+                DamageSourceActionNameFilter = AttackName,
+                RequireSameSourceCharacter = true
             });
 
             return resolution;

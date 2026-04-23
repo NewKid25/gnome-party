@@ -14,8 +14,6 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 new Parry().ActionDescription,
                 new Slash().ActionDescription,
                 new WhirlingStrike().ActionDescription,
-                
-                //new FuryStrikes().ActionDescription,
             };
             CharacterType = "Warrior";
             Health = 30;
@@ -31,9 +29,6 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 new Block().ActionDescription,
                 new Parry().ActionDescription,
                 new WhirlingStrike().ActionDescription,
-                
-                //new FuryStrikes().ActionDescription,
-
             };
             CharacterType = "Warrior";
             Health = 30;

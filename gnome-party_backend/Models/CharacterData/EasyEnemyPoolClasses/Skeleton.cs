@@ -1,8 +1,5 @@
 ﻿using Models.Actions;
 using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Models.CharacterData.EasyEnemyPoolClasses;
 public class Skeleton : Character

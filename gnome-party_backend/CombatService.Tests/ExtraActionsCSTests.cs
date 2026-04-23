@@ -71,7 +71,7 @@ public class ExtraActionsCSTests
 
     [Fact]
     // Test : Verifying that GetActionTargets returns eligible targets for each action when called within the Combat Service
-    public void GetActionTargetReturnsEligibleTargetsForEachAction()
+    public async Task GetActionTargetReturnsEligibleTargetsForEachAction()
     {
         var warrior = new Warrior("warrior");
         var ally = new Warrior("ally");
@@ -91,7 +91,7 @@ public class ExtraActionsCSTests
 
         var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
 
-        var result = service.GetActionTargets(encounter.EncounterId, warrior.Id);
+        var result = await service.GetActionTargets(encounter.EncounterId, warrior.Id);
 
         Assert.NotNull(result);
         Assert.NotEmpty(result);

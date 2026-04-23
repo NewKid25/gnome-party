@@ -1,4 +1,5 @@
-﻿using Models.CombatData;
+﻿using Models.CharacterData;
+using Models.CombatData;
 using Models.Status;
 
 namespace Models.ActionMetaData
@@ -10,5 +11,6 @@ namespace Models.ActionMetaData
         public List<CombatEvent> Events { get; set; } = new();
         public List<StatusEffect> StatusEffectsToApply { get; set; } = new();
         public List<HealInstance> HealInstances { get; set; } = new();
+        public List<Character> SummonedCharacters { get; set; } = new();
     }
 }

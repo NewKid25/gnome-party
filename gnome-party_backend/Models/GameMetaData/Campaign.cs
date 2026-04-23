@@ -12,6 +12,7 @@ public class Campaign
 {
     [DynamoDBProperty(typeof(EncounterListConverter))]
     public List<Encounter> Encounters { get; set; }
+    [DynamoDBProperty(typeof(CharacterListConverter))]
     public List<Character> PlayerCharacters { get; set; }
     public int CurrentEncounterIndex { get; set; } = 0;
     public Campaign()
@@ -19,7 +20,6 @@ public class Campaign
         PlayerCharacters = new List<Character>();
         Encounters = [];
     }
-
     public void InitEncounters()
     {
         //Change later: right now every pool will have the same number of encounters included, but eventually we may want to have different numbers of encounters from each pool
@@ -32,6 +32,7 @@ public class Campaign
                     Enemies = [
                         new Skeleton(),
                         new GoblinArcher(),
+                        new GnombieBrute(),
                     ]
                 },
             ],
