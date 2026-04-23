@@ -69,12 +69,12 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
             var summonedUnit = new Summons(selectedType);
 
             resolution.SummonedCharacters.Add(summonedUnit);
-            resolution.Events.Add(new CombatEvent("summoned", new
+            resolution.Events.Add(new CombatEvent("summoned", new SummonedEventParams
             {
-                sourceId = user.Id,
-                summonId = summonedUnit.Id,
-                summonType = summonedUnit.CharacterType,
-                summonName = summonedUnit.Name
+                SourceId = user.Id,
+                SummonId = summonedUnit.Id,
+                SummonType = summonedUnit.CharacterType,
+                SummonName = summonedUnit.Name
             }));
             return resolution;
         }

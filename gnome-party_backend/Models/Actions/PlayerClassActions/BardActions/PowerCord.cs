@@ -56,8 +56,15 @@ namespace Models.Actions.PlayerClassActions.BardActions
             var resolution = new AttackResolution(); // Variable to hold the action's resolution
             var eligibleTargets = songAction.ReturnEligibleTargets(user, gameState); // Variable to hold the eligible targets
 
+            // Send a message with the type of power cord used
+            resolution.Events.Add(new CombatEvent("power_cord_used", new PowerCordUsedEventParams
+            {
+                SourceId = user.Id,
+                AmplifiedSong = currentSong
+            }));
+
             // Apply the action of the bard's current song to each eligible target
-            foreach(var currentTarget in powerCordTargets)
+            foreach (var currentTarget in powerCordTargets)
             {
                 if (!eligibleTargets.Any(c => c.Id == currentTarget.Id)) { throw new ArgumentException("Target is nor eligible for this attack", nameof(target)); }
                 var targetResolution = songAction.ResolveAttack(user, currentTarget, gameState);
