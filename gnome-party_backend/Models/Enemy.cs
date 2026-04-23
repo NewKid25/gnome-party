@@ -46,6 +46,7 @@ public class Enemy
                 break;
             case "Necrognomancer":
                 Character = character ?? new Necrognomancer();
+                AI = new NecrognomancerAI(rng);
                 break;
             case "Gnome Eater":
                 Character = character ?? new GnomeEater();

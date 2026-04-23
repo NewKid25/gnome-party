@@ -1,6 +1,5 @@
 ﻿using Models.CharacterData;
 using Models.CharacterData.BossEnemyPoolClasses;
-using Models.CharacterData.DifficultEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 using Models.TestHelperData;

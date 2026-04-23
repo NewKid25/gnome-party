@@ -3,6 +3,8 @@ using Models;
 using Models.ActionMetaData;
 using Models.Actions;
 using Models.CharacterData;
+using Models.CharacterData.BossEnemyPoolClasses;
+using Models.CharacterData.BossEnemyPoolClasses.Summons;
 using Models.CombatData;
 using Models.EncounterData;
 using Models.Status;
@@ -310,9 +312,11 @@ namespace CombatService
 
                 // Add newly summoned characters
                 ResolveSummon(encounter.GameState, srcCharacter, resolution.SummonedCharacters);
+                ResolveSummonCount(encounter.GameState);
 
                 roundEvents.AddRange(resolution.Events);  // Store events from the given round/turn
                 roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
+                ResolveSummonCount(encounter.GameState);
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
                 
                 // Produce the final result to send to the client
@@ -489,10 +493,9 @@ namespace CombatService
         }
 
         // Method for adding summoned characters to the game state
-        private void ResolveSummon(
-            CombatEncounterGameState gameState,
+        private void ResolveSummon(CombatEncounterGameState gameState,
             Character summoner, 
-            List<Character> summonedCharacters)
+            List<Character> summonedCharacters )
         {
             // Null check the variables passed in
             if (gameState == null) throw new ArgumentNullException(nameof(gameState));
@@ -525,6 +528,13 @@ namespace CombatService
                 if(alreadyExists) { continue; } // don't add the summoned character if already present in the game
                 destinationTeam.Add(summon); // add the summoned character to the correct team
             }
+        }
+
+        // Method for reconfiguring summon count for Necrognomancer
+        private void ResolveSummonCount(CombatEncounterGameState gameState)
+        {
+            int summonCount = gameState.EnemyCharacters.Count(c => c is Summons);
+            foreach (var necro in gameState.EnemyCharacters.OfType<Necrognomancer>()) { necro.ActiveSummonCount = summonCount; }
         }
     }
 }
