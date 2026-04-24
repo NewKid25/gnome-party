@@ -43,6 +43,8 @@ public class CharacterActionFactory
 
             // Mage Upgrade Attacks
             "Vaporizing Beam" => new VaporizingBeam(),
+            "Chain Lightning" => new ChainLightning(),
+            "Blizzard" => new Blizzard(),
 
             // Bard Attacks
             "Discord" => new Discord(),

@@ -218,9 +218,35 @@ namespace CombatService
                 }
 
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents); // Process status triggers that happen at the beginning of a character's turn
-                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable); // Resolve any target changes
-                var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
-                var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected); // Get the action instance with status effects applied
+                
+                //var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable); // Resolve any target changes
+                //var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
+                //var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected); // Get the action instance with status effects applied
+
+                AttackResolution resolution;
+                if(action is IMultiTargetAction multiTargetAction)
+                {
+                    var targetIds = request.TargetCharacterIds.Count > 0 ? request.TargetCharacterIds : new List<string> { request.TargetCharacterId };
+                    var selectedTargets = targetIds.Distinct().Select(id => FindCharacter(encounter.GameState, id)).ToList();
+                    if (selectedTargets.Any(t => t == null)) { throw new InvalidOperationException("One or more selected targets were not found."); }
+                    var nonNullTargets = selectedTargets!;
+                    if (nonNullTargets.Count < multiTargetAction.MinTargets || nonNullTargets.Count > multiTargetAction.MaxTargets)
+                    {
+                        throw new ArgumentException( $"{action.AttackName} requires between {multiTargetAction.MinTargets} and {multiTargetAction.MaxTargets} targets.");
+                    }
+                    resolution = multiTargetAction.ResolveAttack(srcCharacter, nonNullTargets, encounter.GameState, false, action.Unblockable);
+                }
+                else
+                {
+                    if (originalTargetCharacter == null)
+                    {
+                        throw new InvalidOperationException($"Target character '{request.TargetCharacterId}' was not found.");
+                    }
+                    var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable);
+                    var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id;
+                    resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected, action.Unblockable);
+                }
+
                 resolution = ResolveMirror(encounter.GameState, srcCharacter, action, request.Action, resolution); // Run a second copy of the action instance to the target associated with the mirror status
                 foreach (var attack in resolution.AttackInstances) // iterate through each attack instance in the resolution
                 {

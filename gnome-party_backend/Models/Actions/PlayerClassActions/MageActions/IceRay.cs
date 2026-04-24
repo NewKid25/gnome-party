@@ -42,7 +42,7 @@ namespace Models.Actions.PlayerClassActions.MageActions
                 }
             };
             resolution.StatusEffectsToApply.Add(new ChillStatus(user, target)); // Add a new ChillStatus effect to the list of status effects to apply to the target
-            resolution.Events.Add(new CombatEvent("chiil_status_applied", new StatusAppliedEventParams{ OwnerId = user.Id })); // Add a new combat event to indicate that the chill status has been applied
+            resolution.Events.Add(new CombatEvent("chill_status_applied", new StatusAppliedEventParams{ OwnerId = user.Id })); // Add a new combat event to indicate that the chill status has been applied
             return resolution;
         }
     }
