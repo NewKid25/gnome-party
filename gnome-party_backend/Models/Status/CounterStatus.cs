@@ -78,7 +78,6 @@ namespace Models.Status
                     SourceCharacterId = target.Id,
                     TargetCharacterId = source.Id,
                     IsUnblockable = true,
-                    IsRedirected = true
                 }
             };
         }

@@ -137,12 +137,6 @@ namespace CombatService
             return results;
         }
 
-        // Method for getting all characters (player and enemy) in the game state
-        private IEnumerable<Character> GetAllCharacters(CombatEncounterGameState gameState)
-        {
-            return gameState.PlayerCharacters.Concat(gameState.EnemyCharacters);
-        }
-
         // Method for calculating damage reduction modifiers from status effects
         private double GetDamageReduction(Character source, Character target, bool isUnblockable)
         {

@@ -31,14 +31,15 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int cripplingShotDamage = 4;
             // Create a new AttackInstance for the Mockery attack and add it to the resolution
             resolution.AttackInstances = new List<AttackInstance>
             {
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 4,
-                    FinalDamage = 4,
+                    BaseDamage = cripplingShotDamage,
+                    FinalDamage = cripplingShotDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }

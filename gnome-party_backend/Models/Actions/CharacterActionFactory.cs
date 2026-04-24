@@ -8,6 +8,7 @@ using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
 using Models.Actions.PlayerClassActions.BardActions;
 using Models.Actions.PlayerClassActions.MageActions;
+using Models.Actions.PlayerClassActions.MageUpgradeActions;
 using Models.Actions.PlayerClassActions.WarriorActions;
 using Models.Actions.PlayerClassActions.WarriorUpgradeActions;
 using Models.TestHelperData;
@@ -39,6 +40,9 @@ public class CharacterActionFactory
             "Fireball" => new Fireball(),
             "Ice Ray" => new IceRay(),
             "Mirror" => new Mirror(),
+
+            // Mage Upgrade Attacks
+            "Vaporizing Beam" => new VaporizingBeam(),
 
             // Bard Attacks
             "Discord" => new Discord(),

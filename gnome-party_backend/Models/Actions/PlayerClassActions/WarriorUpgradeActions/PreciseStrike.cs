@@ -27,6 +27,7 @@ namespace Models.Actions.PlayerClassActions.WarriorUpgradeActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int preciseStrikeDamage = 12;
             return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
             {
                 AttackInstances = new List<AttackInstance>
@@ -34,8 +35,8 @@ namespace Models.Actions.PlayerClassActions.WarriorUpgradeActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 12,
-                        FinalDamage = 12,
+                        BaseDamage = preciseStrikeDamage,
+                        FinalDamage = preciseStrikeDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

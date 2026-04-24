@@ -28,9 +28,10 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
-
+            
             int permBoost = 0;
             if(user is GnomeEater gnomeEater) { permBoost = gnomeEater.PermaDamageBoost; }
+            int crushingSwipeDamage = 14 + permBoost;
 
             return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
             {
@@ -39,8 +40,8 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 14 + permBoost, 
-                        FinalDamage = 14 + permBoost,
+                        BaseDamage = crushingSwipeDamage, 
+                        FinalDamage = crushingSwipeDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

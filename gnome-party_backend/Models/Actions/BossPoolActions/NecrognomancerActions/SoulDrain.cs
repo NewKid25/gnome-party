@@ -30,6 +30,7 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
+            int soulDrainDamage = 6;
 
             // Iterate through each target and create an AttackInstance for each one
             foreach (var currentTarget in soulDrainTargets)
@@ -40,8 +41,8 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
                 resolution.AttackInstances.Add(new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 6,
-                    FinalDamage = 6,
+                    BaseDamage = soulDrainDamage,
+                    FinalDamage = soulDrainDamage,
                     IsRedirected = isRedirected,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = currentTarget.Id,

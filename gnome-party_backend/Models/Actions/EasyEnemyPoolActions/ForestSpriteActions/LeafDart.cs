@@ -37,6 +37,7 @@ namespace Models.Actions.EasyEnemyPoolActions.ForestSpriteActions
 
             int hitCount = 2; // Number of Leaf Darts
 
+            int leafDartDamage = 4;
             // Randomly target hitCount number of unique targets (double attack same target if only 1 target is avaliable)
             if (eligibleTargets.Count == 1)
             {
@@ -47,8 +48,8 @@ namespace Models.Actions.EasyEnemyPoolActions.ForestSpriteActions
                     resolution.AttackInstances.Add(new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 4,
-                        FinalDamage = 4,
+                        BaseDamage = leafDartDamage,
+                        FinalDamage = leafDartDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = onlyTarget.Id,
                         IsRedirected = isRedirected,
@@ -65,8 +66,8 @@ namespace Models.Actions.EasyEnemyPoolActions.ForestSpriteActions
                 resolution.AttackInstances.Add(new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 4,
-                    FinalDamage = 4,
+                    BaseDamage = leafDartDamage,
+                    FinalDamage = leafDartDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = randomTarget.Id,
                     IsRedirected = isRedirected,

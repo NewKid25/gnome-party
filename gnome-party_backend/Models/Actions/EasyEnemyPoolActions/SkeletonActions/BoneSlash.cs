@@ -25,6 +25,7 @@ namespace Models.Actions.EasyEnemyPoolActions.SkeletonActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int boneSlashDamage = 6;
             return new AttackResolution // Return an AttackResolution object that describes the outcome of the attack
             {
                 AttackInstances = new List<AttackInstance>
@@ -32,8 +33,8 @@ namespace Models.Actions.EasyEnemyPoolActions.SkeletonActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 6,
-                        FinalDamage = 6,
+                        BaseDamage = boneSlashDamage,
+                        FinalDamage = boneSlashDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

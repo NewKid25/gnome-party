@@ -5,28 +5,28 @@ using Models.Status;
 
 namespace Models.Actions.PlayerClassActions.MageActions
 {
-    // Fireball: Deal 6 damage to the target and then burn the target and adjacent allies for 3 turns
-    public sealed class Fireball : CharacterAction
+    // Chain Lightning: Deal 6 damage to the target and then burn all enemies for 3 turns
+    public sealed class ChainLightning : CharacterAction
     {
-        public Fireball() : base("Fireball") // Call the base constructor with the name of the action
+        public ChainLightning() : base("Chain Lightning") // Call the base constructor with the name of the action
         {
-            ActionDescription = new CharacterActionDescription("Fireball", "Deal damage to the target and then burn the target and adjacent allies for 3 turns"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Chain Lightning", "Deal damage to the target and then burn all enemies for 3 turns"); // Set the action description
         }
         public override AttackResolution ResolveAttack( // Override the ResolveAttack method to define the behavior of the Fireball action
-            Character user, 
-            Character target, 
-            CombatEncounterGameState gameState, 
-            bool isRedirected = false, 
+            Character user,
+            Character target,
+            CombatEncounterGameState gameState,
+            bool isRedirected = false,
             bool isUnblockable = false)
         {
             // Set the burn duration and tick damage as constants
-            const int burnDuration = 3; 
+            const int burnDuration = 3;
             const int burnTickDamage = 2;
 
             // Validate the user, target, and gameState parameters
-            if (user == null) throw new ArgumentNullException(nameof(user)); 
+            if (user == null) throw new ArgumentNullException(nameof(user));
             if (target == null) throw new ArgumentNullException(nameof(target));
-            if(gameState == null) throw new ArgumentNullException(nameof(gameState));
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
             int fireballDamage = 6;
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the attack
@@ -46,7 +46,7 @@ namespace Models.Actions.PlayerClassActions.MageActions
             }
             else
             {
-                burnTargeets = TargetingService.GetTargetAndAdjacentAllies(gameState, target.Id);
+                burnTargeets = TargetingService.GetOpposingTeam(gameState, target.Id);
             }
 
             // Validate that the target is eligible for this attack

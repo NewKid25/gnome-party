@@ -32,14 +32,15 @@ namespace Models.Actions.PlayerClassActions.BardActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int mockeryDamage = 6;
             // Create a new AttackInstance for the Mockery attack and add it to the resolution
             resolution.AttackInstances = new List<AttackInstance>
             {
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 6,
-                    FinalDamage = 6,
+                    BaseDamage = mockeryDamage,
+                    FinalDamage = mockeryDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }

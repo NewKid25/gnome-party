@@ -27,6 +27,7 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int darkBoltDamage = 10;
             return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
             {
                 AttackInstances = new List<AttackInstance>
@@ -34,8 +35,8 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 10,
-                        FinalDamage = 10,
+                        BaseDamage = darkBoltDamage,
+                        FinalDamage = darkBoltDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

@@ -18,6 +18,7 @@ namespace Models.Actions.PlayerClassActions.MageActions
             bool isRedirected, 
             bool isUnblockable)
         {
+            int magicMissileDamage = 10;
             // Add validation to ensure that the user, target, and gameState are not null
             if (user == null) throw new ArgumentNullException(nameof(user));
             if (target == null) throw new ArgumentNullException(nameof(target));
@@ -34,8 +35,8 @@ namespace Models.Actions.PlayerClassActions.MageActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 10,
-                        FinalDamage = 10,
+                        BaseDamage = magicMissileDamage,
+                        FinalDamage = magicMissileDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                         IsUnblockable = true,

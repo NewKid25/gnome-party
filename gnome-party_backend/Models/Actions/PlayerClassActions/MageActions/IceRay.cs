@@ -28,14 +28,15 @@ namespace Models.Actions.PlayerClassActions.MageActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int iceRayDamage = 5;
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             resolution.AttackInstances = new List<AttackInstance> // Create a new AttackInstance for the Ice Ray attack and add it to the resolution
             {
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 5,
-                    FinalDamage = 5,
+                    BaseDamage = iceRayDamage,
+                    FinalDamage = iceRayDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }
