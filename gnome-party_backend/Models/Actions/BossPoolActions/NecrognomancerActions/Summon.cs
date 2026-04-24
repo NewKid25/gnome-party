@@ -3,21 +3,30 @@ using Models.CharacterData;
 using Models.CharacterData.BossEnemyPoolClasses;
 using Models.CharacterData.BossEnemyPoolClasses.Summons;
 using Models.CombatData;
+using Models.TestHelperData;
 
 namespace Models.Actions.BossPoolActions.NecrognomancerActions
 {
     // Summon: Summon an allied monster (Weakened Skeleton right now)
     public sealed class Summon : CharacterAction
     {
+        private readonly IRandomGenerator rng;
+        public Summon() : this(new RandomNumGen()) { }
+        public Summon(IRandomGenerator rng) : base("Summon")
+        {
+            if (rng == null) throw new ArgumentNullException(nameof(rng));
+            this.rng = rng;
+            ActionDescription = new CharacterActionDescription("Summon", "Summon a weakened monster as an ally");
+        }
         private static readonly SummonType[] SummonTypes =
         {
             SummonType.Skeleton,
             SummonType.ForestSprite,
             SummonType.GoblinArcher
         };
-        private static SummonType GetWeightedSummonType()
+        private SummonType GetWeightedSummonType()
         {
-            double roll = Random.Shared.NextDouble();
+            double roll = rng.NextDouble();
             double runningTotal = 0.0;
 
             foreach (var entry in SummonTypeData.WeightedSummons)
@@ -28,12 +37,39 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
                     return entry.Type;
                 }
             }
-
             return SummonTypeData.WeightedSummons[^1].Type;
         }
-        public Summon() : base("Summon") // Call the base constructor with the name of the action
+        private static string GetSummonName(CombatEncounterGameState gameState, SummonType summonType, List<Character>? pendingSummons = null)
         {
-            ActionDescription = new CharacterActionDescription("Summon", "Summon a weakened monster as an ally"); // Set the action description
+            string defaultName = summonType switch
+            {
+                SummonType.Skeleton => "Summoned Skeleton",
+                SummonType.ForestSprite => "Summoned Forest Sprite",
+                SummonType.GoblinArcher => "Summoned Goblin Archer",
+                _ => throw new ArgumentOutOfRangeException(nameof(summonType), summonType, null)
+            };
+
+            var existingSummons = gameState.EnemyCharacters.OfType<Summons>();
+            var pending = pendingSummons?.OfType<Summons>() ?? Enumerable.Empty<Summons>();
+
+            var usedNumbers = existingSummons
+                .Concat(pending)
+                .Where(s => s.Name.StartsWith(defaultName + " "))
+                .Select(s =>
+                {
+                    string suffix = s.Name[(defaultName.Length + 1)..];
+                    return int.TryParse(suffix, out int number) ? number : 0;
+                })
+                .Where(n => n > 0)
+                .ToHashSet();
+
+            int nextNumber = 1;
+            while (usedNumbers.Contains(nextNumber))
+            {
+                nextNumber++;
+            }
+
+            return $"{defaultName} {nextNumber}";
         }
         public override AttackResolution ResolveAttack(
             Character user,
@@ -54,7 +90,7 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
             // Maxmimum of 3 summons
             int currentSummonCount = gameState.EnemyCharacters.Count(c => c is Summons);
             int maxSummons = 3;
-            if(currentSummonCount > maxSummons)
+            if(currentSummonCount >= maxSummons)
             {
                 resolution.Events.Add(new CombatEvent("summon_failed", new
                 {
@@ -63,19 +99,48 @@ namespace Models.Actions.BossPoolActions.NecrognomancerActions
                 }));
                 return resolution;
             }
-
-            // Summon based on a random (but weighted) summon
-            SummonType selectedType = GetWeightedSummonType();
-            var summonedUnit = new Summons(selectedType);
-
-            resolution.SummonedCharacters.Add(summonedUnit);
-            resolution.Events.Add(new CombatEvent("summoned", new SummonedEventParams
+            if (user is Necrognomancer necro)
             {
-                SourceId = user.Id,
-                SummonId = summonedUnit.Id,
-                SummonType = summonedUnit.CharacterType,
-                SummonName = summonedUnit.Name
-            }));
+                if (necro.TurnCount == 1)
+                {
+                    var pendingSummons = new List<Character>();
+                    for (int i = currentSummonCount; i < maxSummons; i++)
+                    {
+                        SummonType selectedType = GetWeightedSummonType();
+
+                        var summonedUnit = new Summons(selectedType)
+                        {
+                            Name = GetSummonName(gameState, selectedType, pendingSummons)
+                        };
+
+                        pendingSummons.Add(summonedUnit);
+                        resolution.SummonedCharacters.Add(summonedUnit);
+
+                        resolution.Events.Add(new CombatEvent("summoned", new SummonedEventParams
+                        {
+                            SourceId = user.Id,
+                            SummonId = summonedUnit.Id,
+                            SummonType = summonedUnit.CharacterType,
+                            SummonName = summonedUnit.Name
+                        }));
+                    }
+                }
+                else
+                {
+                    // Summon based on a random (but weighted) summon
+                    SummonType selectedType = GetWeightedSummonType();
+                    var summonedUnit = new Summons(selectedType) { Name = GetSummonName(gameState, selectedType) };
+
+                    resolution.SummonedCharacters.Add(summonedUnit);
+                    resolution.Events.Add(new CombatEvent("summoned", new SummonedEventParams
+                    {
+                        SourceId = user.Id,
+                        SummonId = summonedUnit.Id,
+                        SummonType = summonedUnit.CharacterType,
+                        SummonName = summonedUnit.Name
+                    }));
+                }
+            }
             return resolution;
         }
     }

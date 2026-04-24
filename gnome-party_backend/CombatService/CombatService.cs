@@ -194,7 +194,7 @@ namespace CombatService
 
                 // Variables to hold the combat state and events
                 var roundEvents = new List<CombatEvent>();
-                var action = CharacterActionFactory.CreateCharacterAction(request.Action);
+                var action = CharacterActionFactory.CreateCharacterAction(request.Action, rng);
 
                 //looks for characters and null checks them        
                 var srcCharacter = FindCharacter(encounter.GameState, request.SourceCharacterId);

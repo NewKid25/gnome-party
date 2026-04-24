@@ -5,6 +5,9 @@ using Models.TestHelperData;
 
 namespace Models.AI.BossEnemyPoolAI
 {
+    // Instances of Rng:
+    // GetLowestTarget()
+    // GetStunBurstAction()
     internal class NecrognomancerAI : CharacterAI
     {
         public NecrognomancerAI() { }
@@ -29,16 +32,18 @@ namespace Models.AI.BossEnemyPoolAI
             bool hasSoulDrain = actions.Contains("Soul Drain");
             bool hasSummon = actions.Contains("Summon");
 
-            string chosenAction = null; // Variable to hold the chosen action
-            if (self is not Necrognomancer)
+            string chosenAction; // Variable to hold the chosen action
+            if (self is not Necrognomancer necro)
             {
                 throw new InvalidOperationException($"Expected Necrognomancer but got {self.GetType().Name}");
             }
 
-            int summonMax = 3;
+            necro.TurnCount++;
+            int summonMinimum = 2;
             int soulDrainTurnCount = 3;
-            if(hasSummon && (self as Necrognomancer).ActiveSummonCount < summonMax) { chosenAction = "Summon"; }
-            else if(hasSoulDrain && (self as Necrognomancer).TurnCount != 0 && (self as Necrognomancer).TurnCount % soulDrainTurnCount == 0) { chosenAction = "Soul Drain"; }
+            if(necro.TurnCount == 1) { chosenAction = "Summon"; }
+            else if(hasSummon && necro.ActiveSummonCount < summonMinimum) { chosenAction = "Summon"; }
+            else if(hasSoulDrain && necro.TurnCount != 0 && necro.TurnCount % soulDrainTurnCount == 0) { chosenAction = "Soul Drain"; }
             else if (hasDarkBolt){ chosenAction = "Dark Bolt"; }
             else { chosenAction = GetDefaultAction(actions); }
 
@@ -48,7 +53,7 @@ namespace Models.AI.BossEnemyPoolAI
 
             if(stunBurstActions) { target = GetStunBurstUser(playerRequests, aliveEnemies); }
 
-            return new CombatRequest { Action = GetDefaultAction(actions), TargetCharacterId = GetLowestHealthTarget(aliveEnemies).Id }; 
+            return new CombatRequest { Action = chosenAction, TargetCharacterId = target.Id }; 
         }
 
         public override CombatRequest ChooseAction(Character self, List<string> actions, List<Character> enemies, List<Character> allies)

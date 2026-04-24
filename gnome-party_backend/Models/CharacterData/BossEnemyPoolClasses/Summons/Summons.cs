@@ -22,7 +22,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses.Summons
                     CharacterType = "Skeleton";
                     Health = 10;
                     MaxHealth = 10;
-                    Name = "Skeleton";
+                    Name = "Default Summoned Skeleton";
                     break;
 
                 case SummonType.ForestSprite:
@@ -34,7 +34,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses.Summons
                     CharacterType = "Forest Sprite";
                     Health = 10;
                     MaxHealth = 10;
-                    Name = "Forest Sprite";
+                    Name = "Default Summoned Forest Sprite";
                     break;
 
                 case SummonType.GoblinArcher:
@@ -46,7 +46,7 @@ namespace Models.CharacterData.BossEnemyPoolClasses.Summons
                     CharacterType = "Goblin Archer";
                     Health = 10;
                     MaxHealth = 10;
-                    Name = "Goblin Archer";
+                    Name = "Default Summoned Goblin Archer";
                     break;
 
                 default:

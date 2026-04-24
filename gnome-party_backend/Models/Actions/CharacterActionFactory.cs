@@ -10,14 +10,16 @@ using Models.Actions.PlayerClassActions.BardActions;
 using Models.Actions.PlayerClassActions.MageActions;
 using Models.Actions.PlayerClassActions.WarriorActions;
 using Models.Actions.PlayerClassActions.WarriorUpgradeActions;
+using Models.TestHelperData;
 
 namespace Models.Actions;
 
 public class CharacterActionFactory
 {
     // Class that creates CharacterAction instances based on action names.
-    public static CharacterAction CreateCharacterAction(string actionName)
-        {
+    public static CharacterAction CreateCharacterAction(string actionName, IRandomGenerator? rng = null)
+    {
+        rng ??= new RandomNumGen();
         return actionName switch
         {
             // Warrior Attacks
@@ -67,7 +69,7 @@ public class CharacterActionFactory
             // Necrognomancer Attacks
             "Dark Bolt" => new DarkBolt(),
             "Soul Drain" => new SoulDrain(),
-            "Summon" => new Summon(),
+            "Summon" => new Summon(rng),
 
             // Gnome Eater Attacks
             "Crushing Swipe" => new CrushingSwipe(),
