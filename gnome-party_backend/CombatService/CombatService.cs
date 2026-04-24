@@ -456,7 +456,7 @@ namespace CombatService
             }
         }
 
-        // Method for adding extra damage to target based off statuses
+        // Method for adding extra damage to target based off statuses (Right now just Vulnerable Status)
         public int ResolveAddExtraIntDamageStatuses(Character target)
         {
             if (target == null || target.Health < 0) { return 0; }

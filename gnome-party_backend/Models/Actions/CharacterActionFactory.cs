@@ -30,6 +30,9 @@ public class CharacterActionFactory
 
             // Warrior Upgrade Attacks
             "Precise Strike" => new PreciseStrike(),
+            "Expert Guard" => new ExpertGuard(),
+            "Counter" => new Counter(),
+            "Devastating Cleave" => new DevastatingCleave(),
 
             // Mage Attacks
             "Magic Missile" => new MagicMisslie(),

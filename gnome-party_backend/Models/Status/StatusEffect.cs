@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -35,6 +36,8 @@ namespace Models.Status
     [JsonDerivedType(typeof(StunStatus), "StunStatus")]
     [JsonDerivedType(typeof(VulnerableStatus), "VulnerableStatus")]
     [JsonDerivedType(typeof(WeakenedStatus), "WeakenedStatus")]
+    [JsonDerivedType(typeof(CounterStatus), "CounterStatus")]
+
     public class StatusEffect
     {
         public List<string> AffectedCharacterIds { get; set; } = new();
@@ -91,5 +94,15 @@ namespace Models.Status
             Character currentTarget,
             CombatEncounterGameState gameState,
             bool isUnblockable, bool isUnRedirectable)  { return currentTarget; }
+
+        // Provides a method to create counter attack instances
+        public virtual IEnumerable<AttackInstance> CreateCounterAttacks(
+            Character source,
+            Character target,
+            AttackInstance incomingAttack,
+            CombatEncounterGameState gameState)
+        {
+            return Enumerable.Empty<AttackInstance>();
+        }
     }
 }

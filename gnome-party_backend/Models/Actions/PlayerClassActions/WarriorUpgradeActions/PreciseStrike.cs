@@ -34,8 +34,8 @@ namespace Models.Actions.PlayerClassActions.WarriorUpgradeActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 13,
-                        FinalDamage = 13,
+                        BaseDamage = 12,
+                        FinalDamage = 12,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }
