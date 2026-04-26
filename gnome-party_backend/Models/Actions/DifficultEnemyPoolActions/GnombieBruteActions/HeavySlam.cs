@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -30,6 +27,7 @@ namespace Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int heavySlamDamage = 12;
             return new AttackResolution // Return an AttackResolution object that describes the result of the Slash action
             {
                 AttackInstances = new List<AttackInstance>
@@ -37,8 +35,8 @@ namespace Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 12,
-                        FinalDamage = 12,
+                        BaseDamage = heavySlamDamage,
+                        FinalDamage = heavySlamDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                     }

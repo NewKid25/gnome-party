@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -26,19 +23,21 @@ namespace Models.Actions.DifficultEnemyPoolActions.CaveBatActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int bloodPeckDamage = 5; 
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
 
             resolution.AttackInstances.Add(new AttackInstance 
             {
                 ActionName = AttackName,
-                BaseDamage = 5,
-                FinalDamage = 5,
+                BaseDamage = bloodPeckDamage,
+                FinalDamage = bloodPeckDamage,
                 SourceCharacterId = user.Id,
                 TargetCharacterId = target.Id,
             });
 
             // Determine if the target's health is 30% or below, and heal the user if that's the case
             double targetHealthPercentage = (double)target.Health / Math.Max(1,target.MaxHealth);
+            int bloodPeckHeal = 3;
             if (targetHealthPercentage <= 0.3)
             {
                 resolution.HealInstances.Add(new HealInstance 
@@ -46,8 +45,8 @@ namespace Models.Actions.DifficultEnemyPoolActions.CaveBatActions
                     SourceCharacterId = target.Id,
                     TargetCharacterId = user.Id,
                     ActionName = AttackName,
-                    BaseHealing = 3,
-                    FinalHealing = 3,
+                    BaseHealing = bloodPeckHeal,
+                    FinalHealing = bloodPeckHeal,
                 });
             }
 

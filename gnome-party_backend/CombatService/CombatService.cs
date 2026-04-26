@@ -1,9 +1,10 @@
-using Amazon.DynamoDBv2.DataModel;
 using GnomeParty.Database;
 using Models;
 using Models.ActionMetaData;
 using Models.Actions;
 using Models.CharacterData;
+using Models.CharacterData.BossEnemyPoolClasses;
+using Models.CharacterData.BossEnemyPoolClasses.Summons;
 using Models.CombatData;
 using Models.EncounterData;
 using Models.Status;
@@ -53,7 +54,6 @@ namespace CombatService
         }
         public async Task<List<CombatResult>> CombatRequestHandlerAsync(CombatRequest request)
         {
-
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
 
             //// Mark the source character as readied
@@ -81,7 +81,7 @@ namespace CombatService
             var combatResults = await ProcessCombatRequestsAsync(activeEncounter.CombatRequests.ToArray(), activeEncounter);
             var enemyCombatResquests = new List<CombatRequest>();
             var playerRequests = activeEncounter.CombatRequests.Where(r => r != null).ToList();
-            foreach (var enemyCharacter in activeEncounter.GameState.EnemyCharacters)
+            foreach (var enemyCharacter in activeEncounter.GameState.EnemyCharacters.ToList())
             {
                 var combatRequest = new Enemy(enemyCharacter, rng).ChooseAction(activeEncounter.GameState.PlayerCharacters, activeEncounter.GameState.EnemyCharacters, playerRequests);
                 enemyCombatResquests.Add(combatRequest);
@@ -105,10 +105,10 @@ namespace CombatService
         }
 
         // Method for retreiving the eligible targets for a given character
-        public List<ActionTargetInfo> GetActionTargets(string encounterId, string characterId)
+        public async Task<List<ActionTargetInfo>> GetActionTargets(string encounterId, string characterId)
         {
             // Gets the encounter and character associated with the ids
-            var encounter = databaseService.LoadAsync<ActiveCombatEncounter>(encounterId).Result;
+            var encounter = await databaseService.LoadAsync<ActiveCombatEncounter>(encounterId);
             var character = FindCharacter(encounter.GameState, characterId);
 
             if(character == null) { throw new InvalidOperationException("Character was not found."); } // Verify the character is no null
@@ -135,12 +135,6 @@ namespace CombatService
                 });
             }
             return results;
-        }
-
-        // Method for getting all characters (player and enemy) in the game state
-        private IEnumerable<Character> GetAllCharacters(CombatEncounterGameState gameState)
-        {
-            return gameState.PlayerCharacters.Concat(gameState.EnemyCharacters);
         }
 
         // Method for calculating damage reduction modifiers from status effects
@@ -194,7 +188,7 @@ namespace CombatService
 
                 // Variables to hold the combat state and events
                 var roundEvents = new List<CombatEvent>();
-                var action = CharacterActionFactory.CreateCharacterAction(request.Action);
+                var action = CharacterActionFactory.CreateCharacterAction(request.Action, rng);
 
                 //looks for characters and null checks them        
                 var srcCharacter = FindCharacter(encounter.GameState, request.SourceCharacterId);
@@ -224,9 +218,35 @@ namespace CombatService
                 }
 
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents); // Process status triggers that happen at the beginning of a character's turn
-                var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable); // Resolve any target changes
-                var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
-                var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected); // Get the action instance with status effects applied
+                
+                //var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable); // Resolve any target changes
+                //var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id; // Create a variable to determine if an attack has been redirected
+                //var resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected); // Get the action instance with status effects applied
+
+                AttackResolution resolution;
+                if(action is IMultiTargetAction multiTargetAction)
+                {
+                    var targetIds = request.TargetCharacterIds.Count > 0 ? request.TargetCharacterIds : new List<string> { request.TargetCharacterId };
+                    var selectedTargets = targetIds.Distinct().Select(id => FindCharacter(encounter.GameState, id)).ToList();
+                    if (selectedTargets.Any(t => t == null)) { throw new InvalidOperationException("One or more selected targets were not found."); }
+                    var nonNullTargets = selectedTargets!;
+                    if (nonNullTargets.Count < multiTargetAction.MinTargets || nonNullTargets.Count > multiTargetAction.MaxTargets)
+                    {
+                        throw new ArgumentException( $"{action.AttackName} requires between {multiTargetAction.MinTargets} and {multiTargetAction.MaxTargets} targets.");
+                    }
+                    resolution = multiTargetAction.ResolveAttack(srcCharacter, nonNullTargets, encounter.GameState, false, action.Unblockable);
+                }
+                else
+                {
+                    if (originalTargetCharacter == null)
+                    {
+                        throw new InvalidOperationException($"Target character '{request.TargetCharacterId}' was not found.");
+                    }
+                    var resolvedTarget = ResolveActionTarget(srcCharacter, action, encounter.GameState, originalTargetCharacter, action.Unblockable, action.UnRedirectable);
+                    var isRedirected = resolvedTarget.Id != originalTargetCharacter.Id;
+                    resolution = action.ResolveAttack(srcCharacter, resolvedTarget, encounter.GameState, isRedirected, action.Unblockable);
+                }
+
                 resolution = ResolveMirror(encounter.GameState, srcCharacter, action, request.Action, resolution); // Run a second copy of the action instance to the target associated with the mirror status
                 foreach (var attack in resolution.AttackInstances) // iterate through each attack instance in the resolution
                 {
@@ -246,6 +266,7 @@ namespace CombatService
                     var outgoingMultiplier = GetOutgoingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var incomingMultiplier = GetIncomingDamageMultiplier(attackSource, finalTarget, attack.IsUnblockable);
                     var damageReduction = GetDamageReduction(attackSource, finalTarget, attack.IsUnblockable);
+
                     var finalDamage = (int)Math.Floor(
                         attack.BaseDamage *
                         outgoingMultiplier *
@@ -256,13 +277,18 @@ namespace CombatService
                     {
                         finalDamage = 0;
                     }
+
                     int extraIntDamage = ResolveAddExtraIntDamageStatuses(finalTarget);
-                    attack.FinalDamage = finalDamage + extraIntDamage;
+
+                    // If the attack is unblockable, the final damage is the base damage, otherwise it is the calculated damage
+                    if(attack.IsUnblockable) { attack.FinalDamage = attack.BaseDamage + extraIntDamage; }
+                    else { attack.FinalDamage = finalDamage + extraIntDamage; }
+
                     attack.IsBlocked = damageReduction > 0;
                     finalTarget.Health -= attack.FinalDamage;
                     roundEvents.Add(new CombatEvent("damage", new DamageEventParams
                     {
-                        DamageAmount = finalDamage,
+                        DamageAmount = attack.FinalDamage,
                         TargetId = finalTarget.Id,
                         SourceId = attackSource.Id,
                         TargetName = finalTarget.Name
@@ -290,7 +316,7 @@ namespace CombatService
                     if(healingTarget == null) { throw new InvalidOperationException("Healing target was not found."); }
 
                     // Calculate final healing after all modifiers
-                    var finalHealing = heal.BaseHealing;
+                    var finalHealing = ResolveFinalHealing(heal, resolution);
                     heal.FinalHealing = finalHealing;
 
                     HealCharacter(healingTarget, finalHealing); // Apply the healing to the target
@@ -304,8 +330,13 @@ namespace CombatService
                     }));
                 }
 
-                roundEvents.AddRange(resolution.Events); // Store events from the given round/turn
+                // Add newly summoned characters
+                ResolveSummon(encounter.GameState, srcCharacter, resolution.SummonedCharacters);
+                ResolveSummonCount(encounter.GameState);
+
+                roundEvents.AddRange(resolution.Events);  // Store events from the given round/turn
                 roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
+                ResolveSummonCount(encounter.GameState);
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
                 
                 // Produce the final result to send to the client
@@ -445,7 +476,7 @@ namespace CombatService
             }
         }
 
-        // Method for adding extra damage to target based off statuses
+        // Method for adding extra damage to target based off statuses (Right now just Vulnerable Status)
         public int ResolveAddExtraIntDamageStatuses(Character target)
         {
             if (target == null || target.Health < 0) { return 0; }
@@ -453,5 +484,77 @@ namespace CombatService
             else { return 0; }
         }
 
+        // Method for dealing with healing calculation
+        private int ResolveFinalHealing(HealInstance heal, AttackResolution resolution)
+        {
+            if (heal == null) throw new ArgumentNullException(nameof(heal));
+            if (resolution == null) throw new ArgumentNullException(nameof(resolution));
+            switch (heal.CalculationType)
+            {
+                case HealCalculationType.Flat:
+                    return Math.Max(0, heal.BaseHealing);
+
+                case HealCalculationType.FromDamageDealt:
+                    IEnumerable<AttackInstance> relevantAttacks = resolution.AttackInstances;
+                    if (heal.RequireSameSourceCharacter)
+                    {
+                        relevantAttacks = relevantAttacks.Where(a => a.SourceCharacterId == heal.SourceCharacterId);
+                    }
+                    if (!string.IsNullOrWhiteSpace(heal.DamageSourceActionNameFilter))
+                    {
+                        relevantAttacks = relevantAttacks.Where(a => a.ActionName == heal.DamageSourceActionNameFilter);
+                    }
+                    int totalDamageDealt = relevantAttacks.Sum(a => Math.Max(0, a.FinalDamage));
+                    return Math.Max(0, (int)Math.Floor(totalDamageDealt * heal.HealingRatio));
+
+                default:
+                    throw new InvalidOperationException($"Unsupported heal calculation type: {heal.CalculationType}");
+            }
+        }
+
+        // Method for adding summoned characters to the game state
+        private void ResolveSummon(CombatEncounterGameState gameState,
+            Character summoner, 
+            List<Character> summonedCharacters )
+        {
+            // Null check the variables passed in
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+            if (summoner == null) throw new ArgumentNullException(nameof(summoner));
+            if (summonedCharacters == null) throw new ArgumentNullException(nameof(summonedCharacters));
+
+            // If there are no characters to summon, return
+            if (summonedCharacters.Count == 0)
+            {
+                return;
+            }
+
+            // Determine which team the summoned characters should join
+            bool summonerIsEnemy = gameState.EnemyCharacters.Any(c => c.Id == summoner.Id);
+            bool summonerIsPlayer = gameState.PlayerCharacters.Any(c => c.Id == summoner.Id);
+            if (!summonerIsEnemy && !summonerIsPlayer)
+            {
+                throw new InvalidOperationException("Summoner was not found in the game state.");
+            }
+            var destinationTeam = summonerIsEnemy ? gameState.EnemyCharacters : gameState.PlayerCharacters;
+
+            // Add summoned character(s) to the destination team
+            foreach(var summon in summonedCharacters)
+            {
+                if(summon == null) { continue;  } // check if summoned character is null
+
+                // check if the summoned character already exists
+                bool alreadyExists = gameState.PlayerCharacters.Any(c => c.Id == summon.Id) ||
+                    gameState.EnemyCharacters.Any(c => c.Id == summon.Id);
+                if(alreadyExists) { continue; } // don't add the summoned character if already present in the game
+                destinationTeam.Add(summon); // add the summoned character to the correct team
+            }
+        }
+
+        // Method for reconfiguring summon count for Necrognomancer
+        private void ResolveSummonCount(CombatEncounterGameState gameState)
+        {
+            int summonCount = gameState.EnemyCharacters.Count(c => c is Summons);
+            foreach (var necro in gameState.EnemyCharacters.OfType<Necrognomancer>()) { necro.ActiveSummonCount = summonCount; }
+        }
     }
 }

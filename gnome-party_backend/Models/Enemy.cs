@@ -1,7 +1,4 @@
 ﻿using Models.CharacterData;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Models.AI;
 using Models.CombatData;
 using Models.CharacterData.EasyEnemyPoolClasses;
@@ -47,6 +44,10 @@ public class Enemy
                 Character = character ?? new CaveBat();
                 AI = new CaveBatAI(rng);
                 break;
+            case "Necrognomancer":
+                Character = character ?? new Necrognomancer();
+                AI = new NecrognomancerAI(rng);
+                break;
             case "Gnome Eater":
                 Character = character ?? new GnomeEater();
                 AI = new GnomeEaterAI(rng);
@@ -62,7 +63,7 @@ public class Enemy
         {
             actions.Add(actionDescription.Name);
         }
-        var combatRequest = AI.ChooseAction(Character, actions, enemies, allies);
+        var combatRequest = AI.ChooseAction(this.Character, actions, enemies, allies);
         combatRequest.SourceCharacterId = Character.Id; //i do this here because AI doesnt have reference to source, and feels silly to pass one in
         return combatRequest;
     }
@@ -77,7 +78,7 @@ public class Enemy
             actions.Add(actionDescription.Name);
         }
 
-        var combatRequest = AI.ChooseAction(Character, actions, enemies, allies, playerRequests);
+        var combatRequest = AI.ChooseAction(this.Character, actions, enemies, allies, playerRequests);
         combatRequest.SourceCharacterId = Character.Id;
         return combatRequest;
     }

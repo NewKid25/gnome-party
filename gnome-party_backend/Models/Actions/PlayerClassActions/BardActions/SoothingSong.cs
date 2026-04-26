@@ -22,12 +22,13 @@ namespace Models.Actions.PlayerClassActions.BardActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int soothingSongHealing = 8;
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the attack
             resolution.HealInstances.Add(new HealInstance
             { 
                 ActionName = AttackName,
-                BaseHealing = 8,
-                FinalHealing = 8,
+                BaseHealing = soothingSongHealing,
+                FinalHealing = soothingSongHealing,
                 SourceCharacterId = user.Id,
                 TargetCharacterId = target.Id,
             });

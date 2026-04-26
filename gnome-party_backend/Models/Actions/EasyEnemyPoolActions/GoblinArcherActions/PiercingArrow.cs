@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -31,6 +28,7 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int piercingArrowDamage = 8;
             return new AttackResolution // Return a new AttackResolution object with the details of the attack
             {
                 AttackInstances = new List<AttackInstance>
@@ -38,8 +36,8 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
                     new AttackInstance
                     {
                         ActionName = AttackName,
-                        BaseDamage = 8,
-                        FinalDamage = 8,
+                        BaseDamage = piercingArrowDamage,
+                        FinalDamage = piercingArrowDamage,
                         SourceCharacterId = user.Id,
                         TargetCharacterId = target.Id,
                         IsUnblockable = false,

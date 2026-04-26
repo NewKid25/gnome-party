@@ -56,16 +56,15 @@ internal abstract class CharacterAI
 
         return target;
     }
+    
+    // Method to see if an action is "High Impact"
     protected static readonly HashSet<string> HighImpactActions = new() // List of actions deemed "High Impact"
     {
         "Whirling Strike",
         "Song",
+        "Power Cord",
     };
-    public static readonly HashSet<string> UnblockableActions = new()
-    {
-        "Magic Missile",
-    };
-    protected static bool IsHighImpactAction(List<CombatRequest> playerRequests) // Method to see if an action is "High Impact"
+    protected static bool IsHighImpactAction(List<CombatRequest> playerRequests) 
     {
         if (playerRequests == null || playerRequests.Count == 0) { return false; } // Check that a valid player request was sent
         
@@ -132,6 +131,46 @@ internal abstract class CharacterAI
         }
         return target;
     }
+    
+    // Method to see if an action will Stun or Deal Burst Damage
+    protected static readonly HashSet<string> StunBurstActions = new() // List of actions that can stun
+    {
+        "Whirling Strike",
+        "Song",
+        "Power Cord",
+        "Fireball",
+    };
+    protected static bool IsStunBurstAction(List<CombatRequest> playerRequests)
+    {
+        if (playerRequests == null || playerRequests.Count == 0) { return false; } // Check that a valid player request was sent
+
+        // Loop through each request to see if a stun/burst action move was used
+        foreach (var request in playerRequests)
+        {
+            if (request == null) { continue; }
+            if (string.IsNullOrWhiteSpace(request.Action)) { continue; }
+            if (StunBurstActions.Contains(request.Action)) { return true; }
+        }
+        return false;
+    }
+    protected Character GetStunBurstUser(List<CombatRequest> playerRequests, List<Character> aliveEnemies)
+    {
+        if (playerRequests == null || playerRequests.Count == 0) { return null; }
+        var stunBurstUsers = new List<Character>();
+        foreach (var request in playerRequests)
+        {
+            if (request == null) { continue; } // null check each combat request
+            if (string.IsNullOrWhiteSpace(request.Action)) { continue; } // null check action within the combat request
+            if (!StunBurstActions.Contains(request.Action)) { continue; } // check if the non null action is a high impact action
+            var validMatch = aliveEnemies.FirstOrDefault(e => e.Id == request.SourceCharacterId); // store an instance of a character who is using a high impact action
+            if (validMatch != null) { stunBurstUsers.Add(validMatch); } // add valid matches to a list variable
+        }
+        if (stunBurstUsers.Count == 0) { return null; } // return null if no stun burst action users were found
+
+        var target = GetRandomTarget(stunBurstUsers);
+        return target;
+    }
+
     protected Character GetRandomTarget(List<Character> aliveEnemies) // Method to get a random target
     {
         if (aliveEnemies.Count == 0 || aliveEnemies == null) 

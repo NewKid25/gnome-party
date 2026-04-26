@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 using Models.CombatData;
 
 namespace Models.Status
@@ -12,7 +9,7 @@ namespace Models.Status
         public BlockStatus() { }
 
         // Constructor for the Block Status Effect
-        public BlockStatus(Character user, Character ally)
+        public BlockStatus(Character user, Character ally, double reductionValue)
         {
             SourceCharacterId = user.Id;
             StatusOwnerCharacterId = user.Id;
@@ -21,7 +18,7 @@ namespace Models.Status
             AffectedCharacterIds.Add(ally.Id);
             ModifierValues = new Dictionary<string, double>
             {
-                { StatusModifierKeys.DamageReduction, 0.5 }
+                { StatusModifierKeys.DamageReduction, reductionValue }
             };
             StatusDescription = new Dictionary<string, string>
             {

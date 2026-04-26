@@ -34,7 +34,9 @@ internal class SkeletonAI : CharacterAI
         double healthPercentage = (double)self.Health / Math.Max(1, self.MaxHealth); // Calculate the health percentage of the Skeleton, using Math.Max to avoid division by zero
 
         // If health is at or below 30%, "Rattle Guard" is available. And if a random chance check passes (40% chance), choose "Rattle Guard"
-        if (healthPercentage <= 0.3 && hasRattleGuard && Rng.NextDouble() <= 0.4) {  chosenAction = "Rattle Guard"; }
+        double healthPercentThreshold = 0.3;
+        double rattleGuardRoll = 0.4;
+        if (healthPercentage <= healthPercentThreshold && hasRattleGuard && Rng.NextDouble() <= rattleGuardRoll) {  chosenAction = "Rattle Guard"; }
         else if (hasBoneSlash) { chosenAction = "Bone Slash"; }
         else  { chosenAction = GetDefaultAction(actions); }
 

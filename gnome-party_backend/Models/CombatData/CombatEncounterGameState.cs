@@ -1,7 +1,5 @@
-﻿using Models.CharacterData;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Amazon.DynamoDBv2.DataModel;
+using Models.CharacterData;
 
 namespace Models.CombatData;
 
@@ -13,8 +11,13 @@ public class CombatEncounterGameState
         PlayerCharacters = playerCharacters;
         EnemyCharacters = enemyCharacters;
     }
+
+    [DynamoDBProperty(typeof(CharacterListConverter))]
     public List<Character> EnemyCharacters { get; set; }
+
+    [DynamoDBProperty(typeof(CharacterListConverter))]
     public List<Character> PlayerCharacters { get; set; }
+
     public CombatEncounterGameState DeepCopy()
     {
         var copy = new CombatEncounterGameState

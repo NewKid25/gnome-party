@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 using Models.Status;
@@ -28,20 +25,21 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
             if (target == null) { throw new ArgumentNullException(nameof(target)); }
             if (gameState == null) throw new ArgumentNullException(nameof(gameState));
 
-            var resolution = new AttackResolution(); // Creare a new attack resolution to hold the results of the attack
+            var resolution = new AttackResolution(); // Create a new attack resolution to hold the results of the attack
 
             // Validate that the target is eligible for this attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int cripplingShotDamage = 4;
             // Create a new AttackInstance for the Mockery attack and add it to the resolution
             resolution.AttackInstances = new List<AttackInstance>
             {
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 4,
-                    FinalDamage = 4,
+                    BaseDamage = cripplingShotDamage,
+                    FinalDamage = cripplingShotDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }

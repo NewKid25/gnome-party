@@ -28,20 +28,21 @@ namespace Models.Actions.PlayerClassActions.MageActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState);
             if (!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target)); }
 
+            int iceRayDamage = 5;
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             resolution.AttackInstances = new List<AttackInstance> // Create a new AttackInstance for the Ice Ray attack and add it to the resolution
             {
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 5,
-                    FinalDamage = 5,
+                    BaseDamage = iceRayDamage,
+                    FinalDamage = iceRayDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }
             };
             resolution.StatusEffectsToApply.Add(new ChillStatus(user, target)); // Add a new ChillStatus effect to the list of status effects to apply to the target
-            resolution.Events.Add(new CombatEvent("chiil_status_applied", new StatusAppliedEventParams{ OwnerId = user.Id })); // Add a new combat event to indicate that the chill status has been applied
+            resolution.Events.Add(new CombatEvent("chill_status_applied", new StatusAppliedEventParams{ OwnerId = user.Id })); // Add a new combat event to indicate that the chill status has been applied
             return resolution;
         }
     }

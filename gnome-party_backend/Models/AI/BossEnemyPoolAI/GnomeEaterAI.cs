@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Models.ActionMetaData;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 using Models.CharacterData.BossEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
@@ -69,13 +63,16 @@ namespace Models.AI.BossEnemyPoolAI
             double devRoll = Rng.NextDouble();
             double roarRoll = Rng.NextDouble();
 
-            if (self is not GnomeEater gnomeEater) { throw new ArgumentException("Gnome Eater AI is only valid for the Gnome Eater"); }
+            if (self is not GnomeEater)
+            {
+                throw new InvalidOperationException($"Expected GnombieBrute but got {self.GetType().Name}");
+            }
 
             // Guaranteed use of Ravenous Growth every 4th turn 
-            if (hasRavenousGrowth && gnomeEater.turnCount > 0 && (gnomeEater.turnCount % ravGrowthRequiredTurnCount == 0))
+            if (hasRavenousGrowth && (self as GnomeEater).turnCount > 0 && ((self as GnomeEater).turnCount % ravGrowthRequiredTurnCount == 0))
             {
                 chosenAction = "Ravenous Growth";
-                gnomeEater.turnCount++; // Increment turn counter each time the Gnome Eater attacks
+                (self as GnomeEater).turnCount++; // Increment turn counter each time the Gnome Eater attacks
                 return new CombatRequest { Action = chosenAction, TargetCharacterId = self.Id }; 
             }
 
@@ -128,7 +125,7 @@ namespace Models.AI.BossEnemyPoolAI
                 }
                 target = GetLowestHealthTarget(chosenGroup);
             }
-            gnomeEater.turnCount++; // Increment turn counter each time the Gnome Eater attacks
+            (self as GnomeEater).turnCount++; // Increment turn counter each time the Gnome Eater attacks
             return new CombatRequest // Create and return a CombatRequest with the chosen action and target
             {
                 Action = chosenAction,

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -31,6 +28,7 @@ namespace Models.Actions.DifficultEnemyPoolActions.CaveBatActions
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
+            int sonicSquealDamage = 3;
             // Iterate through each target and create an AttackInstance for each one
             foreach(var currentTarget in sonicSquealTargets)
             {
@@ -39,8 +37,8 @@ namespace Models.Actions.DifficultEnemyPoolActions.CaveBatActions
                 resolution.AttackInstances.Add(new AttackInstance 
                 {
                     ActionName = AttackName,
-                    BaseDamage = 3,
-                    FinalDamage = 3,
+                    BaseDamage = sonicSquealDamage,
+                    FinalDamage = sonicSquealDamage,
                     IsRedirected = isRedirected,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = currentTarget.Id,

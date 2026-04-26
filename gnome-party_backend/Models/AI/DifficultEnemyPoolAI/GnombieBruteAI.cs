@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 using Models.CharacterData.DifficultEnemyPoolClasses;
 using Models.CombatData;
 using Models.TestHelperData;
@@ -13,10 +10,9 @@ namespace Models.AI.DifficultEnemyPoolAI
         // Calls 2 instance of Rng
         // Rotting Aura Chance: 50%
         // Targeting Random
-
         public GnombieBruteAI() { }
         public GnombieBruteAI(IRandomGenerator rng) : base(rng) { }
-        public override CombatRequest ChooseAction(Character self, List<string> actions, List<Character> enemies, List<Character> allies)
+        public override CombatRequest ChooseAction(Character self,List<string> actions, List<Character> enemies, List<Character> allies)
         {
             // Defensive check to ensure we have a reference to ourself
             if (self == null) { throw new ArgumentException("Reference to self cannot be null"); }
@@ -31,7 +27,10 @@ namespace Models.AI.DifficultEnemyPoolAI
             // If there are no alive enemies, we can't target anyone, so we should handle this case appropriately
             if (aliveEnemies.Count == 0) { throw new InvalidOperationException("No alive enemies to target."); }
 
-            if(self is not GnombieBrute gnombieBrute) { throw new InvalidCastException("Character is not a Gnombie Brute"); }
+            if (self is not GnombieBrute) // Error checking self reference
+            {
+                throw new InvalidOperationException($"Expected GnombieBrute but got {self.GetType().Name}");
+            }
 
             // Verify if all the Gnombie Brute actions are present
             bool hasHeavySlam = actions.Contains("Heavy Slam");
@@ -47,17 +46,19 @@ namespace Models.AI.DifficultEnemyPoolAI
             // Choose Rotting Aura on a successful Rotting Aura roll and on round 3
             if(hasRottingAura 
                 && rottingAuraRoll <= rottingAuraChance 
-                && gnombieBrute.turnCount > 0 
-                && (gnombieBrute.turnCount % rottingAuraRequiredTurnCount == 0))
+                && (self as GnombieBrute).turnCount > 0 
+                && (self as GnombieBrute).turnCount % rottingAuraRequiredTurnCount == 0)
             {
                 chosenAction = "Rotting Aura";
             }
-            else if(hasHeavySlam) { chosenAction = "Heavy Slam"; }
+            else if (hasHeavySlam) { chosenAction = "Heavy Slam"; }
             else { chosenAction = GetDefaultAction(actions); }
+            Console.WriteLine("after defreference");
+
 
             var target = GetRandomTarget(aliveEnemies);
 
-            gnombieBrute.turnCount++;
+            (self as GnombieBrute).turnCount++;
 
             return new CombatRequest // Create and return a CombatRequest with the chosen action and target
             {

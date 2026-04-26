@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
 
@@ -34,6 +31,7 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
             var resolution = new AttackResolution(); // Create a new AttackResolution object to hold the results of the attack
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); // Validate that the targets are eligible for this attack
 
+            int whirlingStrikeDamage = 5;
             // Iterate through each target and create an AttackInstance for each one
             foreach (var currentTarget in whirlStrikeTargets)
             {
@@ -43,8 +41,8 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
                 resolution.AttackInstances.Add(new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 5,
-                    FinalDamage = 5,
+                    BaseDamage = whirlingStrikeDamage,
+                    FinalDamage = whirlingStrikeDamage,
                     IsRedirected = isRedirected,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = currentTarget.Id,

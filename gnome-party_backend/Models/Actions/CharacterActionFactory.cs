@@ -1,4 +1,5 @@
 ﻿using Models.Actions.BoosPoolActions.GnomeEaterActions;
+using Models.Actions.BossPoolActions.NecrognomancerActions;
 using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
 using Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions;
 using Models.Actions.EasyEnemyPoolActions.ForestSpriteActions;
@@ -7,15 +8,19 @@ using Models.Actions.EasyEnemyPoolActions.SkeletonActions;
 using Models.Actions.ExtraActions;
 using Models.Actions.PlayerClassActions.BardActions;
 using Models.Actions.PlayerClassActions.MageActions;
+using Models.Actions.PlayerClassActions.MageUpgradeActions;
 using Models.Actions.PlayerClassActions.WarriorActions;
+using Models.Actions.PlayerClassActions.WarriorUpgradeActions;
+using Models.TestHelperData;
 
 namespace Models.Actions;
 
 public class CharacterActionFactory
 {
     // Class that creates CharacterAction instances based on action names.
-        public static CharacterAction CreateCharacterAction(string actionName)
-        {
+    public static CharacterAction CreateCharacterAction(string actionName, IRandomGenerator? rng = null)
+    {
+        rng ??= new RandomNumGen();
         return actionName switch
         {
             // Warrior Attacks
@@ -24,11 +29,22 @@ public class CharacterActionFactory
             "Parry" => new Parry(),
             "Whirling Strike" => new WhirlingStrike(),
 
+            // Warrior Upgrade Attacks
+            "Precise Strike" => new PreciseStrike(),
+            "Expert Guard" => new ExpertGuard(),
+            "Counter" => new Counter(),
+            "Devastating Cleave" => new DevastatingCleave(),
+
             // Mage Attacks
             "Magic Missile" => new MagicMisslie(),
             "Fireball" => new Fireball(),
             "Ice Ray" => new IceRay(),
             "Mirror" => new Mirror(),
+
+            // Mage Upgrade Attacks
+            "Vaporizing Beam" => new VaporizingBeam(),
+            "Chain Lightning" => new ChainLightning(),
+            "Blizzard" => new Blizzard(),
 
             // Bard Attacks
             "Discord" => new Discord(),
@@ -58,6 +74,11 @@ public class CharacterActionFactory
             // Cave Bat Attacks
             "Sonic Squeal" => new SonicSqueal(),
             "Blood Peck" => new BloodPeck(),
+
+            // Necrognomancer Attacks
+            "Dark Bolt" => new DarkBolt(),
+            "Soul Drain" => new SoulDrain(),
+            "Summon" => new Summon(rng),
 
             // Gnome Eater Attacks
             "Crushing Swipe" => new CrushingSwipe(),

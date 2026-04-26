@@ -1,10 +1,8 @@
-using Amazon;
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using CombatService;
 using GnomeParty.Database;
 using Models;
 using Models.CharacterData;

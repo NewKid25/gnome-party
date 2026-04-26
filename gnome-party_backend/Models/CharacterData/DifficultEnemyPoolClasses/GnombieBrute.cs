@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.Actions;
-using Models.Actions.DifficultEnemyPoolActions.CaveBatActions;
+﻿using Models.Actions;
 using Models.Actions.DifficultEnemyPoolActions.GnombieBruteActions;
 
 namespace Models.CharacterData.DifficultEnemyPoolClasses
@@ -24,6 +20,20 @@ namespace Models.CharacterData.DifficultEnemyPoolClasses
             MaxHealth = 30;
             Name = "Gnombie Brute";
             turnCount = 0;
+        }
+        public override Character DeepCopy()
+        {
+            return new GnombieBrute
+            {
+                Id = Id,
+                Name = Name,
+                CharacterType = CharacterType,
+                Health = Health,
+                MaxHealth = MaxHealth,
+                turnCount = turnCount,
+                ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions),
+                StatusEffects = StatusEffects.Select(s => s.DeepCopy()).ToList(),
+            };
         }
     }
 }

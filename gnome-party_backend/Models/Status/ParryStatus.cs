@@ -13,9 +13,9 @@ namespace Models.Status
             AffectedCharacterIds = new List<string> { enemy.Id }; // The character whose attack is being parried
             StatusDescription = new Dictionary<string, string> // Text descriptions for the parry status
             {
-                ["AppliedText"] = $"{user.Name} activates parry against {enemy.Name}.",
+                ["AppliedText"] = $"{user.Name} assumes a defensive stance against {enemy.Name}.",
                 ["ActiveText"] = $"{enemy.Name}'s attack is parried by {user.Name}",
-                ["ExpiredText"] = $"{user.Name} is no longer parrying {enemy.Name}."
+                ["ExpiredText"] = $"{user.Name} leaves their defensive stance {enemy.Name}."
             };
             StatusOwnerCharacterId = user.Id; // The parry status is owned by the user who applied it
         }

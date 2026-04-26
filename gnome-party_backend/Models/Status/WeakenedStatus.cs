@@ -36,7 +36,7 @@ namespace Models.Status
                 StatusOwnerCharacterId = StatusOwnerCharacterId,
             };
         }
-        // Modify the outgoing damage multiplier to reflect the affect of Chill Status
+        // Modify the outgoing damage multiplier to reflect the affect of Weakened Status
         public override double ModifyOutgoingDamageMultiplier(Character source, Character target, double currentMultiplier, bool isUnblockable)
         {
             if (AffectedCharacterIds.Contains(source.Id))

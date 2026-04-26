@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.Actions;
+﻿using Models.Actions;
 using Models.Actions.BoosPoolActions.GnomeEaterActions;
 
 namespace Models.CharacterData.BossEnemyPoolClasses
@@ -25,6 +22,21 @@ namespace Models.CharacterData.BossEnemyPoolClasses
             Name = "The Gnome Eater";
             PermaDamageBoost = 0;
             turnCount = 0;
+        }
+        public override Character DeepCopy()
+        {
+            return new GnomeEater
+            {
+                Id = Id,
+                Name = Name,
+                CharacterType = CharacterType,
+                Health = Health,
+                MaxHealth = MaxHealth,
+                turnCount = turnCount,
+                PermaDamageBoost = PermaDamageBoost,
+                ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions),
+                StatusEffects = StatusEffects.Select(s => s.DeepCopy()).ToList(),
+            };
         }
     }
 }

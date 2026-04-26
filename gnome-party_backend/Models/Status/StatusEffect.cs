@@ -1,4 +1,6 @@
-﻿using Models.CharacterData;
+﻿using System.Text.Json.Serialization;
+using Models.ActionMetaData;
+using Models.CharacterData;
 using Models.CombatData;
 
 namespace Models.Status
@@ -20,6 +22,22 @@ namespace Models.Status
         public const string OutgoingDamageMultiplier = "OutgoingDamageMultiplier";
         public const string TickDamage = "TickDamage";
     }
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+    [JsonDerivedType(typeof(BurnStatus), "BurnStatus")]
+    [JsonDerivedType(typeof(BlockStatus), "BlockStatus")]
+    [JsonDerivedType(typeof(ChillStatus), "ChillStatus")]
+    [JsonDerivedType(typeof(FearStatus), "FearStatus")]
+    [JsonDerivedType(typeof(InspiredStatus), "InspiredStatus")]
+    [JsonDerivedType(typeof(MirrorStatus), "MirrorStatus")]
+    [JsonDerivedType(typeof(MockStatus), "MockStatus")]
+    [JsonDerivedType(typeof(ParryStatus), "ParryStatus")]
+    [JsonDerivedType(typeof(RattleGuardStatus), "RattleGuardStatus")]
+    [JsonDerivedType(typeof(StunStatus), "StunStatus")]
+    [JsonDerivedType(typeof(VulnerableStatus), "VulnerableStatus")]
+    [JsonDerivedType(typeof(WeakenedStatus), "WeakenedStatus")]
+    [JsonDerivedType(typeof(CounterStatus), "CounterStatus")]
+
     public class StatusEffect
     {
         public List<string> AffectedCharacterIds { get; set; } = new();
@@ -76,5 +94,15 @@ namespace Models.Status
             Character currentTarget,
             CombatEncounterGameState gameState,
             bool isUnblockable, bool isUnRedirectable)  { return currentTarget; }
+
+        // Provides a method to create counter attack instances
+        public virtual IEnumerable<AttackInstance> CreateCounterAttacks(
+            Character source,
+            Character target,
+            AttackInstance incomingAttack,
+            CombatEncounterGameState gameState)
+        {
+            return Enumerable.Empty<AttackInstance>();
+        }
     }
 }

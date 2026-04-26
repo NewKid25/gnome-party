@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Models.Actions;
+﻿using Models.Actions;
 using Models.Actions.PlayerClassActions.BardActions;
 
 namespace Models.CharacterData.PlayerCharacterClasses
@@ -75,6 +69,20 @@ namespace Models.CharacterData.PlayerCharacterClasses
             public const string Soothing = "Soothing Song";
             public const string Inspiring = "Inspiring Song";
             public const string Frightening = "Frightening Song";
+        }
+
+        public override Character DeepCopy()
+        {
+            return new Bard(Id)
+            {
+                Name = Name,
+                CharacterType = CharacterType,
+                Health = Health,
+                MaxHealth = MaxHealth,
+                CurrentSong = CurrentSong,
+                ActionsDescriptions = new List<CharacterActionDescription>(ActionsDescriptions),
+                StatusEffects = StatusEffects.Select(s => s.DeepCopy()).ToList(),
+            };
         }
     }
 }

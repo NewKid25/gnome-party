@@ -36,14 +36,15 @@ namespace Models.Actions.ExtraActions
             List<Character> eligibleTargets = ReturnEligibleTargets(user, gameState); 
             if(!eligibleTargets.Any(c => c.Id == target.Id)) { throw new ArgumentException("Target is not eligible for this attack", nameof(target));}
 
+            int furyStrikeDamage = 3;
             var resolution = new AttackResolution(); // Create new AttackResolution to hold the results of the attack
             for (int i = 0; i < hitCount; i++) // Loop through the number of hits and add an AttackInstance for each hit
             {
                 resolution.AttackInstances.Add(new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 3,
-                    FinalDamage = 3,
+                    BaseDamage = furyStrikeDamage,
+                    FinalDamage = furyStrikeDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 });

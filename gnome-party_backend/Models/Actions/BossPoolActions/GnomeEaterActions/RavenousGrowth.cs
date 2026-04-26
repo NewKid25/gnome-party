@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.ActionMetaData;
+﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CharacterData.BossEnemyPoolClasses;
 using Models.CombatData;
@@ -28,7 +25,8 @@ namespace Models.Actions.BoosPoolActions.GnomeEaterActions
             // Check if the user is a Gnome Eater
             if(user is not GnomeEater gnomeEater) { throw new InvalidOperationException("Ravenous Growth can only be used by the Gnome Eater"); }
 
-            gnomeEater.PermaDamageBoost += 2; // Apply permanent damage buff
+            int ravenousGrowthAmount = 2;
+            gnomeEater.PermaDamageBoost += ravenousGrowthAmount; // Apply permanent damage buff
 
             // Return an attack resolution
             var resolution = new AttackResolution();

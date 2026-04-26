@@ -28,13 +28,13 @@ namespace Models.Actions.PlayerClassActions.MageActions
             if (target == null) throw new ArgumentNullException(nameof(target));
             if(gameState == null) throw new ArgumentNullException(nameof(gameState));
 
-
+            int fireballDamage = 6;
             var resolution = new AttackResolution(); // Create a new AttackResolution object to store the results of the attack
             resolution.AttackInstances.Add(new AttackInstance // Add an AttackInstance to the resolution for the initial damage of the Fireball
             {
                 ActionName = AttackName,
-                BaseDamage = 6,
-                FinalDamage = 6,
+                BaseDamage = fireballDamage,
+                FinalDamage = fireballDamage,
                 IsRedirected = isRedirected,
                 SourceCharacterId = user.Id,
                 TargetCharacterId = target.Id,

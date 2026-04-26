@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Text.Json;
 using GnomeParty.Database;
 using Models.Actions.PlayerClassActions.BardActions;
 using Models.CharacterData;
@@ -6,9 +6,11 @@ using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 using Models.EncounterData;
+using Models.GameMetaData;
 using Models.Status;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
 namespace CombatService.Tests.PlayerClassCSTests;
@@ -16,6 +18,25 @@ namespace CombatService.Tests.PlayerClassCSTests;
 public class BardCSTests
 {
     /*******************************************************************************************************************/
+    private readonly ITestOutputHelper testOutputHelper;
+    public BardCSTests(ITestOutputHelper testOutputHelper)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
+
+    private void PrintFrontendPayload(List<CombatResult> response)
+    {
+        var payload = new ConnectionMessage("action-handler", response);
+
+        var payloadJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        testOutputHelper.WriteLine("=== FRONTEND PAYLOAD ===");
+        testOutputHelper.WriteLine(payloadJson);
+        testOutputHelper.WriteLine("=== END FRONTEND PAYLOAD ===");
+    }
     // Helper method to build a mock database service that returns the provided encounter when LoadAsync is called
     private static Mock<IDatabaseService> BuildDbMock(ActiveCombatEncounter encounter)
     {
@@ -569,6 +590,71 @@ public class BardCSTests
         Assert.NotNull(enemyResult);
         Assert.Contains(enemyResult!.Events, e => e.Event == "stunned");
         Assert.DoesNotContain(enemyResult.Events, e => e.Event == "damage");
+    }
+
+    [Fact]
+    // Test: Access the Debug payload when using Power Cord with Soothing Song
+    public async Task DebugPayload_PowerCordSoothingSong()
+    {
+        var bard = new Bard("bard") { Health = 20, MaxHealth = 30 };
+        var warrior1 = new Warrior("warrior1") { Health = 14, MaxHealth = 30 };
+        var warrior2 = new Warrior("warrior2") { Health = 20, MaxHealth = 30 };
+        var warrior3 = new Warrior("warrior3") { Health = 20, MaxHealth = 30 };
+        var enemy = new Skeleton() { Id = "skeleton", Health = 80, MaxHealth = 80 };
+
+        var allies = new List<Character> { bard, warrior1, warrior2, warrior3 };
+        var encounter = new ActiveCombatEncounter(allies, new List<Character> { enemy });
+
+        var mockDb = BuildDbMock(encounter);
+        var service = new CombatService(mockDb.Object, new TestRandomGenerator(0.0));
+
+        bard.CurrentSong = BardSongs.Soothing;
+
+        var result1 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = bard.Id,
+            TargetCharacterId = warrior2.Id,
+            Action = "Power Cord"
+        });
+
+        Assert.Empty(result1);
+
+        var result2 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = warrior1.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+
+        Assert.Empty(result2);
+
+        var result3 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = warrior2.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+
+        Assert.Empty(result3);
+
+        var result4 = await service.CombatRequestHandlerAsync(new CombatRequest
+        {
+            EncounterId = encounter.EncounterId,
+            GameSessionId = "game1",
+            SourceCharacterId = warrior3.Id,
+            TargetCharacterId = enemy.Id,
+            Action = "Slash"
+        });
+
+        Assert.NotEmpty(result4);
+
+        PrintFrontendPayload(result4);
     }
 
 }

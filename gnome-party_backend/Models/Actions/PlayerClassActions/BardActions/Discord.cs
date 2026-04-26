@@ -32,14 +32,15 @@ namespace Models.Actions.PlayerClassActions.BardActions
 
             var resolution = new AttackResolution(); // Create a new attack resolution to hold the results of the attack
 
+            int discordDamage = 8;
             // Create a new AttackInstance for the Discord attack and add it to the resolution
             resolution.AttackInstances = new List<AttackInstance>
             {
                 new AttackInstance
                 {
                     ActionName = AttackName,
-                    BaseDamage = 8,
-                    FinalDamage = 8,
+                    BaseDamage = discordDamage,
+                    FinalDamage = discordDamage,
                     SourceCharacterId = user.Id,
                     TargetCharacterId = target.Id,
                 }
