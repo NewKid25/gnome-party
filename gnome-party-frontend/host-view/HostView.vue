@@ -6,19 +6,8 @@ import ViewManager from "./scripts/ViewManager";
 const viewManager = ref<ViewManager | null>(null);
 
 onMounted(() => {
-  const vm = new ViewManager();
-  viewManager.value = vm;
-
-  window.ondblclick = () => {
-    console.log("Game Session:", vm.socketStore.gameSessionId);
-    console.log("Local player:", vm.socketStore.localPlayerId);
-    console.log("Encounter:", vm.socketStore.encounterId);
-    
-    vm.socket.send(JSON.stringify({
-    route: "start-campaign",
-  }))}
-  // vm.testAnimation();
-})
+  viewManager.value = new ViewManager();
+});
 
 function startCombat() {
   if (!viewManager.value) {
@@ -41,10 +30,7 @@ function startCombat() {
 <template>
   <div id="background"></div>
   <div id="konva-container"></div>
-  <button @click="startCombat" style="position: absolute; top: 10px; left: 10px; z-index: 1;">
-    Start Combat
-  </button>
-  
+
 </template>
 <style lang="css" scoped>
   #konva-container {
