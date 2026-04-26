@@ -88,6 +88,22 @@ namespace CombatService
             }
             var enemyCombatResults = await ProcessCombatRequestsAsync(enemyCombatResquests.ToArray(), activeEncounter);
             combatResults.AddRange(enemyCombatResults);
+            Console.WriteLine($"player count = {activeEncounter.GameState.PlayerCharacters.Count}");
+            Console.WriteLine($"enemy count = {activeEncounter.GameState.EnemyCharacters.Count}");
+            if (activeEncounter.GameState.EnemyCharacters.Count == 0)
+            {
+                combatResults.Add(new CombatResult
+                {
+                    Events = new List<CombatEvent> { new CombatEvent("encounter-ended", "enemies-defeated") }
+                });
+            }
+            else if (activeEncounter.GameState.PlayerCharacters.Count == 0)
+            {
+                combatResults.Add(new CombatResult()
+                {
+                    Events = new List<CombatEvent> { new CombatEvent("encounter-ended", "players-defeated") }
+                });
+            }
             return combatResults;
         }
         

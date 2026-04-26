@@ -31,8 +31,8 @@ public class Campaign
                 {
                     Enemies = [
                         new Skeleton(),
-                        new GoblinArcher(),
-                        new GnombieBrute(),
+                        //new GoblinArcher(),
+                        //new GnombieBrute(),
                     ]
                 },
             ],

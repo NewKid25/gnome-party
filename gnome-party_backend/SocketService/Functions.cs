@@ -130,7 +130,7 @@ public class Functions
             }
             else
             {
-                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
+                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);       
                 await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", response));
             }
 
