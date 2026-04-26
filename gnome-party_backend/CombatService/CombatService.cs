@@ -104,6 +104,17 @@ namespace CombatService
                     Events = new List<CombatEvent> { new CombatEvent("encounter-ended", "players-defeated") }
                 });
             }
+            else
+            {
+                // Reset for the next turn if the encounter hasn't ended
+                for (int i = 0; i < activeEncounter.PlayerReadied.Count; i++)
+                {
+                    activeEncounter.PlayerReadied[i] = false;
+                    activeEncounter.CombatRequests[i] = null;
+                }
+                // seems like game just repeats rounds without this save, (like health and stuff won't change) not sure why
+                await databaseService.SaveAsync(activeEncounter); 
+            }
             return combatResults;
         }
         
@@ -351,7 +362,7 @@ namespace CombatService
                 ResolveSummonCount(encounter.GameState);
 
                 roundEvents.AddRange(resolution.Events);  // Store events from the given round/turn
-                roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
+                roundEvents.AddRange(GetDeadCharacterEvents(encounter.GameState)); // get "defeated" event for characters with <= 0 health
                 ResolveSummonCount(encounter.GameState);
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
                 
@@ -359,7 +370,9 @@ namespace CombatService
                 var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
                 combatResults.Add(result);
             }
-            await databaseService.SaveAsync(encounter);
+            RemoveDeadCharacters(encounter.GameState); // Remove any characters that have died 
+            Console.WriteLine($"inner player count = {encounter.GameState.PlayerCharacters.Count}");
+            Console.WriteLine($"inner enemy count = {encounter.GameState.EnemyCharacters.Count}");
             return combatResults; // Return the results
         }
         
@@ -388,22 +401,27 @@ namespace CombatService
             }
         }
         
-        // Method for removing dead *ENEMY* characters from the game state
-        List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)
+        // Method for getting dead characters from the game state
+        List<CombatEvent> GetDeadCharacterEvents(CombatEncounterGameState gameState)
         {
             // Iterate through all enemy characters and remove those that have been defeated
             var events = new List<CombatEvent>();
-            var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
+            var defeatedCharacters = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
+            defeatedCharacters.AddRange(gameState.PlayerCharacters.Where(c => c.Health <= 0).ToList());
 
-            foreach (var enemy in defeatedEnemies)
+            foreach (var enemy in defeatedCharacters)
             {
                 events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = enemy.Id, TargetName = enemy.Name }));
             }
-
-            gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
             return events;
         }
-        
+
+        void RemoveDeadCharacters(CombatEncounterGameState gameState)
+        {
+            gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
+            gameState.PlayerCharacters.RemoveAll(c => c.Health <= 0);
+        }
+
         // Method for resolving the target of an action, taking redirection from status effects into account
         private Character ResolveActionTarget(
             Character attacker,
