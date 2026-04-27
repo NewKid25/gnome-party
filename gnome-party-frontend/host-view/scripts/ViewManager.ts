@@ -262,12 +262,14 @@ loadEncounter(gameState:any)
 
 		for (let step of turn) 
 		{
-			let animation:AnimationStep | undefined = this.instantiateActionAnimation(step);
-			if (animation) {
-				animations.push(animation);
-			} else {
-				let fallback = this.instantiateEventAnimation(step);
-				if (fallback) animations.push(fallback);
+			let actionAnimation:AnimationStep | undefined = this.instantiateActionAnimation(step);
+			if (actionAnimation) {
+				animations.push(actionAnimation);
+			}
+
+			let eventAnimation: AnimationStep | undefined = this.instantiateEventAnimation(step);
+			if (eventAnimation) {
+				animations.push(eventAnimation);
 			}
 		}
 
@@ -437,24 +439,30 @@ loadEncounter(gameState:any)
 
 		return new FunctionStep(() => {
 			for (const combatEvent of step.Events) {
-				if (combatEvent.event !== "damage") continue;
+				if (combatEvent.event === "damage") {
+					const targetId = combatEvent.params.TargetId;
 
-				const targetId = combatEvent.params.TargetId;
-				const targetHealth =
-					step.GameState.PlayerCharacters.find((c: any) => c.Id === targetId)?.Health ??
-					step.GameState.EnemyCharacters.find((c: any) => c.Id === targetId)?.Health;
+					const targetHealth =
+						step.GameState.PlayerCharacters.find((c: any) => c.Id === targetId)?.Health ??
+						step.GameState.EnemyCharacters.find((c: any) => c.Id === targetId)?.Health;
 
-				if (targetHealth === undefined) continue;
+					if (targetHealth === undefined) continue;
 
-				const playerTarget = this.playerVisualComponents.get(targetId);
-				const enemyTarget = this.enemyVisualComponents.get(targetId);
+					const playerTarget = this.playerVisualComponents.get(targetId);
+					const enemyTarget = this.enemyVisualComponents.get(targetId);
 
-				if (playerTarget) {
-					playerTarget.healthbar.changeHealth(targetHealth);
+					if (playerTarget) {
+						playerTarget.healthbar.changeHealth(Math.max(0, targetHealth));
+					}
+
+					if (enemyTarget) {
+						enemyTarget.healthbar.changeHealth(Math.max(0, targetHealth));
+					}
 				}
 
-				if (enemyTarget) {
-					enemyTarget.healthbar.changeHealth(targetHealth);
+				if (combatEvent.event === "defeated") {
+					const targetId = combatEvent.params.TargetId;
+					this.markCharacterDefeated(targetId);
 				}
 			}
 		});
@@ -1113,6 +1121,23 @@ loadEncounter(gameState:any)
 		this.uiLayer.draw();
 	}
 	
+	markCharacterDefeated(characterId: string) {
+		const enemy = this.enemyVisualComponents.get(characterId);
+		const player = this.playerVisualComponents.get(characterId);
+		const visual = enemy ?? player;
+
+		if (!visual) return;
+
+		visual.puppet.rotation(90);
+		visual.puppet.opacity(0.65);
+		visual.puppet.x(visual.puppet.x() - this.w() * 0.03);
+	
+		visual.healthbar.changeHealth(0);
+		visual.healthbar.opacity(0.45);
+
+		this.combatLayer.draw();
+		this.uiLayer.draw();
+	}
 }
 
 
