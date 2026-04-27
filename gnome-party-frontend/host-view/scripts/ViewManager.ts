@@ -158,7 +158,7 @@ loadEncounter(gameState:any)
 		});
 
 		healthbar.x(pos.x - this.w() * 0.0375);
-		healthbar.y(pos.y - 420 * combatScale);
+		healthbar.y(pos.y - 620 * combatScale);
 
 		this.uiLayer.add(healthbar);
 		this.playerVisualComponents.set(playerCharacter.Id, { puppet, healthbar });
@@ -182,7 +182,7 @@ loadEncounter(gameState:any)
 		});
 
 		healthbar.x(pos.x - this.w() * 0.0375);
-		healthbar.y(pos.y - 420 * combatScale);
+		healthbar.y(pos.y - 600 * combatScale);
 
 		this.uiLayer.add(healthbar);
 		this.enemyVisualComponents.set(enemyCharacter.Id, { puppet, healthbar });
