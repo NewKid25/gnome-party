@@ -39,6 +39,7 @@ class ViewManager {
 
 	inviteCode: string = "";
 	isCombatStarted: boolean = false;
+	hasStartButtonBeenPressed: boolean = false;
 
 	lobbyPlayerPuppets:Map<string, GnomePuppet> = new Map();
 	lobbyPlayerNames:Map<string, Konva.Text> = new Map();
@@ -232,6 +233,8 @@ loadEncounter(gameState:any)
 		}
 
 		if (msg.Subject === "start-campaign") {
+			if (this.isCombatStarted) return;
+
 			this.isCombatStarted = true;
 			console.log("Campaign started:", msg.Message);
 			this.socket.send(JSON.stringify({
@@ -990,6 +993,8 @@ loadEncounter(gameState:any)
 		const buttonWidth = w * 0.12;
 		const buttonHeight = h * 0.07;
 
+		const isDisabled = this.hasStartButtonBeenPressed || this.readyPlayers.length < 1;
+
 		const group = new Konva.Group({
 			x: w * 0.84,
 			y: h * 0.89,
@@ -998,8 +1003,8 @@ loadEncounter(gameState:any)
 		const button = new Konva.Rect({
 			width: buttonWidth,
 			height: buttonHeight,
-			fill: "#9fc765",
-			stroke: "#58752e",
+			fill: isDisabled ? "#8a8a8a" : "#9fc765",
+			stroke: isDisabled ? "#5a5a5a" : "#58752e",
 			strokeWidth: 2,
 			shadowColor: "black",
 			shadowBlur: 5,
@@ -1009,32 +1014,40 @@ loadEncounter(gameState:any)
 		const text = new Konva.Text({
 			width: buttonWidth,
 			height: buttonHeight,
-			text: "START",
+			text: this.hasStartButtonBeenPressed ? "STARTING" : "START",
 			fontFamily: "Amasis MT Pro",
-			fontSize: Math.min(w, h) * 0.04,
-			fill: "#111",
+			fontSize: Math.min(w, h) * 0.035,
+			fill: isDisabled ? "#333" : "#111",
 			align: "center",
 			verticalAlign: "middle",
 			shadowColor: "white",
-			shadowBlur: 5,
-			shadowOpacity: 0.8,
+			shadowBlur: isDisabled ? 0 : 5,
+			shadowOpacity: isDisabled ? 0 : 0.8,
 		});
 
 		group.add(button, text);
 
-		group.on("click", () => {
-			this.socket.send(JSON.stringify({
-				route: "start-campaign",
-			}));
-		});
+		if (!isDisabled) {
+			group.on("click", () => {
+				if (this.hasStartButtonBeenPressed) return;
 
-		group.on("mouseenter", () => {
-			document.body.style.cursor = "pointer";
-		});
+				this.hasStartButtonBeenPressed = true;
 
-		group.on("mouseleave", () => {
-			document.body.style.cursor = "default";
-		});
+				this.socket.send(JSON.stringify({
+					route: "start-campaign",
+				}));
+
+				this.renderHostLobby();
+			});
+
+			group.on("mouseenter", () => {
+				document.body.style.cursor = "pointer";
+			});
+
+			group.on("mouseleave", () => {
+				document.body.style.cursor = "default";
+			});
+		}
 
 		this.lobbyStartButtonGroup = group;
 		this.uiLayer.add(group);
