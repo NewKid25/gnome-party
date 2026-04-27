@@ -44,30 +44,95 @@ const socket = socketStore.socket ?? socketStore.connect(SOCKET_URL);
 
 const combatFlow = useCombatFlow(props.combatActionMenuModel.playerStatusModel);
 
+function getLatestStateFromActionHandler(message: unknown) {
+  if (!Array.isArray(message) || message.length === 0) {
+    return null;
+  }
+
+  for (let i = message.length - 1; i >= 0; i--) {
+    const step = message[i];
+
+    const localPlayer = step.GameState?.PlayerCharacters?.find(
+      (pc: any) => pc.Id === socketStore.localCharacterId
+    );
+
+    if (localPlayer) {
+      return step;
+    }
+  }
+
+  return null;
+}
+
+function updateLocalPlayerHealth(latestState: any) {
+  const localPlayer = latestState.GameState.PlayerCharacters.find(
+    (pc: any) => pc.Id === socketStore.localCharacterId
+  );
+
+  if (!localPlayer) {
+    console.error("Local character not found in latest game state.");
+    console.log("localCharacterId:", socketStore.localCharacterId);
+    console.log("PlayerCharacters:", latestState.GameState.PlayerCharacters);
+    return null;
+  }
+
+  props.combatActionMenuModel.playerStatusModel.healthBar.value = localPlayer.Health;
+  props.combatActionMenuModel.playerStatusModel.healthBar.maxValue = localPlayer.MaxHealth;
+
+  return localPlayer;
+}
+
+function updateEnemyTargets(latestState: any) {
+  const enemyList: TargetButtonModel[] = latestState.GameState.EnemyCharacters.map(
+    (enemy: any) => ({
+      selected: false,
+      targetName: enemy.Name,
+      healthbar: {
+        value: enemy.Health,
+        maxValue: enemy.MaxHealth,
+      },
+      characterImage: {
+        source: "/img/Skeleton.svg",
+        alt: enemy.Name,
+      },
+      targetId: enemy.Id,
+    })
+  );
+
+  props.combatTargetMenuModel.targetListModel.targets = enemyList;
+}
+
 function onSocketMessage(event: MessageEvent) {
   const parsedJSON = JSON.parse(event.data);
+  console.log("ParticipantView message:", parsedJSON.Subject);
 
-  if (parsedJSON.Subject == "action-handler") {
-    const latestState = (parsedJSON.Message as Array<any>).at(-1);
-
-    const playerHealth =
-      latestState.GameState.PlayerCharacters.find(
-        (pc: any) => pc.Id == socketStore.localCharacterId
-      )?.Health ?? 0;
-
-    const enemyList: TargetButtonModel[] = [];
-    for (const enemy of latestState.GameState.EnemyCharacters) {
-      enemyList.push({
-        selected: false,
-        targetName: enemy.Name,
-        healthbar: { value: enemy.Health, maxValue: enemy.MaxHealth },
-        characterImage: { source: "/img/Skeleton.svg", alt: enemy.Name },
-        targetId: enemy.Id
-      });
-    }
-    props.combatTargetMenuModel.targetListModel.targets = enemyList;
-    combatFlow.onTurnUpdate({ playerHealth });
+  if (parsedJSON.Subject !== "action-handler") {
+    return;
   }
+
+  const latestState = getLatestStateFromActionHandler(parsedJSON.Message);
+
+  if (!latestState?.GameState) {
+    console.error("No action-handler step contained the local player:", parsedJSON);
+    return;
+  }
+
+  const localPlayer = updateLocalPlayerHealth(latestState);
+  if (!localPlayer) return;
+
+  updateEnemyTargets(latestState);
+
+  console.log(
+    "Participant health updated:",
+    localPlayer.Health,
+    "/",
+    localPlayer.MaxHealth
+  );
+
+  combatFlow.onTurnUpdate({
+    playerHealth: localPlayer.Health,
+    playerMaxHealth: localPlayer.MaxHealth,
+  });
 }
 
 socket.removeEventListener("message", onSocketMessage);

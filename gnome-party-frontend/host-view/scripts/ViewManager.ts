@@ -119,91 +119,73 @@ class ViewManager {
 		return this.stage.height();
 	}
 	
-	loadEncounter(gameState:any)
+loadEncounter(gameState:any)
 	{
 		this.clearCombatScene();
-		// Load player characters
-		/*
-		var playerCharacters: Object[] = [
-			{},
-			{},
-			{},
-			{},
-			{},
-			{}
-		]
-		*/
 
 		var playerCharacters = gameState.PlayerCharacters;
-
-		for (let i = 0; i < playerCharacters.length; i++) {
-			// Create GnomePuppet
-			let puppet:GnomePuppet = new GnomePuppet();
-			var x = this.w() * 0.18;
-			var y = (i + 1) * this.stage.height() / (playerCharacters.length + 1);
-			// const y = ((i + 1) / (playerCharacters.length + 1)) * this.h() * 0.78 + this.h() * 0.12;
-
-			puppet.scale({x: 0.55, y: 0.55});
-			puppet.position({x, y});
-
-			this.combatLayer.add(puppet);
-
-			// Create healthbar
-			// let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
-			// healthbar.x(puppet.x() - puppet.width() /2 - 50);
-			// healthbar.y(puppet.y() - puppet.height() / 3.5);
-
-			let healthbar = new HealthBar(playerCharacters[i].MaxHealth, {x: this.w() * 0.025, y: puppet.height() / 2});
-
-			healthbar.x(puppet.x() - this.w() * 0.09);
-			healthbar.y(puppet.y() - this.h() * 0.07);
-
-			this.uiLayer.add(healthbar);
-
-			this.playerVisualComponents.set(playerCharacters[i].Id, {puppet: puppet, healthbar: healthbar});
-		}
-
-		// Load enemy characters
-		/*
-		var enemyCharacters: Object[] = [
-			{}
-		]
-		*/
 		var enemyCharacters = gameState.EnemyCharacters;
 
+		for (let i = 0; i < playerCharacters.length; i++) {
+			this.addPlayerToCombat(playerCharacters[i], i, playerCharacters.length);
+		}
+
 		for (let i = 0; i < enemyCharacters.length; i++) {
-			// Create puppet of corresponding enemy (using GnomePuppet as placeholder)
-			let puppet:SkeletonPuppet = new SkeletonPuppet();
-
-			// puppet.x(this.stage.width() - 300);
-			// puppet.y((i + 1) * this.stage.height() / (enemyCharacters.length + 1));
-			const x = this.w() * 0.82;
-			const y = ((i + 1) / (enemyCharacters.length + 1)) * this.h() * 0.78 + this.h() * 0.12;
-
-			puppet.position({ x, y });
-
-			this.combatLayer.add(puppet);
-
-			// Create healthbar
-			// let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: puppet.height() / 2})
-			// healthbar.x(puppet.x() + puppet.width() /2 + 20);
-			// healthbar.y(puppet.y() - puppet.height() / 3.5);
-
-
-			const healthbar = new HealthBar(enemyCharacters[i].MaxHealth, {
-				x: this.w() * 0.025,
-				y: puppet.height() / 2,
-			});
-			healthbar.x(puppet.x() + this.w() * 0.03);
-			healthbar.y(puppet.y() - this.h() * 0.07);
-
-			this.uiLayer.add(healthbar);
-
-			this.enemyVisualComponents.set(enemyCharacters[i].Id, {puppet: puppet, healthbar: healthbar});
+			this.addEnemyToCombat(enemyCharacters[i], i, enemyCharacters.length);
 		}
 
 		this.combatLayer.draw();
 		this.uiLayer.draw();
+	}
+
+	getCombatPuppetScale() {
+		return Math.min(this.w(), this.h()) * 0.00026;
+	}
+
+	addPlayerToCombat(playerCharacter: any, index: number, totalPlayers: number) {
+		const pos = this.getPlayerCombatPosition(index, totalPlayers);
+		const combatScale = this.getCombatPuppetScale();
+
+		const puppet = new GnomePuppet();
+		puppet.scale({ x: combatScale, y: combatScale });
+		puppet.position({ x: pos.x, y: pos.y });
+
+		this.combatLayer.add(puppet);
+
+		let healthbar = new HealthBar(playerCharacter.MaxHealth, {
+			x: this.w() * 0.075,
+			y: this.h() * 0.025,
+		});
+
+		healthbar.x(pos.x - this.w() * 0.0375);
+		healthbar.y(pos.y - 420 * combatScale);
+
+		this.uiLayer.add(healthbar);
+		this.playerVisualComponents.set(playerCharacter.Id, { puppet, healthbar });
+	}
+
+	addEnemyToCombat(enemyCharacter: any, index: number, totalEnemies: number) {
+		const pos = this.getEnemyCombatPosition(index, totalEnemies);
+		const combatScale = this.getCombatPuppetScale();
+
+		// get appropriate puppet later
+		const puppet = new SkeletonPuppet();
+
+		puppet.scale({ x: combatScale, y: combatScale });
+		puppet.position({ x: pos.x, y: pos.y });
+
+		this.combatLayer.add(puppet);
+
+		let healthbar = new HealthBar(enemyCharacter.MaxHealth, {
+			x: this.w() * 0.075,
+			y: this.h() * 0.025,
+		});
+
+		healthbar.x(pos.x - this.w() * 0.0375);
+		healthbar.y(pos.y - 420 * combatScale);
+
+		this.uiLayer.add(healthbar);
+		this.enemyVisualComponents.set(enemyCharacter.Id, { puppet, healthbar });
 	}
 
 	handleMessage(msg:any) {
@@ -258,31 +240,35 @@ class ViewManager {
 			}))
 		}
 
-		if (msg.Subject == "begin-combat-encounter")
-		{
+		if (msg.Subject == "begin-combat-encounter") {
 			this.clearLobbyScene();
+			this.prepareCombatScene();
 			this.socketStore.encounterId = msg.Message.EncounterId;
 			this.loadEncounter(msg.Message.GameState);
 		}
+
 		if (msg.Subject == "action-handler")
 		{
 			this.processTurn(msg.Message);
 		}
 	}
 
-	processTurn(turn:TurnStep[])
+	processTurn(turn:TurnStep[]) 
 	{
 		let animations:AnimationStep[] = [];
-		// let finalStep:TurnStep|undefined;
-		for (let step of turn)
+
+		for (let step of turn) 
 		{
 			let animation:AnimationStep | undefined = this.instantiateActionAnimation(step);
-			if (animation) animations.push(animation);
-			// finalStep = step;
+			if (animation) {
+				animations.push(animation);
+			} else {
+				let fallback = this.instantiateEventAnimation(step);
+				if (fallback) animations.push(fallback);
+			}
 		}
 
-		let sequence:AnimationSequence = new AnimationSequence(animations);
-		sequence.play();
+		new AnimationSequence(animations).play();
 	}
 
 	testAnimation()
@@ -443,6 +429,99 @@ class ViewManager {
 		}
 	}
 
+	instantiateEventAnimation(step: TurnStep) {
+		if (!step.Events || step.Events.length === 0) return undefined;
+
+		return new FunctionStep(() => {
+			for (const combatEvent of step.Events) {
+				if (combatEvent.event !== "damage") continue;
+
+				const targetId = combatEvent.params.TargetId;
+				const targetHealth =
+					step.GameState.PlayerCharacters.find((c: any) => c.Id === targetId)?.Health ??
+					step.GameState.EnemyCharacters.find((c: any) => c.Id === targetId)?.Health;
+
+				if (targetHealth === undefined) continue;
+
+				const playerTarget = this.playerVisualComponents.get(targetId);
+				const enemyTarget = this.enemyVisualComponents.get(targetId);
+
+				if (playerTarget) {
+					playerTarget.healthbar.changeHealth(targetHealth);
+				}
+
+				if (enemyTarget) {
+					enemyTarget.healthbar.changeHealth(targetHealth);
+				}
+			}
+		});
+	}
+
+	prepareCombatScene() {
+		this.backgroundLayer.destroyChildren();
+		this.decorLayer.destroyChildren();
+		this.lobbyLayer.destroyChildren();
+		this.uiLayer.destroyChildren();
+
+		this.backgroundLayer.draw();
+		this.decorLayer.draw();
+		this.lobbyLayer.draw();
+		this.uiLayer.draw();
+	}
+
+	getPlayerCombatPosition(index: number, totalPlayers: number) {
+		const w = this.w();
+		const h = this.h();
+		const x = w * 0.18;
+		const y = ((index + 1) * h) / (totalPlayers + 1);
+
+		return { x, y };
+	}
+
+	getEnemyCombatPosition(index: number, totalEnemies: number) {
+		const w = this.w();
+		const h = this.h();
+		const x = w * 0.82;
+		const y = ((index + 1) * h) / (totalEnemies + 1);
+
+		return { x, y };
+	}
+
+	renderCombatTimer() {
+		const w = this.w();
+		const h = this.h();
+
+		const group = new Konva.Group({
+			x: w * 0.40,
+			y: h * 0.01,
+		});
+
+		const box = new Konva.Rect({
+			width: w * 0.20,
+			height: h * 0.08,
+			fill: "#f7f7f7",
+			stroke: "#b0b0b0",
+			strokeWidth: 2,
+			shadowColor: "black",
+			shadowBlur: 4,
+			shadowOpacity: 0.15,
+		});
+
+		const text = new Konva.Text({
+			x: 0,
+			y: h * 0.015,
+			width: w * 0.20,
+			align: "center",
+			text: "0:40",
+			fontFamily: "Amasis MT Pro",
+			fontSize: Math.min(w, h) * 0.045,
+			fill: "#000",
+		});
+
+		group.add(box, text);
+		this.uiLayer.add(group);
+	}
+
 	renderHostLobby() {
 		this.clearLobbyScene();
 		this.renderLobbyBackgroundShapes();
@@ -463,36 +542,47 @@ class ViewManager {
 		const w = this.w();
 		const h = this.h();
 
+		const horizonY = h * 0.66;
+		
+		const lowerValleyX = w * 0.42;
+		const lowerValleyY = horizonY;
+
 		const sky = new Konva.Line({
 			points: [
 				0, 0,
 				w, 0,
-				w, h * 0.66,
-				w * 0.78, h * 0.66,
+				w, horizonY,
+				w * 0.78, horizonY,
 				w * 0.60, h * 0.62,
-				w * 0.42, h * 0.66,
+				lowerValleyX, lowerValleyY,
 				w * 0.18, h * 0.63,
 				0, h * 0.74
 			],
 			fill: "#dfeaf1",
 			closed: true,
 			strokeEnabled: false,
+			tension: 0.2,
 		});
 
 		const path = new Konva.Line({
 			points: [
-				w * 0.52, h * 0.66,   // start at horizon
-				w * 0.60, h * 0.72,
-				w * 0.53, h * 0.80,
-				w * 0.58, h,
-				w * 0.42, h,
-				w * 0.45, h * 0.84,
-				w * 0.40, h * 0.76,
-				w * 0.46, h * 0.70
+				lowerValleyX - (w * 0.015), lowerValleyY, 
+				lowerValleyX + (w * 0.015), lowerValleyY,
+
+				w * 0.68, h * 0.75, 
+
+				w * 0.40, h * 0.85,
+
+				w * 0.70, h,
+				w * 0.30, h,
+
+				w * 0.32, h * 0.85,
+				w * 0.60, h * 0.75,
 			],
 			fill: "#ead99b",
 			closed: true,
 			strokeEnabled: false,
+			tension: 0.12,
 		});
 
 		this.backgroundLayer.add(sky);
@@ -645,10 +735,9 @@ class ViewManager {
 	renderLobbyDecorations() {
 		this.cloudGroups = [];
 
-		// Clouds positioned to match the mockup
-		const topLeftCloud = this.createCloud(0.06, 0.055, 1.45, 0.98);
-		const midLeftCloud = this.createCloud(0.245, 0.175, 0.72, 0.98);
-		const topRightCloud = this.createCloud(0.73, 0.045, 2.15, 0.98);
+		const topLeftCloud = this.createCloud(0.055, 0.20, 2.65, 0.98);
+		const midLeftCloud = this.createCloud(0.245, 0.405, 1.35, 0.98);
+		const topRightCloud = this.createCloud(0.735, 0.295, 3.35, 0.95);
 
 		this.cloudGroups.push(topLeftCloud, midLeftCloud, topRightCloud);
 
@@ -656,10 +745,9 @@ class ViewManager {
 		this.decorLayer.add(midLeftCloud);
 		this.decorLayer.add(topRightCloud);
 
-		// Trees positioned to match mockup more closely
-		this.decorLayer.add(this.createTree(0.105, 0.49, 1.95, "#69aa3e"));
-		this.decorLayer.add(this.createTree(0.185, 0.585, 1.35, "#4d872c"));
-		this.decorLayer.add(this.createTree(0.825, 0.565, 1.80, "#69aa3e"));
+		this.decorLayer.add(this.createTree(0.11, 0.29, 3.60, "#69aa3e"));
+		this.decorLayer.add(this.createTree(0.19, 0.39, 2.75, "#4d872c"));
+		this.decorLayer.add(this.createTree(0.825, 0.31, 3.45, "#69aa3e"));
 
 		this.startCloudParallax();
 	}
@@ -671,7 +759,7 @@ class ViewManager {
 		const bannerWidth = w * 0.52;
 		const bannerHeight = h * 0.13;
 		const x = (w - bannerWidth) / 2;
-		const y = h * 0.02;
+		const y = h * 0.05;
 
 		const bannerGroup = new Konva.Group({ x, y });
 
@@ -711,7 +799,7 @@ class ViewManager {
 		const cardHeight = h * 0.18;
 		const group = new Konva.Group({
 			x: (w - cardWidth) / 2,
-			y: h * 0.24,
+			y: h * 0.315,
 		});
 
 		const roomCodeBox = new Konva.Rect({
@@ -767,22 +855,26 @@ class ViewManager {
 		const badge = new Konva.Rect({
 			width: badgeWidth,
 			height: badgeHeight,
-			fill: "#8eb63e",
-			cornerRadius: 4,
-			shadowColor: "white",
+			fill: "#9fc765",
+			stroke: "#58752e",
+			strokeWidth: 2,
+			shadowColor: "black",
 			shadowBlur: 10,
-			shadowOpacity: 0.75,
+			shadowOpacity: 0.5,
 		});
 
 		const text = new Konva.Text({
-			x: 0,
-			y: badgeHeight * 0.18,
 			width: badgeWidth,
-			align: "center",
+			height: badgeHeight,
 			text: `Players (${this.readyPlayers.length}/6)`,
 			fontFamily: "Amasis MT Pro",
 			fontSize: Math.min(w, h) * 0.022,
 			fill: "#111",
+			align: "center",
+			shadowColor: "white",
+			shadowBlur: 5,
+			shadowOpacity: 0.8,
+			verticalAlign: "middle", // Ensures vertical centering
 		});
 
 		group.add(badge, text);
@@ -794,115 +886,102 @@ class ViewManager {
 		const w = this.w();
 		const h = this.h();
 
+		if (count <= 0) {
+			return [];
+		}
+
 		switch (count) {
 			case 1:
-				return [
-					{ x: w * 0.50, y: h * 0.84 },
-				];
+				return [{ x: w * 0.50, y: h * 0.94 }];
 
 			case 2:
 				return [
-					{ x: w * 0.42, y: h * 0.84 },
-					{ x: w * 0.58, y: h * 0.84 },
+					{ x: w * 0.42, y: h * 0.94 },
+					{ x: w * 0.58, y: h * 0.94 },
 				];
 
 			case 3:
 				return [
-					{ x: w * 0.34, y: h * 0.84 },
-					{ x: w * 0.50, y: h * 0.76 },
-					{ x: w * 0.66, y: h * 0.84 },
-				];
-
-			case 4:
-				return [
-					{ x: w * 0.28, y: h * 0.84 },
-					{ x: w * 0.43, y: h * 0.76 },
-					{ x: w * 0.57, y: h * 0.76 },
-					{ x: w * 0.72, y: h * 0.84 },
-				];
-
-			case 5:
-				return [
-					{ x: w * 0.22, y: h * 0.84 },
-					{ x: w * 0.36, y: h * 0.76 },
-					{ x: w * 0.50, y: h * 0.84 },
-					{ x: w * 0.64, y: h * 0.76 },
-					{ x: w * 0.78, y: h * 0.84 },
+					{ x: w * 0.34, y: h * 0.94 },
+					{ x: w * 0.50, y: h * 0.86 },
+					{ x: w * 0.66, y: h * 0.94 },
 				];
 
 			default:
 				return [
-					{ x: w * 0.20, y: h * 0.84 },
-					{ x: w * 0.34, y: h * 0.76 },
-					{ x: w * 0.46, y: h * 0.84 },
-					{ x: w * 0.58, y: h * 0.76 },
-					{ x: w * 0.70, y: h * 0.84 },
-					{ x: w * 0.82, y: h * 0.76 },
-				];
+					{ x: w * 0.20, y: h * 0.94 },
+					{ x: w * 0.34, y: h * 0.86 },
+					{ x: w * 0.46, y: h * 0.94 },
+					{ x: w * 0.58, y: h * 0.86 },
+					{ x: w * 0.70, y: h * 0.94 },
+					{ x: w * 0.82, y: h * 0.86 },
+				].slice(0, count);
 		}
 	}
 
-renderLobbyPlayers() {
-	this.lobbyPlayerPuppets.forEach((puppet) => puppet.destroy());
-	this.lobbyPlayerNames.forEach((nameText) => nameText.destroy());
-	this.lobbyPlayerShadows.forEach((shadow) => shadow.destroy());
+	renderLobbyPlayers() {
+		this.lobbyPlayerPuppets.forEach((puppet) => puppet.destroy());
+		this.lobbyPlayerNames.forEach((nameText) => nameText.destroy());
+		this.lobbyPlayerShadows.forEach((shadow) => shadow.destroy());
 
-	this.lobbyPlayerPuppets.clear();
-	this.lobbyPlayerNames.clear();
-	this.lobbyPlayerShadows.clear();
+		this.lobbyPlayerPuppets.clear();
+		this.lobbyPlayerNames.clear();
+		this.lobbyPlayerShadows.clear();
 
-	const positions = this.getLobbyPlayerPositions(this.readyPlayers.length);
+		const positions = this.getLobbyPlayerPositions(this.readyPlayers.length);
 
-	const puppetScale = this.h() * 0.00045;
+		const lobbyPuppetScale = this.h() * 0.00062;
 
-	for (let i = 0; i < positions.length; i++) {
-		const player = this.readyPlayers[i];
-		const pos = positions[i];
-		const characterId = player.Id;
+		for (let i = 0; i < positions.length; i++) {
+			const player = this.readyPlayers[i];
+			const pos = positions[i];
 
-		const puppet = new GnomePuppet();
-		puppet.scale({ x: puppetScale, y: puppetScale });
+			if (!player || !pos) continue;
 
-		const FOOT_OFFSET = 45 * puppetScale;
+			const characterId = player.Id;
 
-		puppet.position({
-			x: pos.x,
-			y: pos.y + FOOT_OFFSET
-		});
+			const puppet = new GnomePuppet();
+			puppet.scale({ x: lobbyPuppetScale, y: lobbyPuppetScale });
 
-		const shadow = new Konva.Ellipse({
-			x: puppet.x(),
-			y: puppet.y() + 8 * puppetScale,
-			radiusX: 95 * puppetScale,
-			radiusY: 32 * puppetScale,
-			fill: "#4f8f3a",
-			opacity: 0.82,
-		});
+			// feet position
+			puppet.position({
+				x: pos.x,
+				y: pos.y,
+			});
 
-		const nameWidth = 220 * puppetScale;
-		const nameText = new Konva.Text({
-			x: puppet.x() - nameWidth / 2,
-			y: puppet.y() + 28 * puppetScale,
-			width: nameWidth,
-			align: "center",
-			text: player.Name ?? "Player",
-			fontFamily: "Amasis MT Pro",
-			fontSize: 42 * puppetScale,
-			fill: "#111",
-			shadowColor: "white",
-			shadowBlur: 10,
-			shadowOpacity: 1,
-		});
+			const shadow = new Konva.Ellipse({
+				x: pos.x,
+				y: pos.y - 120 * lobbyPuppetScale,
+				radiusX: 170 * lobbyPuppetScale,
+				radiusY: 60 * lobbyPuppetScale,
+				fill: "#4f8f3a",
+				opacity: 0.82,
+			});
 
-		this.lobbyLayer.add(shadow);
-		this.lobbyLayer.add(puppet);
-		this.uiLayer.add(nameText);
+			const nameWidth = 260 * lobbyPuppetScale;
+			const nameText = new Konva.Text({
+				x: pos.x - nameWidth / 2,
+				y: pos.y - 8,
+				width: nameWidth,
+				align: "center",
+				// text: player.Name ?? "Player",	// player.Name is not correct, it currently shows class not the entered name
+				fontFamily: "Amasis MT Pro",
+				fontSize: 48 * lobbyPuppetScale,
+				fill: "#111",
+				shadowColor: "white",
+				shadowBlur: 10,
+				shadowOpacity: 1,
+			});
 
-		this.lobbyPlayerShadows.set(characterId, shadow);
-		this.lobbyPlayerPuppets.set(characterId, puppet);
-		this.lobbyPlayerNames.set(characterId, nameText);
+			this.lobbyLayer.add(shadow);
+			this.lobbyLayer.add(puppet);
+			// this.uiLayer.add(nameText);
+
+			this.lobbyPlayerShadows.set(characterId, shadow);
+			this.lobbyPlayerPuppets.set(characterId, puppet);
+			// this.lobbyPlayerNames.set(characterId, nameText);
+		}
 	}
-}
 
 	renderLobbyStartButton() {
 		const w = this.w();
@@ -921,21 +1000,24 @@ renderLobbyPlayers() {
 			height: buttonHeight,
 			fill: "#9fc765",
 			stroke: "#58752e",
-			strokeWidth: Math.max(2, w * 0.002),
-			shadowColor: "#58752e",
-			shadowOffset: { x: buttonWidth * 0.07, y: buttonHeight * 0.18 },
-			shadowOpacity: 0.45,
+			strokeWidth: 2,
+			shadowColor: "black",
+			shadowBlur: 5,
+			shadowOpacity: 0.3,
 		});
 
 		const text = new Konva.Text({
-			x: 0,
-			y: buttonHeight * 0.18,
 			width: buttonWidth,
-			align: "center",
+			height: buttonHeight,
 			text: "START",
 			fontFamily: "Amasis MT Pro",
-			fontSize: Math.min(w, h) * 0.03,
+			fontSize: Math.min(w, h) * 0.04,
 			fill: "#111",
+			align: "center",
+			verticalAlign: "middle",
+			shadowColor: "white",
+			shadowBlur: 5,
+			shadowOpacity: 0.8,
 		});
 
 		group.add(button, text);
@@ -1017,7 +1099,7 @@ renderLobbyPlayers() {
 		this.combatLayer.draw();
 		this.uiLayer.draw();
 	}
-
+	
 }
 
 

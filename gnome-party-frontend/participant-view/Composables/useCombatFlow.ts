@@ -66,6 +66,10 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
             playerStatusModel.healthBar.value = data.playerHealth;
         }
 
+        if (data.playerMaxHealth !== undefined) {
+            playerStatusModel.healthBar.maxValue = data.playerMaxHealth;
+        }
+
         if(playerStatusModel.healthBar.value <= 0) {
             currentView.value = "deadMenu";
             return;
