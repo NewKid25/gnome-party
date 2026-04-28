@@ -201,7 +201,6 @@ public class Functions
     }
 
     //{"route":"join-game", "InviteCode":849175}
-    //{"route":"join-game", "InviteCode":849175}
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -280,7 +279,6 @@ public class Functions
         }
     }
 
-    //{"route":"host-game"}
     //{"route":"host-game"}
     public async Task<APIGatewayProxyResponse> HostGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
