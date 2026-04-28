@@ -357,7 +357,7 @@ public class Functions
                 _ => throw new ArgumentException($"Unknown character type: {lobbyReadyRequest.CharacterType}")
 
             };
-
+            character.Name = lobbyReadyRequest.CharacterName;   
             gameSession.AddPlayerCharacter(character);
 
             var tasks = new List<Task>
