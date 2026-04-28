@@ -211,7 +211,7 @@ loadEncounter(gameState:any)
 		// get appropriate puppet later
 		const puppet = this.createEnemyPuppet(enemyCharacter.CharacterType);
 
-		// puppet.scale({ x: combatScale, y: combatScale });
+		puppet.scale({ x: combatScale, y: combatScale });
 		puppet.position({ x: pos.x, y: pos.y });
 
 		this.combatLayer.add(puppet);
@@ -1141,6 +1141,8 @@ loadEncounter(gameState:any)
 					return new CaveBatPuppet();
 					break;
 				case "Gnombie Brute":
+					return new GnomeEaterPuppet();
+
 					return new GnombieBrutePuppet();
 					break;
 				case "Gnome Eater":
