@@ -335,7 +335,7 @@ namespace CombatService
                 ResolveSummonCount(encounter.GameState);
 
                 roundEvents.AddRange(resolution.Events);  // Store events from the given round/turn
-                roundEvents.AddRange(RemoveDeadCharacters(encounter.GameState)); // Remove enemies that have died
+                roundEvents.AddRange(RemoveDeadCharacters(encounter)); // Remove enemies that have died
                 ResolveSummonCount(encounter.GameState);
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
                 
@@ -373,24 +373,30 @@ namespace CombatService
         }
         
         // Method for removing dead *ENEMY* characters from the game state
-        List<CombatEvent> RemoveDeadCharacters(CombatEncounterGameState gameState)
+        List<CombatEvent> RemoveDeadCharacters(ActiveCombatEncounter encounter)
         {
             // Iterate through all enemy characters and remove those that have been defeated
             var events = new List<CombatEvent>();
+            var gameState = encounter.GameState;
+
             var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
-            var defeatedCharacters = gameState.PlayerCharacters.Where(c => c.Health <= 0).ToList();
 
             foreach (var enemy in defeatedEnemies)
             {
                 events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = enemy.Id, TargetName = enemy.Name }));
             }
-            foreach (var player in defeatedCharacters)
-            {
-                events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = player.Id, TargetName = player.Name }));
-            }
-
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
-            gameState.PlayerCharacters.RemoveAll(c => c.Health <= 0);
+
+            // Do the same for player characters
+            for(int i = gameState.PlayerCharacters.Count - 1; i >= 0; i--)
+            {
+                var player = gameState.PlayerCharacters[i];
+                if (player.Health > 0) { continue; }
+                events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = player.Id, TargetName = player.Name }));
+                gameState.PlayerCharacters.RemoveAt(i);
+                if (i < encounter.PlayerReadied.Count) { encounter.PlayerReadied.RemoveAt(i); }
+                if( i < encounter.CombatRequests.Count) { encounter.CombatRequests.RemoveAt(i); }
+            }
             return events;
         }
         
