@@ -123,15 +123,23 @@ public class Functions
             JsonDocument message = JsonDocument.Parse(request.Body);
             var combatRequest = message.Deserialize<CombatRequest>();
             var combatService = new CombatService.CombatService();
-            var response = await combatService.CombatRequestHandlerAsync(combatRequest);
-            if (response.Count == 0)
+            var (combatResults, arePlayersDefeated, areEnemiesDefeated) = await combatService.CombatRequestHandlerAsync(combatRequest);
+            if (combatResults.Count == 0)
             {
                await SendToConnectionAsync(request.RequestContext.ConnectionId, request, new ConnectionMessage("combat-request-recieved-no-action",""));
             }
             else
             {
-                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
-                await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", response));
+                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);
+                await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", combatResults));
+                if (areEnemiesDefeated)
+                {
+                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("combat-encounter-ended", "enemies-defeated"));
+                }
+                else if (arePlayersDefeated)
+                {
+                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("combat-encounter-ended", "players-defeated"));
+                }
             }
 
             return new APIGatewayProxyResponse
