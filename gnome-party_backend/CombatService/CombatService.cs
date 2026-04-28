@@ -378,13 +378,19 @@ namespace CombatService
             // Iterate through all enemy characters and remove those that have been defeated
             var events = new List<CombatEvent>();
             var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
+            var defeatedCharacters = gameState.PlayerCharacters.Where(c => c.Health <= 0).ToList();
 
             foreach (var enemy in defeatedEnemies)
             {
                 events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = enemy.Id, TargetName = enemy.Name }));
             }
+            foreach (var player in defeatedCharacters)
+            {
+                events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = player.Id, TargetName = player.Name }));
+            }
 
             gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
+            gameState.PlayerCharacters.RemoveAll(c => c.Health <= 0);
             return events;
         }
         
