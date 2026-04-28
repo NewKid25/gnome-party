@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.ApiGatewayManagementApi;
 using Amazon.ApiGatewayManagementApi.Model;
 using Amazon.DynamoDBv2;
@@ -122,15 +123,23 @@ public class Functions
             JsonDocument message = JsonDocument.Parse(request.Body);
             var combatRequest = message.Deserialize<CombatRequest>();
             var combatService = new CombatService.CombatService();
-            var response = await combatService.CombatRequestHandlerAsync(combatRequest);
-            if (response.Count == 0)
+            var (combatResults, arePlayersDefeated, areEnemiesDefeated) = await combatService.CombatRequestHandlerAsync(combatRequest);
+            if (combatResults.Count == 0)
             {
                await SendToConnectionAsync(request.RequestContext.ConnectionId, request, new ConnectionMessage("combat-request-recieved-no-action",""));
             }
             else
             {
-                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);            //var activeEncounter = new ActiveCombatEncounter()
-                await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", response));
+                var gameSession = await databaseService.LoadAsync<GameSession>(combatRequest.GameSessionId);
+                await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("action-handler", combatResults));
+                if (areEnemiesDefeated)
+                {
+                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("combat-encounter-ended", "enemies-defeated"));
+                }
+                else if (arePlayersDefeated)
+                {
+                    await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("combat-encounter-ended", "players-defeated"));
+                }
             }
 
             return new APIGatewayProxyResponse
@@ -199,7 +208,6 @@ public class Functions
         };
     }
 
-    //{"route":"join-game", "InviteCode":849175}
     //{"route":"join-game", "InviteCode":849175}
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
@@ -280,7 +288,6 @@ public class Functions
     }
 
     //{"route":"host-game"}
-    //{"route":"host-game"}
     public async Task<APIGatewayProxyResponse> HostGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -350,7 +357,7 @@ public class Functions
                 _ => throw new ArgumentException($"Unknown character type: {lobbyReadyRequest.CharacterType}")
 
             };
-
+            character.Name = lobbyReadyRequest.CharacterName;   
             gameSession.AddPlayerCharacter(character);
 
             var tasks = new List<Task>

@@ -52,7 +52,7 @@ namespace CombatService
             existingStatus.ModifierValues = new Dictionary<string, double>(newStatus.ModifierValues);
             existingStatus.StatusDescription = new Dictionary<string, string>(newStatus.StatusDescription);
         }
-        public async Task<List<CombatResult>> CombatRequestHandlerAsync(CombatRequest request)
+        public async Task<(List<CombatResult>, bool arePlayersDefeated, bool areEnemiesDefeated)> CombatRequestHandlerAsync(CombatRequest request)
         {
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
 
@@ -73,7 +73,7 @@ namespace CombatService
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return [];
+                    return ([], false, false);
                 }
             }
             // All players have readied up, so we can process all the combat requests
@@ -88,7 +88,19 @@ namespace CombatService
             }
             var enemyCombatResults = await ProcessCombatRequestsAsync(enemyCombatResquests.ToArray(), activeEncounter);
             combatResults.AddRange(enemyCombatResults);
-            return combatResults;
+            Console.WriteLine($"player count = {activeEncounter.GameState.PlayerCharacters.Count}");
+            Console.WriteLine($"enemy count = {activeEncounter.GameState.EnemyCharacters.Count}");
+
+            //reset the readies and request for next round
+            //the number of players can change during a round (i.e. if they die)
+            //so make a new list that has the size of the number of alive players
+            activeEncounter.PlayerReadied = new bool[activeEncounter.GameState.PlayerCharacters.Count].ToList(); //list of (by default) false bools
+            activeEncounter.CombatRequests = new CombatRequest[activeEncounter.GameState.PlayerCharacters.Count].ToList();
+
+            // seems like game just repeats rounds without this save, (like health and stuff won't change) not sure why
+            await databaseService.SaveAsync(activeEncounter); 
+
+            return (combatResults, activeEncounter.GameState.PlayerCharacters.Count == 0, activeEncounter.GameState.EnemyCharacters.Count == 0);
         }
         
         // Method for finding a character (player or enemy) in the game state
@@ -303,7 +315,7 @@ namespace CombatService
                 ResolveSummonCount(encounter.GameState);
 
                 roundEvents.AddRange(resolution.Events);  // Store events from the given round/turn
-                roundEvents.AddRange(RemoveDeadCharacters(encounter)); // Remove enemies that have died
+                roundEvents.AddRange(GetDeadCharacterEvents(encounter.GameState)); // get "defeated" event for characters with <= 0 health
                 ResolveSummonCount(encounter.GameState);
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnEnd, roundEvents); // Process any status effects that happen at the end of their turn (after they've attacked)
                 
@@ -311,7 +323,9 @@ namespace CombatService
                 var result = new CombatResult(request.DeepCopy(), encounter.GameState.DeepCopy(), roundEvents);
                 combatResults.Add(result);
             }
-            await databaseService.SaveAsync(encounter);
+            RemoveDeadCharacters(encounter.GameState); // Remove any characters that have died 
+            Console.WriteLine($"inner player count = {encounter.GameState.PlayerCharacters.Count}");
+            Console.WriteLine($"inner enemy count = {encounter.GameState.EnemyCharacters.Count}");
             return combatResults; // Return the results
         }
         
@@ -340,34 +354,27 @@ namespace CombatService
             }
         }
         
-        // Method for removing dead *ENEMY* characters from the game state
-        List<CombatEvent> RemoveDeadCharacters(ActiveCombatEncounter encounter)
+        // Method for getting dead characters from the game state
+        List<CombatEvent> GetDeadCharacterEvents(CombatEncounterGameState gameState)
         {
             // Iterate through all enemy characters and remove those that have been defeated
             var events = new List<CombatEvent>();
-            var gameState = encounter.GameState;
+            var defeatedCharacters = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
+            defeatedCharacters.AddRange(gameState.PlayerCharacters.Where(c => c.Health <= 0).ToList());
 
-            var defeatedEnemies = gameState.EnemyCharacters.Where(c => c.Health <= 0).ToList();
-
-            foreach (var enemy in defeatedEnemies)
+            foreach (var enemy in defeatedCharacters)
             {
                 events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = enemy.Id, TargetName = enemy.Name }));
             }
-            gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
-
-            // Do the same for player characters
-            for(int i = gameState.PlayerCharacters.Count - 1; i >= 0; i--)
-            {
-                var player = gameState.PlayerCharacters[i];
-                if (player.Health > 0) { continue; }
-                events.Add(new CombatEvent("defeated", new DefeatedEventParams { TargetId = player.Id, TargetName = player.Name }));
-                gameState.PlayerCharacters.RemoveAt(i);
-                if (i < encounter.PlayerReadied.Count) { encounter.PlayerReadied.RemoveAt(i); }
-                if( i < encounter.CombatRequests.Count) { encounter.CombatRequests.RemoveAt(i); }
-            }
             return events;
         }
-        
+
+        void RemoveDeadCharacters(CombatEncounterGameState gameState)
+        {
+            gameState.EnemyCharacters.RemoveAll(c => c.Health <= 0);
+            gameState.PlayerCharacters.RemoveAll(c => c.Health <= 0);
+        }
+
         // Method for resolving the target of an action, taking redirection from status effects into account
         private Character ResolveActionTarget(
             Character attacker,

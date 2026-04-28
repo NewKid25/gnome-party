@@ -1,4 +1,5 @@
 import Konva from "konva";
+import { Vector2d } from "konva/lib/types";
 import SimultaneousAnimation from "./SimultaneousAnimation";
 import AnimationSequence from "./AnimationSequence";
 import AnimationPause from "./AnimationPause";
@@ -9,18 +10,14 @@ class HealthBar extends Konva.Group {
 	private remainingHealth:number
 	private maxHealth:number
 	private boundingBox:Konva.Vector2d
-	private backBar:Konva.Rect
-	private fillBar:Konva.Rect
-	private damageBar:Konva.Rect
-	private border:Konva.Rect
+	private backBar:Konva.Line
+	private fillBar:Konva.Line
+	private damageBar:Konva.Line
+
+	static lerp = (a:number, b:number, amount:number) => (1 - amount) * a + amount * b;
 
 	getHealth() {
 		return this.remainingHealth;
-	}
-
-	private getBarWidth(health: number) {
-		const ratio = Math.max(0, Math.min(1, health / this.maxHealth));
-		return this.boundingBox.x * ratio;
 	}
 
 	changeHealth(newHealth:number) {
@@ -29,16 +26,17 @@ class HealthBar extends Konva.Group {
 		const DRAIN_DURATION: number = .3
 
 		let prevHealth = this.remainingHealth;
+		let prevHealthRatio = prevHealth / this.maxHealth;
 		this.remainingHealth = Math.max(newHealth, 0);
-		let newFillWidth = this.getBarWidth(this.remainingHealth);
-		let prevFillWidth = this.getBarWidth(prevHealth);
-
-		this.damageBar.width(prevFillWidth);
+		let healthRatio = this.remainingHealth / this.maxHealth;
 
 		let fillBarAnimation = new AnimationSequence([
 			new TweenFromCurrent({
 				node: this.fillBar,
-				width: newFillWidth,
+				points: [0, this.boundingBox.y, 
+					HealthBar.lerp(0, this.boundingBox.x * .25, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio), 
+					HealthBar.lerp(this.boundingBox.x * .75, this.boundingBox.x, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio), 
+					this.boundingBox.x * .75, this.boundingBox.y],
 				duration: DMG_DURATION
 			}),
 			new AnimationPause(LINGER_DURATION * 1000),
@@ -46,11 +44,25 @@ class HealthBar extends Konva.Group {
 		]);
 
 		let damageBarAnimation = new AnimationSequence([
-			new AnimationPause(DMG_DURATION * 1000),
+			new TweenFromCurrent({
+				node: this.damageBar,
+				// BL, TL, TR, BR
+				points: [HealthBar.lerp(0, this.boundingBox.x * .25, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio), 
+					HealthBar.lerp(0, this.boundingBox.x * .25, prevHealthRatio), HealthBar.lerp(this.boundingBox.y, 0, prevHealthRatio), 
+					HealthBar.lerp(this.boundingBox.x * .75, this.boundingBox.x, prevHealthRatio), HealthBar.lerp(this.boundingBox.y, 0, prevHealthRatio), 
+					HealthBar.lerp(this.boundingBox.x * .75, this.boundingBox.x, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio),
+				],
+				duration: DMG_DURATION
+			}),
 			new AnimationPause(LINGER_DURATION * 1000),
 			new TweenFromCurrent({
 				node: this.damageBar,
-				width: newFillWidth,
+				// BL, TL, TR, BR
+				points: [HealthBar.lerp(0, this.boundingBox.x * .25, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio), 
+					HealthBar.lerp(0, this.boundingBox.x * .25, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio), 
+					HealthBar.lerp(this.boundingBox.x * .75, this.boundingBox.x, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio),
+					HealthBar.lerp(this.boundingBox.x * .75, this.boundingBox.x, healthRatio), HealthBar.lerp(this.boundingBox.y, 0, healthRatio),
+				],
 				duration: DRAIN_DURATION
 			})
 		]);
@@ -58,7 +70,9 @@ class HealthBar extends Konva.Group {
 		let chunkAnimation = new SimultaneousAnimation([
 			fillBarAnimation,
 			damageBarAnimation
-		]).play();
+		])
+
+		chunkAnimation.play();
 	}
 
 	constructor(_maxHealth:number, _boundingBox:Konva.Vector2d) {
@@ -67,47 +81,26 @@ class HealthBar extends Konva.Group {
 		this.remainingHealth = _maxHealth;
 		this.boundingBox = _boundingBox;
 
-		const cornerRadius = Math.min(this.boundingBox.y * 0.25, 4);
-
-		this.backBar = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: this.boundingBox.x,
-			height: this.boundingBox.y,
-			fill: "#502020",
-			cornerRadius,
+		this.backBar = new Konva.Line({
+			points: [0, this.boundingBox.y, this.boundingBox.x * .25, 0, this.boundingBox.x, 0, this.boundingBox.x * .75, this.boundingBox.y],
+			closed: true,
+			fill: "#502020"
 		});
 		this.add(this.backBar);
-
-		this.damageBar = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: this.boundingBox.x,
-			height: this.boundingBox.y,
-			fill: "#f0d040",
-			cornerRadius,
-		});
-		this.add(this.damageBar);
-
-		this.fillBar = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: this.boundingBox.x,
-			height: this.boundingBox.y,
-			fill: "#d96b35",
-			cornerRadius,
+		
+		this.fillBar = new Konva.Line({
+			points: [0, this.boundingBox.y, this.boundingBox.x * .25, 0, this.boundingBox.x, 0, this.boundingBox.x * .75, this.boundingBox.y],
+			closed: true,
+			fill: "#d04040"
 		});
 		this.add(this.fillBar);
 
-		this.border = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: this.boundingBox.x,
-			height: this.boundingBox.y,
-			stroke: "#111",
-			strokeWidth: 2,
-			cornerRadius,
-		});
-		this.add(this.border);
+		this.damageBar = new Konva.Line({
+			closed: true,
+			// BL, TL, TR, BR
+			points: [this.boundingBox.x * .25, 0, this.boundingBox.x * .25, 0, this.boundingBox.x, 0, this.boundingBox.x, 0],
+			fill: "#f0d040"
+		})
+		this.add(this.damageBar);
 	}
 }

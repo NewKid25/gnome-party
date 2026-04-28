@@ -3,16 +3,14 @@ import { ref } from "vue";
 import { ActionButtonModel } from "../Models/ActionButtonModel";
 import { TargetButtonModel } from "../Models/TargetButtonModel";
 import { PlayerStatusModel } from "../Models/PlayerStatusModel";
-import { useSocketData } from "../stores/socketData";
+import { useEncounterData } from "../stores/encounterData";
 
 export type CombatViewState = "actionMenu" | "targetMenu" | "waitingMenu" | "deadMenu";
 
-export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
+export function useCombatFlow(playerStatusModel: PlayerStatusModel, socket:WebSocket) {
     const currentView = ref<CombatViewState>("actionMenu");
     const chosenAction = ref<ActionButtonModel | null>(null);
     const chosenTarget = ref<TargetButtonModel | null>(null);
-
-    const socketStore = useSocketData();
 
     function onActionChosen(action: ActionButtonModel) {
         chosenAction.value = action;
@@ -30,13 +28,11 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
             return;
         }
 
-        chosenTarget.value = target;
-
         sendActionToBackend(chosenAction.value, target);
         currentView.value = "waitingMenu";
     }
 
-    // TODO: include logic for populating target menu based on action
+    // Connect to backend
     function populateTargetMenu(action: ActionButtonModel) {
         console.log("Populating target menu for action:", action);
     }
@@ -44,20 +40,16 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
     function sendActionToBackend(action: ActionButtonModel, target: TargetButtonModel) {
         console.log("Sending action and target to backend:", action, target);
 
-        if(!target.targetId) {
-            console.error("Target does not have a valid ID:", target);
-            return;
-        }
+        const encounterData = useEncounterData();
 
-        // send action through shared socket
-        socketStore.send({
+        socket.send(JSON.stringify({
             route: "player-action",
-            EncounterId: socketStore.encounterId,
-            TargetCharacterId: target.targetId, 
-            SourceCharacterId: socketStore.localCharacterId, 
-            Action: action.actionName, 
-            GameSessionId: socketStore.gameSessionId,
-        });
+            EncounterId:encounterData.encounterId,
+            TargetCharacterId:target.targetId, 
+            SourceCharacterId:encounterData.localPlayerId, 
+            Action:action.actionName, 
+            GameSessionId:encounterData.gameSessionId,
+        }));
 
     }
 
@@ -66,21 +58,14 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
             playerStatusModel.healthBar.value = data.playerHealth;
         }
 
-        if (data.playerMaxHealth !== undefined) {
-            playerStatusModel.healthBar.maxValue = data.playerMaxHealth;
-        }
-
         if(playerStatusModel.healthBar.value <= 0) {
             currentView.value = "deadMenu";
             return;
         }
 
-        // reset selections for next turn
-        chosenAction.value = null;
-        chosenTarget.value = null;
-
         currentView.value = "actionMenu";
     }
+    // End of connecting to backend
 
     return {
         currentView,
