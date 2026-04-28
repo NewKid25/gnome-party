@@ -1141,8 +1141,6 @@ loadEncounter(gameState:any)
 					return new CaveBatPuppet();
 					break;
 				case "Gnombie Brute":
-					return new GnomeEaterPuppet();
-
 					return new GnombieBrutePuppet();
 					break;
 				case "Gnome Eater":
