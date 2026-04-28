@@ -52,7 +52,7 @@ namespace CombatService
             existingStatus.ModifierValues = new Dictionary<string, double>(newStatus.ModifierValues);
             existingStatus.StatusDescription = new Dictionary<string, string>(newStatus.StatusDescription);
         }
-        public async Task<List<CombatResult>> CombatRequestHandlerAsync(CombatRequest request)
+        public async Task<(List<CombatResult>, bool arePlayersDefeated, bool areEnemiesDefeated)> CombatRequestHandlerAsync(CombatRequest request)
         {
             var activeEncounter = await databaseService.LoadAsync<ActiveCombatEncounter>(request.EncounterId);
 
@@ -73,7 +73,7 @@ namespace CombatService
                 if (!playerReadier)
                 {
                     // Not all players have readied up yet, so we can't process the combat request
-                    return [];
+                    return ([], false, false);
                 }
             }
             // All players have readied up, so we can process all the combat requests
@@ -90,32 +90,17 @@ namespace CombatService
             combatResults.AddRange(enemyCombatResults);
             Console.WriteLine($"player count = {activeEncounter.GameState.PlayerCharacters.Count}");
             Console.WriteLine($"enemy count = {activeEncounter.GameState.EnemyCharacters.Count}");
-            if (activeEncounter.GameState.EnemyCharacters.Count == 0)
+
+            // Reset for the next turn if the encounter hasn't ended
+            for (int i = 0; i < activeEncounter.PlayerReadied.Count; i++)
             {
-                combatResults.Add(new CombatResult
-                {
-                    Events = new List<CombatEvent> { new CombatEvent("encounter-ended", "enemies-defeated") }
-                });
+                activeEncounter.PlayerReadied[i] = false;
+                activeEncounter.CombatRequests[i] = null;
             }
-            else if (activeEncounter.GameState.PlayerCharacters.Count == 0)
-            {
-                combatResults.Add(new CombatResult()
-                {
-                    Events = new List<CombatEvent> { new CombatEvent("encounter-ended", "players-defeated") }
-                });
-            }
-            else
-            {
-                // Reset for the next turn if the encounter hasn't ended
-                for (int i = 0; i < activeEncounter.PlayerReadied.Count; i++)
-                {
-                    activeEncounter.PlayerReadied[i] = false;
-                    activeEncounter.CombatRequests[i] = null;
-                }
-                // seems like game just repeats rounds without this save, (like health and stuff won't change) not sure why
-                await databaseService.SaveAsync(activeEncounter); 
-            }
-            return combatResults;
+            // seems like game just repeats rounds without this save, (like health and stuff won't change) not sure why
+            await databaseService.SaveAsync(activeEncounter); 
+
+            return (combatResults, activeEncounter.GameState.PlayerCharacters.Count == 0, activeEncounter.GameState.EnemyCharacters.Count == 0);
         }
         
         // Method for finding a character (player or enemy) in the game state
