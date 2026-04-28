@@ -216,6 +216,7 @@ loadEncounter(gameState:any)
 			const existing = this.readyPlayers.find((p) => p.Id === msg.Message.Id);
 			if (existing) {
 				this.readyPlayers.splice(this.readyPlayers.indexOf(existing), 1);
+				// wah
 			}
 			console.log("Participant unreadied:", msg.Message);
 			this.renderHostLobby();
