@@ -1,5 +1,4 @@
 import Konva from "konva";
-import { Vector2d } from "konva/lib/types";
 import Puppet from "./interfaces/Puppet";
 
 export default
@@ -7,30 +6,27 @@ class SkeletonPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
-	
+	static readonly WIDTH = 351;
+	static readonly HEIGHT = 449;
+
 	constructor() {
 		super();
 
-		// Why are these the numbers I need? I don't know. This was trial and error
-		const imgOffset:Vector2d = {x: 351 / 2.9, y: 2.05 * 449 / 5}
-	
+		const baseX = -SkeletonPuppet.WIDTH / 2;
+		const baseY = -SkeletonPuppet.HEIGHT;
+
 		const bodyImg = new Image();
 		bodyImg.src = "/img/Skeleton.svg";
 		this.body = new Konva.Image({
-			x: 0,
-			y: 0,
-			// offset: imgOffset,
+			x: baseX,
+			y: baseY,
 			image: bodyImg,
+			width: SkeletonPuppet.WIDTH,
+			height: SkeletonPuppet.HEIGHT,
 		});
 		this.add(this.body);
 
-		
-		this.width(351/ 2);
-		this.height(449 / 2);
-		this.scale({x: 0.5, y: 0.5})
-		this.offset(imgOffset);
+		this.scale({x: 1, y: 1})
 		this.position({x: 0, y:0});
-
-		console.log(this.offset());
 	}
 }
