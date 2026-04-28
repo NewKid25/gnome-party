@@ -91,12 +91,12 @@ namespace CombatService
             Console.WriteLine($"player count = {activeEncounter.GameState.PlayerCharacters.Count}");
             Console.WriteLine($"enemy count = {activeEncounter.GameState.EnemyCharacters.Count}");
 
-            // Reset for the next turn if the encounter hasn't ended
-            for (int i = 0; i < activeEncounter.PlayerReadied.Count; i++)
-            {
-                activeEncounter.PlayerReadied[i] = false;
-                activeEncounter.CombatRequests[i] = null;
-            }
+            //reset the readies and request for next round
+            //the number of players can change during a round (i.e. if they die)
+            //so make a new list that has the size of the number of alive players
+            activeEncounter.PlayerReadied = new bool[activeEncounter.GameState.PlayerCharacters.Count].ToList(); //list of (by default) false bools
+            activeEncounter.CombatRequests = new CombatRequest[activeEncounter.GameState.PlayerCharacters.Count].ToList();
+
             // seems like game just repeats rounds without this save, (like health and stuff won't change) not sure why
             await databaseService.SaveAsync(activeEncounter); 
 
