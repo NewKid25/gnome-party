@@ -5,19 +5,57 @@ import SimultaneousAnimation from "./SimultaneousAnimation";
 import TweenFromCurrent from "./TweenFromCurrent";
 import LeapAnimation from "./animations/LeapAnimation";
 import AnimationPause from "./AnimationPause";
-import GnomePuppet from "./GnomePuppet";
+import GnomePuppet from "./puppets/GnomePuppet";
 import HealthBar from "./HealthBar";
 import FunctionStep from "./FunctionStep";
 import AnimationStep from "./interfaces/AnimationStep";
-import { TurnStep } from "./interfaces/TurnStep";
+import { Character, GameState, TurnStep } from "./interfaces/TurnStep";
 import Puppet from "./interfaces/Puppet";
-import SlashAnimation from "./animations/SlashAnimation";
-import BoneSlashAnimation from "./animations/BoneSlashAnimation";
+import SlashAnimation from "./action-animations/SlashAnimation";
+import BoneSlashAnimation from "./action-animations/BoneSlashAnimation";
 import { useSocketData } from "../../participant-view/stores/socketData";
-import SkeletonPuppet from "./SkeletonPuppet";
+import SkeletonPuppet from "./puppets/SkeletonPuppet";
+import GoblinArcherPuppet from "./puppets/GoblinArcherPuppet";
+import { C } from "vue-router/dist/options-CjwwR_07.cjs";
+import ForestSpritePuppet from "./puppets/ForestSpritePuppet";
+import CaveBatPuppet from "./puppets/CaveBatPuppet";
+import GnombieBrutePuppet from "./puppets/GnombieBrutePuppet";
+import GnomeEaterPuppet from "./puppets/GnomeEaterPuppet";
+import NecrognomancerPuppet from "./puppets/NecrognomancerPuppet";
+import TextPopupAnimation from "./animations/TextPopupAnimation";
+import HeavySlamAnimation from "./action-animations/HeavySlamAnimation";
+import CrushingSwipeAnimation from "./action-animations/CrushingSwipeAnimation";
+import BlockAnimation from "./action-animations/BlockAnimation";
+import ParryAnimation from "./action-animations/ParryAnimation";
+import RattleGuardAnimation from "./action-animations/RattleGuardAnimation";
+import WhirlingStrikeAnimation from "./action-animations/WhirlingStrikeAnimation";
+import SongAnimation from "./action-animations/SongAnimation";
+import DiscordAnimation from "./action-animations/DiscordAnimation";
+import MockeryAnimation from "./action-animations/MockeryAnimation";
+import IceRayAnimation from "./action-animations/IceRayAnimation";
+import FireballAnimation from "./action-animations/FireballAnimation";
+import MagicMissileAnimation from "./action-animations/MagicMissileAnimation";
+import PiercingArrowAnimation from "./action-animations/PiercingArrowAnimation";
+import CripplingShotAnimation from "./action-animations/CripplingShotAnimation";
+import RottingAuraAnimation from "./action-animations/RottingAuraAnimation";
+import DarkBoltAnimation from "./action-animations/DarkBoltAnimation";
+import LeafDartAnimation from "./action-animations/LeafDartAnimation";
+import DevourEssenceAnimation from "./action-animations/DevourEssenceAnimation";
+import SonicSquealAnimation from "./action-animations/SonicSquealAnimation";
+import BloodPeckAnimation from "./action-animations/BloodPeckAnimation";
+import PrimalRoarAnimation from "./action-animations/PrimalRoarAnimation";
+import SoulDrainAnimation from "./action-animations/SoulDrainAnimation";
+import MirrorAnimation from "./action-animations/MirrorAnimation";
+import RavenousGrowthAnimation from "./action-animations/RavenousGrowthAnimation";
+import EntangleAnimation from "./action-animations/EntangleAnimation";
+import PowerChordAnimation from "./action-animations/PowerChordAnimation";
+import SummonAnimation from "./action-animations/SummonAnimation";
 
 export default
 class ViewManager {
+
+	HEALTHBAR_HEIGHT = 120;
+
 
 	socket:WebSocket
 
@@ -52,6 +90,7 @@ class ViewManager {
 
 	cloudGroups:Konva.Group[] = [];
 	cloudAnimation:Konva.Animation | null = null;
+
 
 	constructor() {
 		this.socket = new WebSocket("wss://ws.gnome-party.com");
@@ -170,9 +209,9 @@ loadEncounter(gameState:any)
 		const combatScale = this.getCombatPuppetScale();
 
 		// get appropriate puppet later
-		const puppet = new SkeletonPuppet();
+		const puppet = this.createEnemyPuppet(enemyCharacter.CharacterType);
 
-		puppet.scale({ x: combatScale, y: combatScale });
+		// puppet.scale({ x: combatScale, y: combatScale });
 		puppet.position({ x: pos.x, y: pos.y });
 
 		this.combatLayer.add(puppet);
@@ -273,7 +312,13 @@ loadEncounter(gameState:any)
 			}
 		}
 
-		new AnimationSequence(animations).play();
+		if (turn.at(-1) != undefined)
+			animations.push(new AnimationPause(500));
+			//@ts-ignore
+			animations.push(this.updateAllHealth(turn.at(-1).GameState))
+
+		let sequence:AnimationSequence = new AnimationSequence(animations);
+		sequence.play();
 	}
 
 	testAnimation()
@@ -297,130 +342,10 @@ loadEncounter(gameState:any)
 
 		// sequence.play();
 
-		let sampleSteps:TurnStep[] = 
-		[
-			{
-				"Request": {
-				"EncounterId": "50b8c0cf-e032-4625-ba07-dad08231081b",
-				"TargetCharacterId": "test-enemy",
-				"SourceCharacterId": "0",
-				"Action": "Slash"
-				},
-				"GameState": {
-				"PlayerCharacters": [
-					{
-					"Id": "0",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
-						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
-						}
-					]
-					},
-					{
-					"Id": "1",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
-						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
-						}
-					]
-					}
-				],
-				"EnemyCharacters": [
-					{
-					"Id": "test-enemy",
-					"Name": "skeleton",
-					"Health": 12,
-					"MaxHealth": 10,
-					"ActionsDescriptions": [
-						{
-						"Name": "punch",
-						"Description": "A weak punch"
-						}
-					]
-					}
-				]
-				},
-				"Events": []
+		
+		// let gameState:GameState = {},
 
-			},
-			{
-				"Request": {
-				"EncounterId": "50b8c0cf-e032-4625-ba07-dad08231081b",
-				"TargetCharacterId": "test-enemy",
-				"SourceCharacterId": "1",
-				"Action": "Slash"
-				},
-				"GameState": {
-				"PlayerCharacters": [
-					{
-					"Id": "0",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
-						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
-						}
-					]
-					},
-					{
-					"Id": "1",
-					"Name": "Default Name",
-					"Health": 1,
-					"MaxHealth": 1,
-					"ActionsDescriptions": [
-						{
-						"Name": "Slash",
-						"Description": "default_action_description"
-						},
-						{
-						"Name": "Block",
-						"Description": "default_action_description"
-						}
-					]
-					}
-				],
-				"EnemyCharacters": [
-					{
-					"Id": "test-enemy",
-					"Name": "skeleton",
-					"Health": 8,
-					"MaxHealth": 10,
-					"ActionsDescriptions": [
-						{
-						"Name": "punch",
-						"Description": "A weak punch"
-						}
-					]
-					}
-				]
-				},
-				"Events": []
-			}
-		];
-
-		this.processTurn(sampleSteps);
+		// this.processTurn(sampleSteps);
 	}
 
 	instantiateActionAnimation(step:TurnStep)
@@ -431,6 +356,67 @@ loadEncounter(gameState:any)
 				return new SlashAnimation(step, this);
 			case "Bone Slash":
 				return new BoneSlashAnimation(step, this);
+			case "Heavy Slam":
+				return new HeavySlamAnimation(step, this);
+			case "Crushing Swipe":
+				return new CrushingSwipeAnimation(step, this);
+			case "Block":
+				return new BlockAnimation(step, this);
+			case "Parry":
+				return new ParryAnimation(step, this);
+			case "Rattle Guard":
+				return new RattleGuardAnimation(step, this);
+			case "Whirling Strike":
+				return new WhirlingStrikeAnimation(step, this);
+			case "Soothing Song":
+				return new SongAnimation(step, this, 0);
+			case "Inspiring Song":
+				return new SongAnimation(step, this, 1);
+			case "Frightening Song":
+				return new SongAnimation(step, this, 2);
+			case "Discord":
+				return new DiscordAnimation(step, this);
+			case "Mockery":
+				return new MockeryAnimation(step, this);
+			case "Ice Ray":
+				return new IceRayAnimation(step, this);
+			case "Fireball":
+				return new FireballAnimation(step, this);
+			case "Magic Missile":
+				return new MagicMissileAnimation(step, this);
+			case "Piercing Arrow":
+				return new PiercingArrowAnimation(step, this);
+			case "Crippling Shot":
+				return new CripplingShotAnimation(step, this);
+			case "Rotting Aura":
+				return new RottingAuraAnimation(step, this);
+			case "Dark Bolt":
+				return new DarkBoltAnimation(step, this);
+			case "Leaf Dart":
+				return new LeafDartAnimation(step, this);
+			case "Devour Essence":
+				return new DevourEssenceAnimation(step, this);
+			case "Sonic Squeal":
+				return new SonicSquealAnimation(step, this);
+			case "Blood Peck":
+				return new BloodPeckAnimation(step, this);
+			case "Primal Roar":
+				return new PrimalRoarAnimation(step, this);
+			case "Soul Drain":
+				return new SoulDrainAnimation(step, this);
+			case "Mirror":
+				return new MirrorAnimation(step, this);
+			case "Ravenous Growth":
+				return new RavenousGrowthAnimation(step, this);
+			case "Entangle":
+				return new EntangleAnimation(step, this);
+			case "Power Cord":
+			case "Power Chord":
+				return new PowerChordAnimation(step, this);
+			case "Summon":
+				return new SummonAnimation(step, this);
+			default:
+				return this.updateAllHealth(step.GameState);
 		}
 	}
 
@@ -1137,6 +1123,55 @@ loadEncounter(gameState:any)
 
 		this.combatLayer.draw();
 		this.uiLayer.draw();
+	}
+
+	createEnemyPuppet(type:string) {
+		switch (type)
+			{
+				case "Skeleton":
+					return new SkeletonPuppet();
+					break;
+				case "Goblin Archer":
+					return new GoblinArcherPuppet();
+					break;
+				case "Forest Sprite":
+					return new ForestSpritePuppet();
+					break;
+				case "Cave Bat":
+					return new CaveBatPuppet();
+					break;
+				case "Gnombie Brute":
+					return new GnombieBrutePuppet();
+					break;
+				case "Gnome Eater":
+					return new GnomeEaterPuppet();
+					break;
+				case "Necrognomancer":
+					return new NecrognomancerPuppet();
+					break;
+				default:
+					return new SkeletonPuppet();
+					console.log("Default triggered because it was", type);
+			}
+	}
+
+	updateAllHealth(state:GameState) {
+		let seq = new AnimationSequence();
+
+		for (let player of state.PlayerCharacters)
+		{
+			let pvc = this.playerVisualComponents.get(player.Id);
+			seq.steps.push(new FunctionStep(() => {pvc?.healthbar.changeHealth(player.Health);}));
+		}
+		for (let enemy of state.EnemyCharacters)
+		{
+			let evc = this.enemyVisualComponents.get(enemy.Id);
+			seq.steps.push(new FunctionStep(() => {evc?.healthbar.changeHealth(enemy.Health);}));
+		}
+
+		seq.steps.push(new AnimationPause(1000));
+
+		return seq;
 	}
 }
 

@@ -1,5 +1,6 @@
 import Konva from "konva";
-import Puppet from "./interfaces/Puppet";
+import { Vector2d } from "konva/lib/types";
+import Puppet from "../interfaces/Puppet";
 
 export default
 class SkeletonPuppet extends Konva.Group implements Puppet {

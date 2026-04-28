@@ -1,15 +1,15 @@
 import { Group } from "konva/lib/Group";
 import FunctionStep from "../FunctionStep";
-import GnomePuppet from "../GnomePuppet";
+import GnomePuppet from "../puppets/GnomePuppet";
 import HealthBar from "../HealthBar";
 import AnimationStep from "../interfaces/AnimationStep";
 import Puppet from "../interfaces/Puppet";
 import { GameState, TurnStep } from "../interfaces/TurnStep";
 import ViewManager from "../ViewManager";
-import LeapAnimation from "./LeapAnimation";
+import LeapAnimation from "../animations/LeapAnimation";
 
 export default
-class SlashAnimation implements AnimationStep
+class CrushingSwipeAnimation implements AnimationStep
 {
 	leapAnim:LeapAnimation
 	play() 
@@ -22,8 +22,8 @@ class SlashAnimation implements AnimationStep
 	constructor(step:TurnStep, vm:ViewManager) 
 	{
 		console.log(step.Request.SourceCharacterId, step.Request.TargetCharacterId)
-		let enemyPuppet:Group | undefined = vm.enemyVisualComponents.get(step.Request.SourceCharacterId)?.puppet;
-		let playerPuppet: Group | undefined = vm.playerVisualComponents.get(step.Request.TargetCharacterId)?.puppet;
+		let enemyPuppet:Puppet | undefined = vm.enemyVisualComponents.get(step.Request.SourceCharacterId)?.puppet;
+		let playerPuppet: Puppet | undefined = vm.playerVisualComponents.get(step.Request.TargetCharacterId)?.puppet;
 		let playerHealth: HealthBar | undefined = vm.playerVisualComponents.get(step.Request.TargetCharacterId)?.healthbar;
 		
 		if (enemyPuppet && playerPuppet && playerHealth)
