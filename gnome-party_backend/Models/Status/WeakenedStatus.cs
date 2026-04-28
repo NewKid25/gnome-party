@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 
 namespace Models.Status
 {
+    // Reduces the outgoing damage of the affected character
     public sealed class WeakenedStatus : StatusEffect
     {
         public WeakenedStatus() { }
-        public WeakenedStatus(Character user, Character enemy)
+        public WeakenedStatus(Character user, Character enemy, double weakenessAmount)
         {
             Duration = 1; // Lasts for 1 turn
             DurationUnit = DurationUnit.TurnEnd; // Expires at the end of the turn
@@ -21,6 +19,11 @@ namespace Models.Status
             };
             StatusOwnerCharacterId = enemy.Id; // The character affected by the status
             AffectedCharacterIds = new List<string> { enemy.Id }; // The character whose attacks will be reduced
+            ModifierValues = new Dictionary<string, double>
+            {
+               // Reduce damage by the specified percentage (e.g., 0.75 for 25% reduction)
+               { StatusModifierKeys.OutgoingDamageMultiplier, weakenessAmount }
+            };
         }
         // Make a deep copy of the status effect
         public override StatusEffect DeepCopy()
@@ -39,9 +42,10 @@ namespace Models.Status
         // Modify the outgoing damage multiplier to reflect the affect of Weakened Status
         public override double ModifyOutgoingDamageMultiplier(Character source, Character target, double currentMultiplier, bool isUnblockable)
         {
-            if (AffectedCharacterIds.Contains(source.Id))
+            if (AffectedCharacterIds.Contains(source.Id) 
+                && ModifierValues.TryGetValue(StatusModifierKeys.OutgoingDamageMultiplier, out double weakenessAmount))
             {
-                return currentMultiplier * 0.75;
+                return currentMultiplier * weakenessAmount;
             }
             return currentMultiplier;
         }

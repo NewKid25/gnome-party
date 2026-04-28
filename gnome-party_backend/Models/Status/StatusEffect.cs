@@ -37,6 +37,7 @@ namespace Models.Status
     [JsonDerivedType(typeof(VulnerableStatus), "VulnerableStatus")]
     [JsonDerivedType(typeof(WeakenedStatus), "WeakenedStatus")]
     [JsonDerivedType(typeof(CounterStatus), "CounterStatus")]
+    [JsonDerivedType(typeof(PsychOut), "PsychOutStatus")]
 
     public class StatusEffect
     {

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Models.CharacterData;
+﻿using Models.CharacterData;
 
 namespace Models.Status
 {
+    // Weakens the affected character's attacks by 25% for 1 turn. Applied by Gnome Eater's Primal Roar
     public sealed class FearStatus : StatusEffect
     {
         public FearStatus() { }

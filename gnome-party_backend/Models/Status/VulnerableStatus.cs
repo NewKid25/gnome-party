@@ -2,6 +2,7 @@
 
 namespace Models.Status
 {
+    // Adds +2 damage taken. Applied by Gnombie Brute's Rotting Aura
     public sealed  class VulnerableStatus : StatusEffect
     {
         public VulnerableStatus() { } 

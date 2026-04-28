@@ -20,6 +20,8 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
             bool isRedirected, 
             bool isUnblockable)
         {
+            double weakenedDamageMultiplier = 0.75; // Define the damage multiplier for the weakened status effect
+
             // Add validation to ensure that the user, target, and gameState are not null
             if (user == null) { throw new ArgumentNullException(nameof(user)); }
             if (target == null) { throw new ArgumentNullException(nameof(target)); }
@@ -46,7 +48,7 @@ namespace Models.Actions.EasyEnemyPoolActions.GoblinArcherActions
             };
 
             // Apply the mocked status effect to the target
-            resolution.StatusEffectsToApply.Add(new WeakenedStatus(user, target));
+            resolution.StatusEffectsToApply.Add(new WeakenedStatus(user, target, weakenedDamageMultiplier));
             resolution.Events.Add(new CombatEvent("weakened_status_applied", new StatusAppliedEventParams { OwnerId = user.Id }));
 
             return resolution;
