@@ -48,9 +48,14 @@ import SoulDrainAnimation from "./action-animations/SoulDrainAnimation";
 import MirrorAnimation from "./action-animations/MirrorAnimation";
 import RavenousGrowthAnimation from "./action-animations/RavenousGrowthAnimation";
 import EntangleAnimation from "./action-animations/EntangleAnimation";
+import PowerChordAnimation from "./action-animations/PowerChordAnimation";
+import SummonAnimation from "./action-animations/SummonAnimation";
 
 export default
 class ViewManager {
+
+	HEALTHBAR_HEIGHT = 120;
+
 
 	socket:WebSocket
 
@@ -101,8 +106,6 @@ class ViewManager {
 	
 	loadEncounter(gameState:any)
 	{
-		const HEALTHBAR_HEIGHT = 120;
-
 		// Load player characters
 		var playerCharacters = gameState.PlayerCharacters;
 
@@ -114,7 +117,7 @@ class ViewManager {
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: HEALTHBAR_HEIGHT})
+			let healthbar:HealthBar = new HealthBar(playerCharacters[i].MaxHealth, {x: 30, y: this.HEALTHBAR_HEIGHT})
 			healthbar.x(puppet.x() - puppet.width() /2 - 50);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
@@ -131,39 +134,15 @@ class ViewManager {
 			let puppet:Puppet
 			let type:string = enemyCharacters[i].CharacterType;
 			console.log("This guy is a", type);
-			switch (type)
-			{
-				case "Skeleton":
-					puppet = new SkeletonPuppet();
-					break;
-				case "Goblin Archer":
-					puppet = new GoblinArcherPuppet();
-					break;
-				case "Forest Sprite":
-					puppet = new ForestSpritePuppet();
-					break;
-				case "Cave Bat":
-					puppet = new CaveBatPuppet();
-					break;
-				case "Gnombie Brute":
-					puppet = new GnombieBrutePuppet();
-					break;
-				case "Gnome Eater":
-					puppet = new GnomeEaterPuppet();
-					break;
-				case "Necrognomancer":
-					puppet = new NecrognomancerPuppet();
-					break;
-				default:
-					puppet = new SkeletonPuppet();
-					console.log("Default triggered because it was", enemyCharacters[i].CharacterType);
-			}
+			
+			puppet = this.createEnemyPuppet(type);
+			
 			puppet.x(this.stage.width() - 300);
 			puppet.y((i + 1) * this.stage.height() / (enemyCharacters.length + 1));
 
 			this.mainLayer.add(puppet);
 			// Create healthbar
-			let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: HEALTHBAR_HEIGHT})
+			let healthbar:HealthBar = new HealthBar(enemyCharacters[i].MaxHealth, {x: 30, y: this.HEALTHBAR_HEIGHT})
 			healthbar.x(puppet.x() + puppet.width() /2 + 20);
 			healthbar.y(puppet.y() - puppet.height() / 3.5);
 
@@ -264,9 +243,9 @@ class ViewManager {
 		let gameState:GameState = {
 			"EnemyCharacters": [
 				{
-				"CharacterType": "Forest Sprite",
+				"CharacterType": "Necrognomancer",
 				"Health": 55,
-				"Id": "3680a7b9-df44-480c-a71c-9736d92a6f12",
+				"Id": "n",
 				"MaxHealth": 55,
 				"Name": "Forest Sprite",
 				"ActionsDescriptions": [
@@ -281,24 +260,6 @@ class ViewManager {
 				],
 				"StatusEffects": []
 				},
-				{
-				"CharacterType": "Goblin Archer",
-				"Health": 15,
-				"Id": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-				"MaxHealth": 15,
-				"Name": "Goblin Archer",
-				"ActionsDescriptions": [
-					{
-					"Description": "Deals 8 damage to a target that can\\u0027t be redirected",
-					"Name": "Piercing Arrow"
-					},
-					{
-					"Description": "Deals 4 damage to a target and reduces the target\\u0027s attack power",
-					"Name": "Crippling Shot"
-					}
-				],
-				"StatusEffects": []
-				}
 			],
 			"PlayerCharacters": [
 				{
@@ -327,32 +288,6 @@ class ViewManager {
 				],
 				"StatusEffects": []
 				},
-				{
-				"CharacterType": "Mage",
-				"Health": 20,
-				"Id": "2",
-				"MaxHealth": 20,
-				"Name": "Mage",
-				"ActionsDescriptions": [
-					{
-					"Description": "Deal damage to the target and then burn the target and adjacent allies for 3 turns",
-					"Name": "Fireball"
-					},
-					{
-					"Description": "Deal 10 damage to target enemy uninterrupted",
-					"Name": "Magic Missile"
-					},
-					{
-					"Description": "Deal 5 damage to a target and reduce their attack power.",
-					"Name": "Ice Ray"
-					},
-					{
-					"Description": "Target an enemy. Your next attack will also hit that enemy.",
-					"Name": "Mirror"
-					}
-				],
-				"StatusEffects": []
-				}
 			]
 		};
 		
@@ -363,12 +298,30 @@ class ViewManager {
 			{
 			"GameState": {
 				"EnemyCharacters": [
-				{
-					"CharacterType": "Gnome Eater",
-					"Health": 48,
-					"Id": "3680a7b9-df44-480c-a71c-9736d92a6f12",
+					{
+					"CharacterType": "Necrognomancer",
+					"Health": 55,
+					"Id": "n",
 					"MaxHealth": 55,
-					"Name": "Skeleton",
+					"Name": "Forest Sprite",
+					"ActionsDescriptions": [
+						{
+						"Description": "Deal 6 damage to target enemy",
+						"Name": "Bone Slash"
+						},
+						{
+						"Description": "Reduce damage by 50% for one turn",
+						"Name": "Rattle Guard"
+						}
+					],
+					"StatusEffects": []
+					},
+					{
+					"CharacterType": "Skeleton",
+					"Health": 10,
+					"Id": "s1",
+					"MaxHealth": 10,
+					"Name": "Summoned Skeleton 1",
 					"ActionsDescriptions": [
 					{
 						"Description": "Deal 6 damage to target enemy",
@@ -379,374 +332,111 @@ class ViewManager {
 						"Name": "Rattle Guard"
 					}
 					],
-					"StatusEffects": [
-					{
-						"AffectedCharacterIds": [
-						"3680a7b9-df44-480c-a71c-9736d92a6f12"
-						],
-						"Duration": 3,
-						"DurationUnit": 2,
-						"ModifierValues": {
-						"TickDamage": 2
-						},
-						"StatusDescription": {},
-						"StatusOwnerCharacterId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-						"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-					}
-					]
-				},
-				{
-					"CharacterType": "Goblin Archer",
-					"Health": 15,
-					"Id": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-					"MaxHealth": 15,
-					"Name": "Goblin Archer",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deals 8 damage to a target that can\\u0027t be redirected",
-						"Name": "Piercing Arrow"
+					"StatusEffects": []
 					},
 					{
-						"Description": "Deals 4 damage to a target and reduces the target\\u0027s attack power",
-						"Name": "Crippling Shot"
+					"CharacterType": "Skeleton",
+					"Health": 10,
+					"Id": "s2",
+					"MaxHealth": 10,
+					"Name": "Summoned Skeleton 2",
+					"ActionsDescriptions": [
+					{
+						"Description": "Deal 6 damage to target enemy",
+						"Name": "Bone Slash"
+					},
+					{
+						"Description": "Reduce damage by 50% for one turn",
+						"Name": "Rattle Guard"
 					}
 					],
-					"StatusEffects": [
+					"StatusEffects": []
+					},
 					{
-						"AffectedCharacterIds": [
-						"be7b20bc-363a-4ce9-ba25-e99a131207bf"
-						],
-						"Duration": 3,
-						"DurationUnit": 2,
-						"ModifierValues": {
-						"TickDamage": 2
-						},
-						"StatusDescription": {},
-						"StatusOwnerCharacterId": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-						"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
+					"CharacterType": "Skeleton",
+					"Health": 10,
+					"Id": "s3",
+					"MaxHealth": 10,
+					"Name": "Summoned Skeleton 3",
+					"ActionsDescriptions": [
+					{
+						"Description": "Deal 6 damage to target enemy",
+						"Name": "Bone Slash"
+					},
+					{
+						"Description": "Reduce damage by 50% for one turn",
+						"Name": "Rattle Guard"
 					}
-					]
-				}
+					],
+					"StatusEffects": []
+					}
 				],
 				"PlayerCharacters": [
-				{
+					{
 					"CharacterType": "Mage",
 					"Health": 20,
 					"Id": "e246199a-3baa-4464-9e9b-6424d8054839",
 					"MaxHealth": 20,
 					"Name": "Mage",
 					"ActionsDescriptions": [
-					{
+						{
 						"Description": "Deal damage to the target and then burn the target and adjacent allies for 3 turns",
 						"Name": "Fireball"
-					},
-					{
+						},
+						{
 						"Description": "Deal 10 damage to target enemy uninterrupted",
 						"Name": "Magic Missile"
-					},
-					{
+						},
+						{
 						"Description": "Deal 5 damage to a target and reduce their attack power.",
 						"Name": "Ice Ray"
-					},
-					{
+						},
+						{
 						"Description": "Target an enemy. Your next attack will also hit that enemy.",
 						"Name": "Mirror"
-					}
+						}
 					],
 					"StatusEffects": []
-				}
+					},
 				]
 			},
 			"Request": {
-				"Action": "Mirror",
-				"EncounterId": "925a03b1-31bc-43ff-a183-5c0493fbd0c4",
-				"GameSessionId": "e58541d5-4cb0-4be5-b444-8c736d10480c",
-				"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839",
-				"TargetCharacterId": "3680a7b9-df44-480c-a71c-9736d92a6f12"
+				"Action": "Summon",
+				"EncounterId": "93e31b11-5a36-45cb-82a1-b2a8c234f00a",
+				"GameSessionId": "game1",
+				"SourceCharacterId": "n",
+				"TargetCharacterId": "warrior2"
 			},
 			"Events": [
 				{
-				"event": "damage",
-				"params": {
-					"DamageAmount": 6,
-					"SourceId": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"TargetId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-					"TargetName": "Skeleton"
-				}
+					"event": "summoned",
+					"params": {
+						"SourceId": "Necrognomancer",
+						"SummonId": "s1",
+						"SummonType": "Skeleton",
+						"SummonName": "Summoned Skeleton 1"
+					}
 				},
 				{
-				"event": "burn_status_applied",
-				"params": {
-					"OwnerId": "3680a7b9-df44-480c-a71c-9736d92a6f12"
-				}
+					"event": "summoned",
+					"params": {
+						"SourceId": "Necrognomancer",
+						"SummonId": "s2",
+						"SummonType": "Skeleton",
+						"SummonName": "Summoned Skeleton 1"
+					}
 				},
 				{
-				"event": "burn_status_applied",
-				"params": {
-					"OwnerId": "be7b20bc-363a-4ce9-ba25-e99a131207bf"
-				}
-				}
+					"event": "summoned",
+					"params": {
+						"SourceId": "Necrognomancer",
+						"SummonId": "s3",
+						"SummonType": "Skeleton",
+						"SummonName": "Summoned Skeleton 1"
+					}
+				},
 			]
 			},
-			{
-			"GameState": {
-				"EnemyCharacters": [
-				{
-					"CharacterType": "Skeleton",
-					"Health": 55,
-					"Id": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-					"MaxHealth": 55,
-					"Name": "Skeleton",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deal 6 damage to target enemy",
-						"Name": "Bone Slash"
-					},
-					{
-						"Description": "Reduce damage by 50% for one turn",
-						"Name": "Rattle Guard"
-					}
-					],
-					"StatusEffects": [
-					{
-						"AffectedCharacterIds": [
-						"3680a7b9-df44-480c-a71c-9736d92a6f12"
-						],
-						"Duration": 2,
-						"DurationUnit": 2,
-						"ModifierValues": {
-						"TickDamage": 2
-						},
-						"StatusDescription": {},
-						"StatusOwnerCharacterId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-						"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-					}
-					]
-				},
-				{
-					"CharacterType": "Goblin Archer",
-					"Health": 15,
-					"Id": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-					"MaxHealth": 15,
-					"Name": "Goblin Archer",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deals 8 damage to a target that can\\u0027t be redirected",
-						"Name": "Piercing Arrow"
-					},
-					{
-						"Description": "Deals 4 damage to a target and reduces the target\\u0027s attack power",
-						"Name": "Crippling Shot"
-					}
-					],
-					"StatusEffects": [
-					{
-						"AffectedCharacterIds": [
-						"be7b20bc-363a-4ce9-ba25-e99a131207bf"
-						],
-						"Duration": 3,
-						"DurationUnit": 2,
-						"ModifierValues": {
-						"TickDamage": 2
-						},
-						"StatusDescription": {},
-						"StatusOwnerCharacterId": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-						"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-					}
-					]
-				}
-				],
-				"PlayerCharacters": [
-				{
-					"CharacterType": "Mage",
-					"Health": 12,
-					"Id": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"MaxHealth": 20,
-					"Name": "Mage",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deal damage to the target and then burn the target and adjacent allies for 3 turns",
-						"Name": "Fireball"
-					},
-					{
-						"Description": "Deal 10 damage to target enemy uninterrupted",
-						"Name": "Magic Missile"
-					},
-					{
-						"Description": "Deal 5 damage to a target and reduce their attack power.",
-						"Name": "Ice Ray"
-					},
-					{
-						"Description": "Target an enemy. Your next attack will also hit that enemy.",
-						"Name": "Mirror"
-					}
-					],
-					"StatusEffects": []
-				}
-				]
-			},
-			"Request": {
-				"Action": "Entangle",
-				"EncounterId": "",
-				"GameSessionId": "",
-				"SourceCharacterId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-				"TargetCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-			},
-			"Events": [
-				{
-				"event": "BurnTick",
-				"params": {
-					"SourceId": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"StatusAmount": 2,
-					"StatusType": "",
-					"CharacterId": "3680a7b9-df44-480c-a71c-9736d92a6f12"
-				}
-				},
-				{
-				"event": "damage",
-				"params": {
-					"DamageAmount": 6,
-					"SourceId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-					"TargetId": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"TargetName": "Mage"
-				}
-				},
-				{
-				"event": "damage",
-				"params": {
-					"DamageAmount": 6,
-					"SourceId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-					"TargetId": "2",
-					"TargetName": "Mage"
-				}
-				}
-			]
-			},
-			{
-			"GameState": {
-				"EnemyCharacters": [
-				{
-					"CharacterType": "Skeleton",
-					"Health": 12,
-					"Id": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-					"MaxHealth": 20,
-					"Name": "Skeleton",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deal 6 damage to target enemy",
-						"Name": "Bone Slash"
-					},
-					{
-						"Description": "Reduce damage by 50% for one turn",
-						"Name": "Rattle Guard"
-					}
-					],
-					"StatusEffects": [
-					{
-						"AffectedCharacterIds": [
-						"3680a7b9-df44-480c-a71c-9736d92a6f12"
-						],
-						"Duration": 2,
-						"DurationUnit": 2,
-						"ModifierValues": {
-						"TickDamage": 2
-						},
-						"StatusDescription": {},
-						"StatusOwnerCharacterId": "3680a7b9-df44-480c-a71c-9736d92a6f12",
-						"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-					}
-					]
-				},
-				{
-					"CharacterType": "Goblin Archer",
-					"Health": 13,
-					"Id": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-					"MaxHealth": 15,
-					"Name": "Goblin Archer",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deals 8 damage to a target that can\\u0027t be redirected",
-						"Name": "Piercing Arrow"
-					},
-					{
-						"Description": "Deals 4 damage to a target and reduces the target\\u0027s attack power",
-						"Name": "Crippling Shot"
-					}
-					],
-					"StatusEffects": [
-					{
-						"AffectedCharacterIds": [
-						"be7b20bc-363a-4ce9-ba25-e99a131207bf"
-						],
-						"Duration": 2,
-						"DurationUnit": 2,
-						"ModifierValues": {
-						"TickDamage": 2
-						},
-						"StatusDescription": {},
-						"StatusOwnerCharacterId": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-						"SourceCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-					}
-					]
-				}
-				],
-				"PlayerCharacters": [
-				{
-					"CharacterType": "Mage",
-					"Health": 6,
-					"Id": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"MaxHealth": 20,
-					"Name": "Mage",
-					"ActionsDescriptions": [
-					{
-						"Description": "Deal damage to the target and then burn the target and adjacent allies for 3 turns",
-						"Name": "Fireball"
-					},
-					{
-						"Description": "Deal 10 damage to target enemy uninterrupted",
-						"Name": "Magic Missile"
-					},
-					{
-						"Description": "Deal 5 damage to a target and reduce their attack power.",
-						"Name": "Ice Ray"
-					},
-					{
-						"Description": "Target an enemy. Your next attack will also hit that enemy.",
-						"Name": "Mirror"
-					}
-					],
-					"StatusEffects": []
-				}
-				]
-			},
-			"Request": {
-				"Action": "Piercing Arrow",
-				"EncounterId": "",
-				"GameSessionId": "",
-				"SourceCharacterId": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-				"TargetCharacterId": "e246199a-3baa-4464-9e9b-6424d8054839"
-			},
-			"Events": [
-				{
-				"event": "BurnTick",
-				"params": {
-					"SourceId": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"StatusAmount": 2,
-					"StatusType": "",
-					"CharacterId": "be7b20bc-363a-4ce9-ba25-e99a131207bf"
-				}
-				},
-				{
-				"event": "damage",
-				"params": {
-					"DamageAmount": 8,
-					"SourceId": "be7b20bc-363a-4ce9-ba25-e99a131207bf",
-					"TargetId": "e246199a-3baa-4464-9e9b-6424d8054839",
-					"TargetName": "Mage"
-				}
-				}
-			]
-			}
 		];
 
 		this.processTurn(sampleSteps);
@@ -814,9 +504,44 @@ class ViewManager {
 				return new RavenousGrowthAnimation(step, this);
 			case "Entangle":
 				return new EntangleAnimation(step, this);
+			case "Power Cord":
+			case "Power Chord":
+				return new PowerChordAnimation(step, this);
+			case "Summon":
+				return new SummonAnimation(step, this);
 			default:
 				return this.updateAllHealth(step.GameState);
 		}
+	}
+
+	createEnemyPuppet(type:string) {
+		switch (type)
+			{
+				case "Skeleton":
+					return new SkeletonPuppet();
+					break;
+				case "Goblin Archer":
+					return new GoblinArcherPuppet();
+					break;
+				case "Forest Sprite":
+					return new ForestSpritePuppet();
+					break;
+				case "Cave Bat":
+					return new CaveBatPuppet();
+					break;
+				case "Gnombie Brute":
+					return new GnombieBrutePuppet();
+					break;
+				case "Gnome Eater":
+					return new GnomeEaterPuppet();
+					break;
+				case "Necrognomancer":
+					return new NecrognomancerPuppet();
+					break;
+				default:
+					return new SkeletonPuppet();
+					console.log("Default triggered because it was", type);
+			}
 	}
 
 	updateAllHealth(state:GameState) {
