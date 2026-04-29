@@ -51,6 +51,14 @@ namespace Models.Actions.PlayerClassActions.BardActions
             {
                 resetBard.CurrentSong = "Soothing Song";
             }
+            if (user.ActionsDescriptions.Contains(new FrighteningSong().ActionDescription))
+            {
+                ReplaceActionInUser(user, new FrighteningSong(), new SoothingSong());
+            }
+            else if (user.ActionsDescriptions.Contains(new InspiringSong().ActionDescription))
+            {
+                ReplaceActionInUser(user, new InspiringSong(), new SoothingSong());
+            }
 
             return resolution;
         }
