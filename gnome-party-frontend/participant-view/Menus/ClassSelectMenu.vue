@@ -110,6 +110,7 @@ function onReady() {
     socketStore.send({
         route: "lobby-ready",
         CharacterType: selectedClass.value.backendName,
+        CharacterName: socketStore.playerName
     });
 }
 

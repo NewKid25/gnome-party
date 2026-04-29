@@ -961,7 +961,7 @@ loadEncounter(gameState:any)
 				y: pos.y - 8,
 				width: nameWidth,
 				align: "center",
-				// text: player.Name ?? "Player",	// player.Name is not correct, it currently shows class not the entered name
+				text: player.Name ?? "Player",	// player.Name is not correct, it currently shows class not the entered name
 				fontFamily: "Amasis MT Pro",
 				fontSize: 48 * lobbyPuppetScale,
 				fill: "#111",
@@ -972,11 +972,11 @@ loadEncounter(gameState:any)
 
 			this.lobbyLayer.add(shadow);
 			this.lobbyLayer.add(puppet);
-			// this.uiLayer.add(nameText);
+			this.uiLayer.add(nameText);
 
 			this.lobbyPlayerShadows.set(characterId, shadow);
 			this.lobbyPlayerPuppets.set(characterId, puppet);
-			// this.lobbyPlayerNames.set(characterId, nameText);
+			this.lobbyPlayerNames.set(characterId, nameText);
 		}
 	}
 
