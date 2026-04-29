@@ -1301,6 +1301,14 @@ loadEncounter(gameState:any)
 				return;
 			}
 
+			if (buttonText === "Continue") {
+				this.socket.send(JSON.stringify({
+					route: "begin-combat-encounter",
+					GameSessionId: this.socketStore.gameSessionId
+				}))
+				return;
+			}
+
 			this.combatEndOverlayGroup?.destroy();
 			this.combatEndOverlayGroup = null;
 			this.uiLayer.draw();
