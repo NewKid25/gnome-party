@@ -91,6 +91,8 @@ class ViewManager {
 	cloudGroups:Konva.Group[] = [];
 	cloudAnimation:Konva.Animation | null = null;
 
+	combatEndOverlayGroup:Konva.Group | null = null;
+
 
 	constructor() {
 		this.socket = new WebSocket("wss://ws.gnome-party.com");
@@ -287,6 +289,15 @@ loadEncounter(gameState:any)
 			this.prepareCombatScene();
 			this.socketStore.encounterId = msg.Message.EncounterId;
 			this.loadEncounter(msg.Message.GameState);
+		}
+
+		if(msg.Subject === "combat-encounter-ended") {
+			if(msg.Message === "players-defeated") {
+				this.renderCombatEndOverlay("You Died!", "Retry");
+			}
+			if(msg.Message === "enemies-defeated") {
+				this.renderCombatEndOverlay("Victory!", "Continue");
+			}
 		}
 
 		if (msg.Subject == "action-handler")
@@ -1172,6 +1183,125 @@ loadEncounter(gameState:any)
 		seq.steps.push(new AnimationPause(1000));
 
 		return seq;
+	}
+
+	renderCombatEndOverlay(titleText: string, buttonText: string) {
+		const w = this.w();
+		const h = this.h();
+
+		if (this.combatEndOverlayGroup) {
+			this.combatEndOverlayGroup.destroy();
+			this.combatEndOverlayGroup = null;
+		}
+
+		const group = new Konva.Group({
+			x: 0,
+			y: 0,
+		});
+
+		const dimmer = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: w,
+			height: h,
+			fill: "black",
+			opacity: 0.15,
+		});
+
+		const bannerWidth = w * 0.56;
+		const bannerHeight = h * 0.25;
+		const bannerX = (w - bannerWidth) / 2;
+		const bannerY = h * 0.35;
+
+		const banner = new Konva.Rect({
+			x: bannerX,
+			y: bannerY,
+			width: bannerWidth,
+			height: bannerHeight,
+			fill: "#edd99b",
+			stroke: "#6b5a2d",
+			strokeWidth: 3,
+			cornerRadius: 14,
+			shadowColor: "black",
+			shadowBlur: 10,
+			shadowOpacity: 0.35,
+		});
+
+		const title = new Konva.Text({
+			x: bannerX,
+			y: bannerY + bannerHeight * 0.18,
+			width: bannerWidth,
+			height: bannerHeight * 0.64,
+			text: titleText,
+			fontFamily: "Mystorica",
+			fontSize: Math.min(w, h) * 0.12,
+			fill: "#000",
+			align: "center",
+			verticalAlign: "middle",
+		});
+
+		const buttonWidth = w * 0.14;
+		const buttonHeight = h * 0.085;
+		const buttonX = (w - buttonWidth) / 2;
+		const buttonY = h * 0.76;
+
+		const button = new Konva.Rect({
+			x: buttonX,
+			y: buttonY,
+			width: buttonWidth,
+			height: buttonHeight,
+			fill: "#9fc765",
+			stroke: "#58752e",
+			strokeWidth: 3,
+			shadowColor: "#6f8f39",
+			shadowBlur: 5,
+			shadowOpacity: 1,
+		});
+
+		const buttonLabel = new Konva.Text({
+			x: buttonX,
+			y: buttonY,
+			width: buttonWidth,
+			height: buttonHeight,
+			text: buttonText,
+			fontFamily: "Amasis MT Pro",
+			fontSize: Math.min(w, h) * 0.045,
+			fill: "#111",
+			align: "center",
+			verticalAlign: "middle",
+			shadowColor: "white",
+			shadowBlur: 5,
+			shadowOpacity: 0.85,
+		});
+
+		const buttonGroup = new Konva.Group();
+		buttonGroup.add(button, buttonLabel);
+
+		buttonGroup.on("mouseenter", () => {
+			document.body.style.cursor = "pointer";
+		});
+
+		buttonGroup.on("mouseleave", () => {
+			document.body.style.cursor = "default";
+		});
+
+		buttonGroup.on("click", () => {
+			if (buttonText === "Retry") {
+				// TODO: send restart campaign message/handle retry logic without reloading the page
+				window.location.reload();
+				return;
+			}
+
+			this.combatEndOverlayGroup?.destroy();
+			this.combatEndOverlayGroup = null;
+			this.uiLayer.draw();
+		});
+
+		group.add(dimmer, banner, title, buttonGroup);
+
+		this.combatEndOverlayGroup = group;
+		this.uiLayer.add(group);
+		this.uiLayer.draw();
 	}
 }
 
