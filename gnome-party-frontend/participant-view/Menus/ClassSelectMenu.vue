@@ -27,7 +27,7 @@ const classOptions = reactive<ClassOption[]>([
         backendName: "Warrior",
         displayName: "Warrior",
         health: 30,
-        imageSrc: "/img/GnomeWarrior.svg",
+        imageSrc: "/img/Warrior Weapon.svg",
         imageAlt: "Warrior gnome",
         abilities: [
             { name: "Slash", description: "Deal 10 damage to a target enemy." },
@@ -40,7 +40,7 @@ const classOptions = reactive<ClassOption[]>([
         backendName: "Bard",
         displayName: "Bard",
         health: 25,
-        imageSrc: "/img/GnomeBard.svg",
+        imageSrc: "/img/Bard Weapon.svg",
         imageAlt: "Bard gnome",
         abilities: [
             { name: "Discord", description: "Deal 8 damage and reset Song." },
@@ -53,7 +53,7 @@ const classOptions = reactive<ClassOption[]>([
         backendName: "Mage",
         displayName: "Mage",
         health: 20,
-        imageSrc: "/img/GnomeMage.svg",
+        imageSrc: "/img/Mage Weapon.svg",
         imageAlt: "Mage gnome",
         abilities: [
             { name: "Magic Missile", description: "Deal 10 unblockable damage." },
