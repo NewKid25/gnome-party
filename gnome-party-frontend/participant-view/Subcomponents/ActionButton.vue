@@ -14,5 +14,8 @@ function onClick() {
 </script>
 
 <template>
-	<button type="button"class="action-button" :class="{ 'selected': model?.selected }" @click="onClick">{{ model?.actionName }}</button>
+	<button type="button"class="action-button" :class="{ 'selected': model?.selected }" @click="onClick">
+		<h3>{{ model?.actionName }}</h3>
+		<p>{{ model.actionDescription }}</p>
+	</button>
 </template>
