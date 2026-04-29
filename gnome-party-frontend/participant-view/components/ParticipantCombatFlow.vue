@@ -122,6 +122,7 @@ function onSocketMessage(event: MessageEvent) {
   if (parsedJSON.Subject === "begin-combat-encounter") {
     console.log("Updating game state:", parsedJSON.Message);
     combatFlow.latestState.value = parsedJSON.Message;
+    combatFlow.currentView.value = 'actionMenu';
   }
   if (parsedJSON.Subject !== "action-handler") {
     return;
