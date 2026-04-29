@@ -11,7 +11,7 @@ namespace Models.Actions.PlayerClassActions.BardActions
     {
         public InspiringSong() : base("Inspiring Song") // Pass the name of the action to the base constructor
         {
-            ActionDescription = new CharacterActionDescription("Inspiring Song", "Buff an ally's damage"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Inspiring Song", "Buff an ally's damage", CharacterActionTargetRule.Ally); // Set the action description
         }
 
         public override AttackResolution ResolveAttack(
@@ -36,7 +36,8 @@ namespace Models.Actions.PlayerClassActions.BardActions
             {
                 OwnerId = ally.Id
             }));
-
+            //move to next bard song
+            ReplaceActionInUser(user, this, new FrighteningSong());
             return resolution;
         }
 

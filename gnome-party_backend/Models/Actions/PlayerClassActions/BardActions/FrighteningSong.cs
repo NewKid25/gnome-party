@@ -31,7 +31,8 @@ namespace Models.Actions.PlayerClassActions.BardActions
             {
                 OwnerId = target.Id
             }));
-
+            //move to next bard song
+            ReplaceActionInUser(user, this, new SoothingSong());
             return resolution;
         }
     }

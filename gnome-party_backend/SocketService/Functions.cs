@@ -139,6 +139,11 @@ public class Functions
                 if (areEnemiesDefeated)
                 {
                     await BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("combat-encounter-ended", "enemies-defeated"));
+                   
+                    gameSession.Campaign.CurrentEncounterIndex++;//advance to next encounter
+                    gameSession.ActiveEncounterId = string.Empty;//clear active encounter 
+                    //should also delete active encounter in database here
+                    await databaseService.SaveAsync(gameSession);
                 }
                 else if (arePlayersDefeated)
                 {
@@ -196,6 +201,7 @@ public class Functions
         {
             var activeEncounter = new ActiveCombatEncounter(gameSession.Campaign.PlayerCharacters, (currentEncounter as CombatEncounter).Enemies);
             Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
+            gameSession.ActiveEncounterId = activeEncounter.EncounterId;
             tasks.Add(databaseService.SaveAsync(activeEncounter));
             tasks.Add(BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter)));
             foreach (var playerCharacter in gameSession.Campaign.PlayerCharacters)
@@ -207,7 +213,7 @@ public class Functions
         }
 
         var connectionId = request.RequestContext.ConnectionId;
-        gameSession.Campaign.CurrentEncounterIndex++;
+        //gameSession.Campaign.CurrentEncounterIndex++;
         tasks.Add(databaseService.SaveAsync(gameSession));
         await Task.WhenAll(tasks);
 
@@ -636,7 +642,17 @@ public class Functions
         Console.WriteLine($"HandleActionUpdated triggered for character {e.Character.Id}");
         try
         {
-            await SendActionUpdateToConnectionAsync(e.Character);
+            var dbService = new DatabaseService();
+
+            //await SendActionUpdateToConnectionAsync(e.Character);
+            var gameConnection = await dbService.GetGameConnectionByUserID(e.Character.Id); //must have same id as a connection's user id for this to work
+            Console.WriteLine($"Found game connection = {JsonSerializer.Serialize(gameConnection)}");
+            await SendActionUpdateToConnectionAsync(gameConnection.ConnectionId, e.Character.ActionsDescriptions);
+            var gameSession = await dbService.LoadAsync<GameSession>(gameConnection.GameSessionId);
+            var activeEncounter = await dbService.LoadAsync<ActiveCombatEncounter>(gameSession.ActiveEncounterId); // only combat encounter can be active as of yet
+            activeEncounter.GameState.PlayerCharacters.First(pc => pc.Id == e.Character.Id).ActionsDescriptions = e.Character.ActionsDescriptions;
+            Console.WriteLine($"Updated active encounter with new action descriptions for character {e.Character.Id}: {JsonSerializer.Serialize(activeEncounter.GameState.PlayerCharacters.First(pc => pc.Id == e.Character.Id).ActionsDescriptions)}");
+            await dbService.SaveAsync(activeEncounter);
         }
         catch (Exception ex)
         {

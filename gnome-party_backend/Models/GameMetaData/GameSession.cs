@@ -14,6 +14,8 @@ public class GameSession
     
     public Campaign Campaign { get; set; }
     public GameConnection Host { get; set; }
+
+    public string ActiveEncounterId { get; set; } = string.Empty;
     public GameSession() : this(new GameConnection()) { }
     public GameSession(GameConnection _host)
     {
