@@ -200,7 +200,6 @@ namespace CombatService
 
                 // Variables to hold the combat state and events
                 var roundEvents = new List<CombatEvent>();
-                var action = CharacterActionFactory.CreateCharacterAction(request.Action, rng);
 
                 //looks for characters and null checks them        
                 var srcCharacter = FindCharacter(encounter.GameState, request.SourceCharacterId);
@@ -228,6 +227,21 @@ namespace CombatService
                     combatResults.Add(stunnedResults);
                     continue;
                 }
+                CharacterAction action;
+                try
+                {
+                    action = CharacterActionFactory.CreateCharacterAction(request.Action, rng);
+                }
+                catch (ArgumentException e)
+                {
+                    roundEvents.Add(new CombatEvent("unrecognized_action", new
+                    {
+                        sourceId = srcCharacter.Id,
+                        actionName = request.Action,
+                    }));
+                    continue;
+                }
+
 
                 ProcessStatusTriggers(encounter.GameState, srcCharacter, DurationUnit.TurnStart, roundEvents); // Process status triggers that happen at the beginning of a character's turn
                 
