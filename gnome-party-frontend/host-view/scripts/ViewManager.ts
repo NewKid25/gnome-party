@@ -78,7 +78,7 @@ class ViewManager {
 	inviteCode: string = "";
 	isCombatStarted: boolean = false;
 	hasStartButtonBeenPressed: boolean = false;
-
+	
 	lobbyPlayerPuppets:Map<string, GnomePuppet> = new Map();
 	lobbyPlayerNames:Map<string, Konva.Text> = new Map();
 	lobbyPlayerShadows:Map<string, Konva.Ellipse> = new Map();
@@ -92,6 +92,7 @@ class ViewManager {
 	cloudAnimation:Konva.Animation | null = null;
 
 	combatEndOverlayGroup:Konva.Group | null = null;
+	pendingCombatEndOverlay: { title: string; button: string } | null = null;
 
 
 	constructor() {
@@ -292,11 +293,18 @@ loadEncounter(gameState:any)
 		}
 
 		if(msg.Subject === "combat-encounter-ended") {
-			if(msg.Message === "players-defeated") {
-				this.renderCombatEndOverlay("You Died!", "Retry");
+			if (msg.Message === "players-defeated") {
+				this.pendingCombatEndOverlay = {
+					title: "You Died!",
+					button: "Retry",
+				};
 			}
-			if(msg.Message === "enemies-defeated") {
-				this.renderCombatEndOverlay("Victory!", "Continue");
+
+			if (msg.Message === "enemies-defeated") {
+				this.pendingCombatEndOverlay = {
+					title: "Victory!",
+					button: "Continue",
+				};
 			}
 		}
 
@@ -336,6 +344,16 @@ loadEncounter(gameState:any)
 			animations.push(new AnimationPause(500));
 			//@ts-ignore
 			animations.push(this.updateAllHealth(turn.at(-1).GameState))
+
+		animations.push(new FunctionStep(() => {
+            if (this.pendingCombatEndOverlay) {
+                this.renderCombatEndOverlay(
+                    this.pendingCombatEndOverlay.title,
+                    this.pendingCombatEndOverlay.button
+                );
+                this.pendingCombatEndOverlay = null;
+            }
+        }));
 
 		let sequence:AnimationSequence = new AnimationSequence(animations);
 		sequence.play();
