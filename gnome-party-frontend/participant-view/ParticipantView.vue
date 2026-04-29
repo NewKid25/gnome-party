@@ -74,16 +74,6 @@ function onSocketMessage(event: MessageEvent) {
       return;
     }
 
-    // Populate available actions for the local player
-    const actionButtonList: ActionButtonModel[] = [];
-    for (const action of player.ActionsDescriptions) {
-      actionButtonList.push({
-        selected: false,
-        actionName: action.Name
-      });
-    }
-    actionListModel.actions = actionButtonList;
-
     // Populate player health
     healthBarModel.maxValue = player.MaxHealth;
     healthBarModel.value = player.Health;
@@ -100,6 +90,23 @@ function onSocketMessage(event: MessageEvent) {
       });
     }
     targetListModel.targets = enemyList;
+  }
+
+  if (parsedJSON.Subject === "actions-list-update") {
+
+    console.log("Action list:", parsedJSON);
+    
+    // Populate available actions for the local player
+    
+    const actionButtonList: ActionButtonModel[] = [];
+    for (const action of parsedJSON.Message) {
+      actionButtonList.push({
+        selected: false,
+        actionName: action.Name,
+      });
+    }
+    actionListModel.actions = actionButtonList;
+
   }
 }
 
