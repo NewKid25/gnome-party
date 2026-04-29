@@ -143,6 +143,7 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
             TargetCharacterId: target.targetId, 
             SourceCharacterId: socketStore.localCharacterId, 
             Action: action.actionName, 
+            // Action: "stunned",
             GameSessionId: socketStore.gameSessionId,
         });
 
@@ -166,7 +167,26 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
         chosenAction.value = null;
         chosenTarget.value = null;
 
-        currentView.value = "actionMenu";
+        // Check if the player is stunned; if so skip turn
+        if (latestState.value.GameState.PlayerCharacters.find((p:any) => p.Id == socketStore.localCharacterId).StatusEffects.findIndex((s:any) => s["$type"] == "StunStatus") != -1) {
+            socketStore.send({
+                route: "player-action",
+                EncounterId: socketStore.encounterId,
+                TargetCharacterId: socketStore.localCharacterId, 
+                SourceCharacterId: socketStore.localCharacterId, 
+                Action: "stunned",
+                GameSessionId: socketStore.gameSessionId,
+            });
+
+            currentView.value = "waitingMenu";
+        }
+        // Otherwise let them pick an action
+        else {
+            currentView.value = "actionMenu";
+        }
+
+
+
     }
 
     return {
