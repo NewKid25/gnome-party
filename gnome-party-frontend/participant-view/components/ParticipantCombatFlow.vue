@@ -31,6 +31,11 @@ const combatWaitingMenuModel: MessageMenuModel = reactive({
   message: "Please wait while the other players choose their actions.",
 });
 
+const combatStunnedMenuModel: MessageMenuModel = reactive({
+  title: "Stunned",
+  message: "You cannot act this turn.",
+});
+
 const combatDeadMenuModel: MessageMenuModel = reactive({
   title: "You Died!",
   message: "You were defeated by Skeleton A. Better luck next time!",
@@ -168,6 +173,9 @@ onBeforeUnmount(() => {
 
     <CombatWaitingMenu
       v-else-if="combatFlow.currentView.value === 'waitingMenu'" key="waiting-menu" v-model="combatWaitingMenuModel"/>
+
+    <CombatWaitingMenu
+      v-else-if="combatFlow.currentView.value === 'stunnedMenu'" key="stunned-menu" v-model="combatStunnedMenuModel"/>
 
     <CombatDeadMenu
       v-else-if="combatFlow.currentView.value === 'deadMenu'" key="dead-menu" v-model="combatDeadMenuModel"/>

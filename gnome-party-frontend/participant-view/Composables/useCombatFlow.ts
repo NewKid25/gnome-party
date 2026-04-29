@@ -8,7 +8,7 @@ import { TargetListModel } from "../Models/TargetListModel";
 import CharacterImage from "../Subcomponents/CharacterImage.vue";
 import { getEnemyImage } from "./getEnemyImage";
 
-export type CombatViewState = "actionMenu" | "targetMenu" | "waitingMenu" | "deadMenu";
+export type CombatViewState = "actionMenu" | "targetMenu" | "waitingMenu" | "deadMenu" | "stunnedMenu";
 
 export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
     const currentView = ref<CombatViewState>("actionMenu");
@@ -179,7 +179,7 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
                 GameSessionId: socketStore.gameSessionId,
             });
 
-            currentView.value = "waitingMenu";
+            currentView.value = "stunnedMenu";
         }
         // Otherwise let them pick an action
         else {
