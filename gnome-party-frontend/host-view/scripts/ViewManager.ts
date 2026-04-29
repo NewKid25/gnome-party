@@ -186,7 +186,7 @@ loadEncounter(gameState:any)
 		const pos = this.getPlayerCombatPosition(index, totalPlayers);
 		const combatScale = this.getCombatPuppetScale();
 
-		const puppet = new GnomePuppet();
+		const puppet = new GnomePuppet(playerCharacter.CharacterType);
 		puppet.scale({ x: combatScale, y: combatScale });
 		puppet.position({ x: pos.x, y: pos.y });
 
@@ -937,7 +937,7 @@ loadEncounter(gameState:any)
 
 			const characterId = player.Id;
 
-			const puppet = new GnomePuppet();
+			const puppet = new GnomePuppet(player.CharacterType);
 			puppet.scale({ x: lobbyPuppetScale, y: lobbyPuppetScale });
 
 			// feet position
@@ -1150,8 +1150,8 @@ loadEncounter(gameState:any)
 					return new NecrognomancerPuppet();
 					break;
 				default:
-					return new SkeletonPuppet();
 					console.log("Default triggered because it was", type);
+					return new SkeletonPuppet();
 			}
 	}
 

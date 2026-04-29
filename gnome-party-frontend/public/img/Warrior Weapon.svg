@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 128 233" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g transform="matrix(1,0,0,1,-243.213573,-494.336249)">
+        <g transform="matrix(1.084474,0,0,1,0,0)">
+            <g id="Warrior-Weapon" serif:id="Warrior Weapon" transform="matrix(1.028486,0.659619,-0.608238,1.115366,217.872019,-232.849964)">
+                <g transform="matrix(1,0,0,1,-563.524939,30.802033)">
+                    <path d="M935.469,554.436C918.924,449.653 918.97,438.767 936.802,403.103C940.075,396.558 965.112,498.984 960.043,551.659C959.032,551.86 952.802,553.103 947.469,554.436C946.626,554.647 941.246,555.992 936.802,556.436" style="fill:rgb(225,219,217);stroke:black;stroke-width:4.4px;"/>
+                </g>
+                <g transform="matrix(0.992073,-0.125665,0.125665,0.992073,-623.580007,150.349888)">
+                    <path d="M937.469,570.436C934.199,569.347 914.195,567.044 921.469,559.77C936.301,544.937 1010.057,558.473 956.819,570.094C956.592,575.982 957.03,581.882 956.802,587.77C956.779,588.362 956.75,588.316 956.097,595.141C954.866,596.684 939.008,608.421 940.802,585.103C940.92,583.569 942.187,567.095 930.135,569.103" style="fill:rgb(75,54,34);stroke:black;stroke-width:4.4px;"/>
+                </g>
+                <g transform="matrix(1,0,0,1,-558.666688,26.666667)">
+                    <path d="M931.469,459.103C928.641,464.759 941.577,545.429 942.802,549.103" style="fill:none;stroke:black;stroke-width:4.4px;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

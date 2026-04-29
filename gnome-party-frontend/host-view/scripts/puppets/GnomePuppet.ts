@@ -10,11 +10,12 @@ class GnomePuppet extends Konva.Group implements Puppet {
 	beard:Konva.Image
 	hat:Konva.Image
 	nose:Konva.Image
+	weapon:Konva.Image
 	
 	static readonly WIDTH = 437;
 	static readonly HEIGHT = 595;
 
-	constructor() {
+	constructor(charClass:string = "Warrior") {
 		super();
 
 		const baseX = -GnomePuppet.WIDTH / 2;
@@ -74,6 +75,28 @@ class GnomePuppet extends Konva.Group implements Puppet {
 			height: GnomePuppet.HEIGHT,
 		});
 		this.add(this.nose);
+
+		const weaponImg = new Image();
+		switch (charClass) {
+			case "Warrior":
+				weaponImg.src = "/img/Warrior Weapon.svg";
+				break;
+			case "Mage":
+				weaponImg.src = "/img/Mage Weapon.svg";
+				break;
+			case "Bard":
+				weaponImg.src = "/img/Bard Weapon.svg";
+				break;
+		}
+
+		this.weapon = new Konva.Image({
+			x: baseX + GnomePuppet.WIDTH / 1.75,
+			y: baseY + GnomePuppet.HEIGHT / 4 ,
+			image: weaponImg,
+			width: GnomePuppet.WIDTH * .5,
+			height: GnomePuppet.HEIGHT * .5,
+		});
+		this.add(this.weapon);
 
 		this.scale({ x: 1, y: 1 });
 		this.position({ x: 0, y: 0 });
