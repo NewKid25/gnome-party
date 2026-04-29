@@ -38,7 +38,7 @@ function onSocketMessage(event: MessageEvent) {
         hasJoined.value = true;
 
         console.log("Joined game session:", socketStore.gameSessionId);
-
+        socketStore.playerName = model.playerName;
         emit("joined");
         // TODO: navigate to character customization screen then waiting room
     }

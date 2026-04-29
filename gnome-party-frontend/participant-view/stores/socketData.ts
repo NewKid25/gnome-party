@@ -10,6 +10,7 @@ export const useSocketData = defineStore("socketData", () => {
     const localCharacterId = ref(""); // character id, created on ready
     const gameSessionId = ref("");
     const encounterId = ref("");
+    const playerName = ref("");
     const inviteCode = ref<number | null>(null);
 
     function connect(url: string) {
@@ -59,6 +60,7 @@ export const useSocketData = defineStore("socketData", () => {
         localCharacterId,
         gameSessionId,
         encounterId,
+        playerName,
         inviteCode,
         connect,
         send,
