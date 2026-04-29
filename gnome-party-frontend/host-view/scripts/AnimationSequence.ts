@@ -17,6 +17,8 @@ class AnimationSequence implements AnimationStep {
 			});
 
 			this.steps[0].play();
+		} else if (this.onFinish) {
+			this.onFinish();
 		}
 		
 	}

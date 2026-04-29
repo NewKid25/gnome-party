@@ -443,16 +443,18 @@ loadEncounter(gameState:any)
 	instantiateEventAnimation(step: TurnStep) {
 		if (!step.Events || step.Events.length === 0) return undefined;
 
-		return new FunctionStep(() => {
-			for (const combatEvent of step.Events) {
-				if (combatEvent.event === "damage") {
+		var seq = new AnimationSequence([]);
+
+		for (const combatEvent of step.Events) {
+			if (combatEvent.event === "damage") {
+				seq.steps.push(new FunctionStep(() => {
 					const targetId = combatEvent.params.TargetId;
 
 					const targetHealth =
 						step.GameState.PlayerCharacters.find((c: any) => c.Id === targetId)?.Health ??
 						step.GameState.EnemyCharacters.find((c: any) => c.Id === targetId)?.Health;
 
-					if (targetHealth === undefined) continue;
+					if (targetHealth === undefined) return;
 
 					const playerTarget = this.playerVisualComponents.get(targetId);
 					const enemyTarget = this.enemyVisualComponents.get(targetId);
@@ -464,14 +466,26 @@ loadEncounter(gameState:any)
 					if (enemyTarget) {
 						enemyTarget.healthbar.changeHealth(Math.max(0, targetHealth));
 					}
-				}
 
-				if (combatEvent.event === "defeated") {
+					console.log("Damage event animation");
+				}));
+			}
+			if (combatEvent.event === "defeated") {
+				seq.steps.push(new FunctionStep(() => {
 					const targetId = combatEvent.params.TargetId;
 					this.markCharacterDefeated(targetId);
-				}
+				}));
 			}
-		});
+			if (combatEvent.event === "mirror_activated") {
+				let fakeStep = {...step};
+				fakeStep.Request.SourceCharacterId = combatEvent.params.sourceId
+				fakeStep.Request.TargetCharacterId = combatEvent.params.targetId
+				fakeStep.Request.Action = combatEvent.params.actionName
+				seq.steps.push(this.instantiateActionAnimation(fakeStep))
+			}
+		}
+
+		return seq;
 	}
 
 	prepareCombatScene() {
