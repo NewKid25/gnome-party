@@ -360,6 +360,7 @@ public class Functions
             {
                 "Mage" => new Mage(),
                 "Warrior" => new Warrior(),
+                "Bard" => new Bard(),
                 _ => throw new ArgumentException($"Unknown character type: {lobbyReadyRequest.CharacterType}")
 
             };
