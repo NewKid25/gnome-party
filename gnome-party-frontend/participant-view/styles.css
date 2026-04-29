@@ -39,6 +39,7 @@ body {
     min-height: 420px;
     position: relative;
     gap: clamp(0.9rem, 2.2vh, 1.6rem);
+    padding-bottom: clamp(1.5rem, 6vh, 4rem);
 }
 
 .action-button {
@@ -466,7 +467,7 @@ feComponentTransfer :indeterminate function table
 /* Class Select Screen Styling */
 .class-select-menu {
     width: 100%;
-    min-height: min(82dvh, 46rem);
+    height: 100%;
 
     display: grid;
     grid-template-rows:
@@ -477,10 +478,11 @@ feComponentTransfer :indeterminate function table
         clamp(11rem, 24vh, 13.5rem)
         auto
         clamp(3.5rem, 8vh, 4.25rem)
-        auto;
+        auto
+        clamp(1rem, 3vh, 2rem);
 
     gap: clamp(0.9rem, 2.2vh, 1.35rem);
-    padding: clamp(1rem, 2.5vh, 1.5rem) clamp(1.2rem, 4vw, 2rem);
+    padding: clamp(1rem, 2.5vh, 1.5rem) clamp(1.2rem, 4vw, 2rem) 0;
 }
 
 .class-select-title {
@@ -505,8 +507,9 @@ feComponentTransfer :indeterminate function table
     display: grid;
     grid-template-columns: clamp(2rem, 8vw, 3rem) 1fr clamp(2rem, 8vw, 3rem);
     align-items: center;
+    justify-self: center;
     gap: clamp(0.5rem, 1.8vw, 0.9rem);
-    width: 100%;
+    width: 80%;
     min-height: 0;
 }
 
@@ -533,13 +536,16 @@ feComponentTransfer :indeterminate function table
 .class-card {
     height: 100%;
     min-height: 0;
+    width: min(90%, 22rem);
+    justify-self: center;
 
     display: grid;
     grid-template-rows: 1fr auto;
     align-items: center;
     justify-items: center;
-
-    padding: clamp(0.9rem, 2vh, 1.15rem);
+    gap: clamp(0.5rem, 1.5vh, 1rem); 
+    
+    padding: clamp(0.8rem, 1.5vh, 1.2rem);
     border-radius: clamp(18px, 3vw, 28px);
     border: 1.5px solid #8f8f8f;
     background-color: #dfeaf1;
@@ -556,9 +562,9 @@ feComponentTransfer :indeterminate function table
 }
 
 .class-card-image {
-    width: min(48%, 7rem);
-    max-width: 100%;
-    max-height: 100%;
+    width: auto;
+    height: 100%;
+    max-height: clamp(7rem, 14vh, 10rem);
     object-fit: contain;
     display: block;
 }
@@ -568,7 +574,7 @@ feComponentTransfer :indeterminate function table
     justify-content: center;
     align-items: center;
     gap: clamp(0.2rem, 0.8vw, 0.35rem);
-    min-height: 1.5rem;
+    margin-top: 0.2rem;
 }
 
 .class-heart {
@@ -589,6 +595,7 @@ feComponentTransfer :indeterminate function table
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 0.2rem;
 }
 
 .class-abilities-panel {
