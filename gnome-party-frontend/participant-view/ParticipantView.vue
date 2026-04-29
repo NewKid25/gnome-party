@@ -104,6 +104,7 @@ function onSocketMessage(event: MessageEvent) {
       actionButtonList.push({
         selected: false,
         actionName: action.Name,
+        actionDescription: action.Description,
         targetRule: action.TargetRule
       });
     }
