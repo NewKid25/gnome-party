@@ -9,7 +9,7 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
     {
         public WhirlingStrike() : base("Whirling Strike") // Call the base constructor with the name of the action
         {
-            ActionDescription = new CharacterActionDescription("Whirling Strike", "Deal 5 damage to all enemies"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Whirling Strike", "Deal 5 damage to all enemies", CharacterActionTargetRule.NoTargets); // Set the action description
         }
 
         // Override the ResolveAttack method to implement the logic for dealing damage to all enemies

@@ -12,7 +12,7 @@ namespace Models.Actions.PlayerClassActions.WarriorActions
     {
         public Block() : base("Block") // Pass the name of the action to the base constructor
         {
-            ActionDescription = new CharacterActionDescription("Block", "Guard an ally"); // Set the action description
+            ActionDescription = new CharacterActionDescription("Block", "Guard an ally", CharacterActionTargetRule.Ally); // Set the action description
         }
         public override AttackResolution ResolveAttack( // Override the ResolveAttack method to implement the action's effect
             Character user, 
