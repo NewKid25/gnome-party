@@ -1,6 +1,7 @@
 ﻿using Models.ActionMetaData;
 using Models.CharacterData;
 using Models.CombatData;
+using System.Text.Json.Serialization;
 
 namespace Models.Actions
 {

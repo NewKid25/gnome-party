@@ -194,6 +194,11 @@ public class Functions
             Console.WriteLine($"Active encounter: {JsonSerializer.Serialize(activeEncounter)}");
             tasks.Add(databaseService.SaveAsync(activeEncounter));
             tasks.Add(BroadcastToConnectionAsync(gameSession, request, new ConnectionMessage("begin-combat-encounter", activeEncounter)));
+            foreach (var playerCharacter in gameSession.Campaign.PlayerCharacters)
+            {
+                var participantConnection = gameSession.Participants.First(p => p.UserId == playerCharacter.Id);
+                tasks.Add(SendToConnectionAsync(participantConnection.ConnectionId, request, new ConnectionMessage("actions-list-update", playerCharacter.ActionsDescriptions)));
+            }
         }
 
         var connectionId = request.RequestContext.ConnectionId;
@@ -208,7 +213,6 @@ public class Functions
         };
     }
 
-    //{"route":"join-game", "InviteCode":849175}
     //{"route":"join-game", "InviteCode":849175}
     public async Task<APIGatewayProxyResponse> JoinGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
@@ -289,7 +293,6 @@ public class Functions
     }
 
     //{"route":"host-game"}
-    //{"route":"host-game"}
     public async Task<APIGatewayProxyResponse> HostGameSessionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -338,6 +341,7 @@ public class Functions
     }
 
     //{"route":"lobby-ready", "CharacterType":"Mage"}
+    // {"route":"lobby-ready", "CharacterType":"Mage", "CharacterName":"Gandalf"}
     public async Task<APIGatewayProxyResponse> LobbyParticipantReadyHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
@@ -360,6 +364,7 @@ public class Functions
 
             };
             character.Name = lobbyReadyRequest.CharacterName;   
+            character.Id = connection.UserId;
             gameSession.AddPlayerCharacter(character);
 
             var tasks = new List<Task>

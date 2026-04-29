@@ -47,6 +47,10 @@ namespace Models.CharacterData
                 new Block().ActionDescription
             };
         }
+
+        //ignore descriptions by default to avoid unnecessary data size during combat
+        //to send descriptions to frontend, get it out seperately
+        [JsonIgnore] 
         public List<CharacterActionDescription> ActionsDescriptions { get; set; }
 
         [DynamoDBProperty(typeof(StatusEffectListConverter))]
