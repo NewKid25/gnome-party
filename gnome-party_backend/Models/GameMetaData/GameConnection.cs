@@ -8,7 +8,8 @@ public class GameConnection
     [DynamoDBHashKey]
     public string ConnectionId { get; set; }
     public string GameSessionId { get; set; }
-    public string UserId { get; set; }
+    [DynamoDBGlobalSecondaryIndexHashKey("UserId-index")]
+    public string UserId { get; set; } //same as character's id if this is a participant
     public GameConnection() : this ("uninitialized_connection_id") { }
     public GameConnection(string connectionId, string userId="not_inited", string gameSessionId = "not_inited")
     {

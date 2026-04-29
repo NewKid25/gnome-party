@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace Models.Actions
 {
     // Base class for character actions
-    public abstract class CharacterAction 
+    public abstract class CharacterAction
     {
         public string AttackName { get; private set; }
         public bool Unblockable { get; private set; }

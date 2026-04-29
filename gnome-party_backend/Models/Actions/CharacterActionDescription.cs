@@ -1,7 +1,7 @@
 ﻿
 namespace Models.Actions;
 // Class for describing character actions
-public class CharacterActionDescription
+public class CharacterActionDescription : IEquatable<CharacterActionDescription>
 {
     public string Description { get; set; }
     public string Name { get; set; }
@@ -18,5 +18,11 @@ public class CharacterActionDescription
         Name = name;
         Description = description;
         TargetRule = targetRule;
+    }
+
+    public bool Equals(CharacterActionDescription? other)
+    {
+        if (other == null) return false;
+        return Name == other.Name;
     }
 }

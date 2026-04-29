@@ -60,6 +60,23 @@ public class DatabaseService : IDatabaseService
             return searchResponse[0]; //if we found anything that matches our condition, get the first one
         }
     }
+    public async Task<GameConnection> GetGameConnectionByUserID(string userId)
+    {
+        var search = DBContext.FromQueryAsync<GameConnection>(new QueryOperationConfig()
+        {
+            IndexName = "UserId-index",
+            Filter = new QueryFilter("UserId", QueryOperator.Equal, userId)
+        });
+        var searchResponse = await search.GetRemainingAsync();
+        if (searchResponse.Count == 0)
+        {
+            throw new KeyNotFoundException($"Game connection with user id '{userId}' was not found.");
+        }
+        else
+        {
+            return searchResponse[0]; //if we found anything that matches our condition, get the first one
+        }
+    }
     public async Task<T> LoadAsync<T>(Object hashKey)
     {
         return await DBContext.LoadAsync<T>(hashKey);

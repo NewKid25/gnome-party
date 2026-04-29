@@ -6,6 +6,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using GnomeParty.Database;
 using Models;
+using Models.Actions;
 using Models.CharacterData;
 using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
@@ -68,6 +69,9 @@ public class Functions
                     AuthenticationRegion = regionName
                 });
         });
+
+        // Subscribe to action update events
+        SocketEvents.OnActionUpdated += HandleActionUpdated;
     }
 
     /// <summary>
@@ -197,7 +201,8 @@ public class Functions
             foreach (var playerCharacter in gameSession.Campaign.PlayerCharacters)
             {
                 var participantConnection = gameSession.Participants.First(p => p.UserId == playerCharacter.Id);
-                tasks.Add(SendToConnectionAsync(participantConnection.ConnectionId, request, new ConnectionMessage("actions-list-update", playerCharacter.ActionsDescriptions)));
+                //tasks.Add(SendToConnectionAsync(, request, new ConnectionMessage("actions-list-update", )));
+                tasks.Add(SendActionUpdateToConnectionAsync(participantConnection.ConnectionId, playerCharacter.ActionsDescriptions));
             }
         }
 
@@ -596,5 +601,46 @@ public class Functions
         }
             //await Task.WhenAll(tasks);
         return true;
+    }
+
+    /// <summary>
+    /// Asynchronously sends an action update for the specified character to the connected client.
+    /// </summary>
+    /// <remarks>This method performs network operations and requires an established connection before being
+    /// called.</remarks>
+    /// <param name="character">The character whose action update is to be sent. MUST BE A CHARACTER THAT REPRESENTS A PLAYER</param>
+    /// <returns>A task that represents the asynchronous operation. The task result is <see langword="true"/> if the action
+    /// update was successfully sent; otherwise, <see langword="false"/>.</returns>
+    public async Task<bool> SendActionUpdateToConnectionAsync(Character character)
+    {
+        Console.WriteLine($"SendActionUpdateToConnectionAsync called for character {character.Id}");
+        var dbService = new DatabaseService();
+        var gameConnection = await dbService.GetGameConnectionByUserID(character.Id); //must have same id as a connection's user id for this to work
+        Console.WriteLine($"Found game connection = {JsonSerializer.Serialize(gameConnection)}");
+        return await SendActionUpdateToConnectionAsync(gameConnection.ConnectionId, character.ActionsDescriptions);
+    }
+    public async Task<bool> SendActionUpdateToConnectionAsync(string connectionId, List<CharacterActionDescription> descriptions)
+    {
+        //hardcoding so will work with send call but don't need reference to someone's APIGatewayProxyRequest
+        string domainName = "ws.gnome-party.com"; 
+        string stage = "Prod";
+        await SendToConnectionAsync(connectionId, domainName, stage, new ConnectionMessage("actions-list-update", descriptions));
+        return true;
+    }
+
+    /// <summary>
+    /// Handles action update events and sends the updated action descriptions to the player's connection.
+    /// </summary>
+    private async void HandleActionUpdated(object sender, SocketEvents.ActionUpdatedEventArgs e)
+    {
+        Console.WriteLine($"HandleActionUpdated triggered for character {e.Character.Id}");
+        try
+        {
+            await SendActionUpdateToConnectionAsync(e.Character);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to send action update for user {e.Character.Id}: {ex.Message}");
+        }
     }
 }

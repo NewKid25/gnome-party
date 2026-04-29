@@ -6,35 +6,22 @@ namespace Models.CharacterData.PlayerCharacterClasses
     public sealed class Bard : Character
     {
         public string CurrentSong;
-        public Bard() : base(Guid.NewGuid().ToString())
-        {
-            // List of actions availiable to the Bard
-            ActionsDescriptions = new List<CharacterActionDescription>
-            {
-                new Discord().ActionDescription,
-                new Song().ActionDescription,
-                new Mockery().ActionDescription,
-                new PowerCord().ActionDescription,
-            };
-            CharacterType = "Bard";
-            Health = 25;
-            MaxHealth = 25;
-            Name = "Bard";
-            CurrentSong = BardSongs.Soothing;
-        }
+        public Bard() : this(Guid.NewGuid().ToString()) { }
+
         public Bard(string id) : base(id)
         {
             // List of actions availiable to the Bard
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Discord().ActionDescription,
-                new Song().ActionDescription,
+                //new Song().ActionDescription,
+                new SoothingSong().ActionDescription,
                 new Mockery().ActionDescription,
                 new PowerCord().ActionDescription,
             };
             CharacterType = "Bard";
-            Health = 25;
-            MaxHealth = 25;
+            Health = 1000;
+            MaxHealth = 1000;
             Name = "Bard";
             CurrentSong = BardSongs.Soothing;
         }
