@@ -13,6 +13,7 @@ type TextPopupAnimationParams = {
 	layer:Konva.Layer,
 	textFill?:string,
 	textOutline?:string,
+	fontSize?:number,
 }
 
 export default
@@ -33,18 +34,21 @@ class TextPopupAnimation implements AnimationStep {
 
 	onFinish: Function | undefined;
 
-	constructor({text, position, layer, textFill = "#ffffff", textOutline = "#000000"}:TextPopupAnimationParams) {
+	constructor({text, position, layer, textFill = "#ffffff", textOutline = "#000000", fontSize = 20}:TextPopupAnimationParams) {
 
 		this.textNode = new Konva.Text({
 			text: text,
-			x: position.x,
+			x: position.x - (fontSize * 10),
 			y: position.y + 20,
 			fill: textFill,
 			stroke: textOutline,
 			strokeWidth: 1,
 			fontStyle: "800",
 			opacity: 0.0,
-			fontSize: 20,
+			fontSize: fontSize,
+			align: "center",
+			wrap: "word",
+			width: fontSize * 20
 		})
 
 		layer.add(this.textNode);

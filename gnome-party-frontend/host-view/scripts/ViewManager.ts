@@ -312,6 +312,15 @@ loadEncounter(gameState:any)
 
 		for (let step of turn) 
 		{
+			let stepNameAnimation = new TextPopupAnimation({
+				text: step.Request.Action,
+				position: (this.playerVisualComponents.get(step.Request.SourceCharacterId)?.puppet.position()) ?? (this.enemyVisualComponents.get(step.Request.SourceCharacterId)?.puppet.position()) ?? {x: 0, y:0},
+				layer: this.uiLayer,
+				fontSize: 30
+			})
+			
+			animations.push(stepNameAnimation);
+
 			let actionAnimation:AnimationStep | undefined = this.instantiateActionAnimation(step);
 			if (actionAnimation) {
 				animations.push(actionAnimation);
