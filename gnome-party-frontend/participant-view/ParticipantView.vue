@@ -13,6 +13,7 @@ import { HealthBarModel } from "./Models/HealthBarModel";
 import { PlayerStatusModel } from "./Models/PlayerStatusModel";
 import { TargetButtonModel } from "./Models/TargetButtonModel";
 import { TargetListModel } from "./Models/TargetListModel";
+import { getEnemyImage } from "./Composables/getEnemyImage";
 
 type ParticipantPhase = "lobby" | "combat";
 
@@ -85,7 +86,7 @@ function onSocketMessage(event: MessageEvent) {
         selected: false,
         targetName: enemy.Name,
         healthbar: { value: enemy.Health, maxValue: enemy.MaxHealth },
-        characterImage: { source: "/img/Skeleton.svg", alt: enemy.Name },
+        characterImage: { source: getEnemyImage(enemy.Name), alt: enemy.Name },
         targetId: enemy.Id
       });
     }

@@ -14,6 +14,7 @@ import { TargetListModel } from "../Models/TargetListModel";
 
 import { useCombatFlow } from "../Composables/useCombatFlow";
 import { useSocketData } from "../stores/socketData";
+import { getEnemyImage } from "../Composables/getEnemyImage";
 
 const props = defineProps<{
   combatActionMenuModel: {
@@ -99,7 +100,7 @@ function updateActionTargets(latestState: any) {
         maxValue: enemy.MaxHealth,
       },
       characterImage: {
-        source: "/img/Skeleton.svg",
+        source: getEnemyImage(enemy.Name),
         alt: enemy.Name,
       },
       targetId: enemy.Id,

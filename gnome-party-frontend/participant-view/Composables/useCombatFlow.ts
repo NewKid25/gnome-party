@@ -6,6 +6,7 @@ import { PlayerStatusModel } from "../Models/PlayerStatusModel";
 import { useSocketData } from "../stores/socketData";
 import { TargetListModel } from "../Models/TargetListModel";
 import CharacterImage from "../Subcomponents/CharacterImage.vue";
+import { getEnemyImage } from "./getEnemyImage";
 
 export type CombatViewState = "actionMenu" | "targetMenu" | "waitingMenu" | "deadMenu";
 
@@ -63,7 +64,7 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
                         maxValue: enemy.MaxHealth,
                     },
                     characterImage: {
-                        source: "/img/Skeleton.svg",
+                        source: getEnemyImage(enemy.Name),
                         alt: enemy.Name,
                     },
                     targetId: enemy.Id,
