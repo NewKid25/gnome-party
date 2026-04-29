@@ -103,6 +103,7 @@ function onSocketMessage(event: MessageEvent) {
       actionButtonList.push({
         selected: false,
         actionName: action.Name,
+        targetRule: action.TargetRule
       });
     }
     actionListModel.actions = actionButtonList;

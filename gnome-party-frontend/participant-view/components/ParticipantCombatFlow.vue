@@ -44,6 +44,13 @@ const socket = socketStore.socket ?? socketStore.connect(SOCKET_URL);
 
 const combatFlow = useCombatFlow(props.combatActionMenuModel.playerStatusModel);
 
+enum TargetRule {
+  Enemy,
+  Ally,
+  AllyOrSelf,
+  NoTargets
+}
+
 function getLatestStateFromActionHandler(message: unknown) {
   if (!Array.isArray(message) || message.length === 0) {
     return null;
@@ -82,7 +89,7 @@ function updateLocalPlayerHealth(latestState: any) {
   return localPlayer;
 }
 
-function updateEnemyTargets(latestState: any) {
+function updateActionTargets(latestState: any) {
   const enemyList: TargetButtonModel[] = latestState.GameState.EnemyCharacters.map(
     (enemy: any) => ({
       selected: false,
@@ -106,6 +113,10 @@ function onSocketMessage(event: MessageEvent) {
   const parsedJSON = JSON.parse(event.data);
   console.log("ParticipantView message:", parsedJSON.Subject);
 
+  if (parsedJSON.Subject === "begin-combat-encounter") {
+    console.log("Updating game state:", parsedJSON.Message);
+    combatFlow.latestState.value = parsedJSON.Message;
+  }
   if (parsedJSON.Subject !== "action-handler") {
     return;
   }
@@ -117,10 +128,13 @@ function onSocketMessage(event: MessageEvent) {
     return;
   }
 
+  console.log("Updating game state:", latestState);
+  combatFlow.latestState.value = latestState;
+
   const localPlayer = updateLocalPlayerHealth(latestState);
   if (!localPlayer) return;
 
-  updateEnemyTargets(latestState);
+  updateActionTargets(latestState);
 
   console.log(
     "Participant health updated:",
@@ -149,7 +163,7 @@ onBeforeUnmount(() => {
       v-if="combatFlow.currentView.value === 'actionMenu'" key="action-menu" :model-value="props.combatActionMenuModel" @action-chosen="combatFlow.onActionChosen"/>
 
     <CombatTargetMenu 
-      v-else-if="combatFlow.currentView.value === 'targetMenu'" key="target-menu" :model-value="props.combatTargetMenuModel" @target-chosen="combatFlow.onTargetChosen"/>
+      v-else-if="combatFlow.currentView.value === 'targetMenu'" key="target-menu" :model-value="{targetListModel: combatFlow.targetList.value}" @target-chosen="combatFlow.onTargetChosen"/>
 
     <CombatWaitingMenu
       v-else-if="combatFlow.currentView.value === 'waitingMenu'" key="waiting-menu" v-model="combatWaitingMenuModel"/>
