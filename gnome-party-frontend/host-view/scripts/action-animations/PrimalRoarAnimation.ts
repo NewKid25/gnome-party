@@ -46,12 +46,12 @@ class PrimalRoarAnimation implements AnimationStep
 		{
 			this.anim = new AnimationSequence([
 				new FunctionStep(()=> {
-					roarIcon.position({x: enemy.position().x - enemy.width() * 4.6, y: enemy.position().y - roarIcon.getHeight() * 0.7 / 1.3 + 20});
+					roarIcon.position({x: enemy.position().x - roarIcon.width() / 2 * roarIcon.scale().x, y: enemy.position().y - roarIcon.height() / 2 * roarIcon.scale().y});
 				}),
 				new SimultaneousAnimation([
 					new SpawnIconAnimation({
 						node: roarIcon,
-						position: {x: () => enemy.position().x, y: () => enemy.position().y - roarIcon.getHeight() * 0.7 / 1.3},
+						position: {x: () => enemy.position().x - roarIcon.width() / 2 * roarIcon.scale().x, y: () => enemy.position().y - roarIcon.height() / 2 * roarIcon.scale().y},
 						layer: vm.uiLayer,
 					}),
 					new TextPopupAnimation({
