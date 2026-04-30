@@ -7,6 +7,8 @@ class GoblinArcherPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
+	static readonly WIDTH = 193;
+	static readonly HEIGHT = 293;
 	
 	constructor() {
 		super();
@@ -19,15 +21,17 @@ class GoblinArcherPuppet extends Konva.Group implements Puppet {
 		this.body = new Konva.Image({
 			x: 0,
 			y: 0,
+			width: GoblinArcherPuppet.WIDTH,
+			height: GoblinArcherPuppet.HEIGHT,
 			// offset: imgOffset,
 			image: bodyImg,
 		});
 		this.add(this.body);
 
 		
-		this.width(203/ 2);
-		this.height(300 / 2);
-		this.scale({x: 0.3, y: 0.3})
+		// this.width(203/ 2);
+		// this.height(300 / 2);
+		// this.scale({x: 0.3, y: 0.3})
 		this.offset(imgOffset);
 		this.position({x: 0, y:0});
 

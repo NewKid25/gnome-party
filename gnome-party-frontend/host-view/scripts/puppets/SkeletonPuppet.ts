@@ -7,8 +7,8 @@ class SkeletonPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
-	static readonly WIDTH = 351;
-	static readonly HEIGHT = 449;
+	static readonly WIDTH = 385;
+	static readonly HEIGHT = 362;
 
 	constructor() {
 		super();
