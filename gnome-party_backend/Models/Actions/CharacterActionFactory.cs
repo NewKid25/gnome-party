@@ -49,7 +49,6 @@ public class CharacterActionFactory
             // Bard Attacks
             "Discord" => new Discord(),
             "Mockery" => new Mockery(),
-            "Song" => new Song(),
             "Soothing Song" => new SoothingSong(),
             "Inspiring Song" => new InspiringSong(),
             "Frightening Song" => new FrighteningSong(),

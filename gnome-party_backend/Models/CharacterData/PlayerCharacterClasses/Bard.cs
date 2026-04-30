@@ -14,7 +14,6 @@ namespace Models.CharacterData.PlayerCharacterClasses
             ActionsDescriptions = new List<CharacterActionDescription>
             {
                 new Discord().ActionDescription,
-                //new Song().ActionDescription,
                 new SoothingSong().ActionDescription,
                 new Mockery().ActionDescription,
                 new PowerCord().ActionDescription,
@@ -25,29 +24,6 @@ namespace Models.CharacterData.PlayerCharacterClasses
             Name = "Bard";
             CurrentSong = BardSongs.Soothing;
         }
-
-        public void ChangeBardicSong(string currentSong)
-        {
-            // Switch statement to change the song that is being played after the Song Action was taken
-            if(currentSong == null) { throw new ArgumentNullException(nameof(currentSong)); }
-           
-            switch(currentSong)
-            {
-                case BardSongs.Soothing:
-                    CurrentSong = BardSongs.Inspiring;
-                    break;
-                case BardSongs.Inspiring:
-                    CurrentSong = BardSongs.Frightening;
-                    break;
-                case BardSongs.Frightening:
-                    CurrentSong = BardSongs.Soothing;
-                    break;
-                default:
-                    CurrentSong = BardSongs.Soothing;
-                    break;
-            };
-        }
-
         public CharacterActionDescription GetCurrentSong() 
         { 
             var possibleSongActionDescriptions = new List<CharacterActionDescription>
