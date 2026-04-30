@@ -30,22 +30,104 @@ public class Campaign
                 new CombatEncounter
                 {
                     Enemies = [
+                        new GoblinArcher(),
+                        new GoblinArcher(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new Skeleton(),
+                        new Skeleton(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
                         new Skeleton(),
                         new GoblinArcher(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
                         new GnombieBrute(),
                     ]
                 },
+                
+                // Using less tested enemies
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new GoblinArcher(),
+                        new ForestSprite(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new CaveBat(),
+                        new Skeleton(),
+                        new CaveBat(),
+                    ]
+                }
+
             ],
             // medium pool
             [
                 new CombatEncounter
                 {
                     Enemies = [
+                        new Skeleton(),
+                        new GnombieBrute(),
+                        new Skeleton(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new GnombieBrute(),
+                        new GnombieBrute(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new GoblinArcher(),
+                        new Skeleton(),
+                        new Skeleton(),
+                        new GoblinArcher(),
+                    ]
+                },
+
+                // Using less tested enemies
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new GoblinArcher(),
+                        new ForestSprite(),
+                        new GoblinArcher(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new CaveBat(),
                         new Skeleton()
                         {
-                            Health = 15,
-                            MaxHealth = 15,
-                        }
+                            Health = 40,
+                            MaxHealth = 40,
+                        },
+                        new CaveBat(),
+                    ]
+                },
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new CaveBat(),
+                        new CaveBat(),
+                        new CaveBat(),
+                        new CaveBat(),
                     ]
                 }
             ]
