@@ -45,7 +45,9 @@ class EntangleAnimation implements AnimationStep
 		noteImg.src = "/img/Leaf Dart.svg";
 		let noteIcon = new Konva.Image({
 			image: noteImg,
-			scale: {x: 0.4, y: 0.4},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 37,
+			height: 97,
 			opacity: 0.0,
 		});
 

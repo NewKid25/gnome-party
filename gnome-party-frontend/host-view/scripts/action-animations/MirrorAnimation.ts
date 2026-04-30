@@ -36,7 +36,9 @@ class MirrorAnimation implements AnimationStep
 		blockImg.src = "/img/Mirror.svg";
 		let blockIcon = new Konva.Image({
 			image: blockImg,
-			scale: {x: 0.2, y: 0.2},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 177,
+			height: 233,
 			opacity: 0.0,
 		});
 

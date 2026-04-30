@@ -52,7 +52,9 @@ class SoulDrainAnimation implements AnimationStep
 			noteImg.src = "/img/Soul Drain.svg";
 			let noteIcon = new Konva.Image({
 				image: noteImg,
-				scale: {x: 0.2, y: 0.2},
+				scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+				width: 54,
+				height: 46,
 				opacity: 0.0,
 			});
 	

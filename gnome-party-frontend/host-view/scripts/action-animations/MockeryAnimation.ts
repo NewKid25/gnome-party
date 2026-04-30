@@ -47,7 +47,9 @@ class MockeryAnimation implements AnimationStep
 		noteImg.src = "/img/Mockery.svg";
 		let noteIcon = new Konva.Image({
 			image: noteImg,
-			scale: {x: 0.4, y: 0.4},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 202,
+			height: 208,
 			opacity: 0.0,
 		});
 
