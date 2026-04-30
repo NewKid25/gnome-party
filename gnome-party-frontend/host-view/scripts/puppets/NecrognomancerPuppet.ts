@@ -7,6 +7,8 @@ class NecrognomancerPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
+	static readonly WIDTH = 539;
+	static readonly HEIGHT = 511;
 	
 	constructor() {
 		super();
@@ -19,6 +21,8 @@ class NecrognomancerPuppet extends Konva.Group implements Puppet {
 		this.body = new Konva.Image({
 			x: 0,
 			y: 0,
+			width: NecrognomancerPuppet.WIDTH,
+			height: NecrognomancerPuppet.HEIGHT,
 			// offset: imgOffset,
 			image: bodyImg,
 		});

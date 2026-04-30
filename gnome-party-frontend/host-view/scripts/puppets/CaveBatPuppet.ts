@@ -7,6 +7,8 @@ class CaveBatPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
+	static readonly WIDTH = 425;
+	static readonly HEIGHT = 170;
 	
 	constructor() {
 		super();
@@ -19,6 +21,8 @@ class CaveBatPuppet extends Konva.Group implements Puppet {
 		this.body = new Konva.Image({
 			x: 0,
 			y: 0,
+			width: CaveBatPuppet.WIDTH,
+			height: CaveBatPuppet.HEIGHT,
 			// offset: imgOffset,
 			image: bodyImg,
 		});

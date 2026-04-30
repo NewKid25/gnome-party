@@ -7,6 +7,8 @@ class ForestSpritePuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
+	static readonly WIDTH = 165;
+	static readonly HEIGHT = 180;
 	
 	constructor() {
 		super();
@@ -19,6 +21,8 @@ class ForestSpritePuppet extends Konva.Group implements Puppet {
 		this.body = new Konva.Image({
 			x: 0,
 			y: 0,
+			width: ForestSpritePuppet.WIDTH,
+			height: ForestSpritePuppet.HEIGHT,
 			// offset: imgOffset,
 			image: bodyImg,
 		});

@@ -7,6 +7,8 @@ class GnomeEaterPuppet extends Konva.Group implements Puppet {
 	
 	body:Konva.Image
 
+	static readonly WIDTH = 858;
+	static readonly HEIGHT = 733;
 	
 	constructor() {
 		super();
@@ -19,6 +21,8 @@ class GnomeEaterPuppet extends Konva.Group implements Puppet {
 		this.body = new Konva.Image({
 			x: 0,
 			y: 0,
+			width: GnomeEaterPuppet.WIDTH,
+			height: GnomeEaterPuppet.HEIGHT,
 			// offset: imgOffset,
 			image: bodyImg,
 		});
