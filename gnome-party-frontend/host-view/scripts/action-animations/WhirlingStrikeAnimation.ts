@@ -31,15 +31,15 @@ class WhirlingStrikeAnimation implements AnimationStep
 
 		let i = 0;
 
-		vm.enemyVisualComponents.forEach((evc) => {
+		vm.enemyVisualComponents.forEach((evc, id) => {
 			let enemyPuppet: Puppet | undefined = evc.puppet;
 			let enemyHealth: HealthBar | undefined = evc.healthbar;
 			
 			console.log(player, enemyPuppet, enemyHealth);
 	
-			if (player && enemyPuppet && enemyHealth)
+			if (player && enemyPuppet && enemyHealth && step.GameState.EnemyCharacters.findIndex((e) => e.Id == id) > -1)
 			{
-				let j = i;
+				// let j = i;
 				let leapAnim = new AnimationSequence([
 					new TweenFromCurrent({
 						node: player,
@@ -48,13 +48,13 @@ class WhirlingStrikeAnimation implements AnimationStep
 						duration: 0.2
 					}),
 					new FunctionStep(() => {
-						enemyHealth.changeHealth(step.GameState.EnemyCharacters[j].Health ?? 0)
+						enemyHealth.changeHealth(step.GameState.EnemyCharacters.find((e) => e.Id == id)?.Health ?? 0)
 					})
 				]);
 
 				this.anim.steps.push(leapAnim);
 
-			} else throw TypeError
+			}
 
 			i++;
 		})

@@ -64,7 +64,7 @@ export function useCombatFlow(playerStatusModel: PlayerStatusModel) {
                         maxValue: enemy.MaxHealth,
                     },
                     characterImage: {
-                        source: getEnemyImage(enemy.Name),
+                        source: getEnemyImage(enemy.CharacterType),
                         alt: enemy.Name,
                     },
                     targetId: enemy.Id,
