@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using Models.CharacterData;
+using Models.CharacterData.BossEnemyPoolClasses;
 using Models.CharacterData.DifficultEnemyPoolClasses;
 using Models.CharacterData.EasyEnemyPoolClasses;
 using Models.CombatData;
@@ -23,29 +24,122 @@ public class Campaign
     public void InitEncounters()
     {
         //Change later: right now every pool will have the same number of encounters included, but eventually we may want to have different numbers of encounters from each pool
-        int numberOfEncountersToIncludePerPool = 2;
+        int numberOfEncountersToIncludePerPool = 1;
         List<List<Encounter>> encounterPools = [
             // easy pool
             [
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new GoblinArcher(),
+                //        new GoblinArcher(),
+                //    ]
+                //},
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new Skeleton(),
+                //        new Skeleton(),
+                //    ]
+                //},
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new Skeleton(),
+                //        new GoblinArcher(),
+                //    ]
+                //},
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new GnombieBrute(),
+                //    ]
+                //},
+                
+                //// Using less tested enemies
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new GoblinArcher(),
+                //        new ForestSprite(),
+                //    ]
+                //},
                 new CombatEncounter
                 {
                     Enemies = [
+                        new CaveBat(),
+                        new Skeleton(),
+                        new CaveBat(),
+                        new ForestSprite(),
+                    ]
+                }
+
+            ],
+            // medium pool
+            [
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new Skeleton(),
+                //        new GnombieBrute(),
+                //        new Skeleton(),
+                //    ]
+                //},
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new GnombieBrute(),
+                //        new GnombieBrute(),
+                //    ]
+                //},
+                new CombatEncounter
+                {
+                    Enemies = [
+                        new GoblinArcher(),
+                        new Skeleton(),
                         new Skeleton(),
                         new GoblinArcher(),
                         new GnombieBrute(),
                     ]
                 },
+
+                //// Using less tested enemies
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new GoblinArcher(),
+                //        new ForestSprite(),
+                //        new GoblinArcher(),
+                //    ]
+                //},
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new CaveBat(),
+                //        new Skeleton()
+                //        {
+                //            Health = 40,
+                //            MaxHealth = 40,
+                //        },
+                //        new CaveBat(),
+                //    ]
+                //},
+                //new CombatEncounter
+                //{
+                //    Enemies = [
+                //        new CaveBat(),
+                //        new CaveBat(),
+                //        new CaveBat(),
+                //        new CaveBat(),
+                //    ]
+                //}
             ],
-            // medium pool
+            // boss pool
             [
                 new CombatEncounter
                 {
                     Enemies = [
-                        new Skeleton()
-                        {
-                            Health = 15,
-                            MaxHealth = 15,
-                        }
+                        new GnomeEater()
                     ]
                 }
             ]

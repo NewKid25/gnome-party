@@ -45,7 +45,9 @@ class MagicMissileAnimation implements AnimationStep
 		noteImg.src = "/img/Magic Missile.svg";
 		let noteIcon = new Konva.Image({
 			image: noteImg,
-			scale: {x: 0.4, y: 0.4},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 159,
+			height: 27,
 			opacity: 0.0,
 		});
 

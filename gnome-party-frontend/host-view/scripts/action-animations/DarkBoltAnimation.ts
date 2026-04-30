@@ -45,7 +45,9 @@ class DarkBoltAnimation implements AnimationStep
 		noteImg.src = "/img/Dark Bolt.svg";
 		let noteIcon = new Konva.Image({
 			image: noteImg,
-			scale: {x: 0.4, y: 0.4},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 159,
+			height: 73,
 			opacity: 0.0,
 		});
 

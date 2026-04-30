@@ -47,7 +47,9 @@ class LeafDartAnimation implements AnimationStep
 			noteImg.src = "/img/Leaf Dart.svg";
 			let noteIcon = new Konva.Image({
 				image: noteImg,
-				scale: {x: 0.2, y: 0.2},
+				scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+				width: 97,
+				height: 37,
 				opacity: 0.0,
 			});
 	

@@ -36,7 +36,9 @@ class BlockAnimation implements AnimationStep
 		blockImg.src = "/img/BlockIcon.svg";
 		let blockIcon = new Konva.Image({
 			image: blockImg,
-			scale: {x: 0.2, y: 0.2},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 172,
+			height: 202,
 			opacity: 0.0
 		});
 

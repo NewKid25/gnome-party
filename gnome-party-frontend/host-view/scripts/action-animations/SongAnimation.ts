@@ -70,7 +70,9 @@ class SongAnimation implements AnimationStep
 		}
 		let noteIcon = new Konva.Image({
 			image: noteImg,
-			scale: {x: 0.2, y: 0.2},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 86,
+			height: 91,
 			opacity: 0.0,
 		});
 
