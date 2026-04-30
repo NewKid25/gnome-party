@@ -9,7 +9,8 @@ type LobbyStep = "join" | "characterCreator" | "classSelect" | "waiting";
 const currentStep = ref<LobbyStep>("join");
 
 function onJoined() {
-    currentStep.value = "characterCreator";
+    // currentStep.value = "characterCreator";
+    currentStep.value = "classSelect";
 }
 
 function onCharacterReady() {

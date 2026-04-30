@@ -35,7 +35,9 @@ class RavenousGrowthAnimation implements AnimationStep
 		blockImg.src = "/img/GreenAura.svg";
 		let blockIcon = new Konva.Image({
 			image: blockImg,
-			scale: {x: 1.5, y: 1.5},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 791,
+			height: 190,
 			opacity: 0.0,
 		});
 

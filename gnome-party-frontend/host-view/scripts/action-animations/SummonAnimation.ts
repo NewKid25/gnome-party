@@ -70,7 +70,7 @@ class SummonAnimation implements AnimationStep
 					
 					console.log("i is ", (vm.enemyVisualComponents.size + 1));
 
-					vm.mainLayer.add(puppet);
+					vm.combatLayer.add(puppet);
 					// Create healthbar
 					let enemy = step.GameState.EnemyCharacters.find((c) => c.Id == e.params.SummonId);
 					if (enemy)

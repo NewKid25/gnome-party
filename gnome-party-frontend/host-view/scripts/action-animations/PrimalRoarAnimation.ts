@@ -35,7 +35,9 @@ class PrimalRoarAnimation implements AnimationStep
 		roarImg.src = "/img/Roar.svg";
 		let roarIcon = new Konva.Image({
 			image: roarImg,
-			scale: {x: 0.75, y: 0.75},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 534,
+			height: 534,
 			opacity: 0.0,
 		});
 

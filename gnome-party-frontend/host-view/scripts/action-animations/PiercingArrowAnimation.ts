@@ -45,7 +45,9 @@ class PiercingArrowAnimation implements AnimationStep
 		noteImg.src = "/img/Arrow.svg";
 		let noteIcon = new Konva.Image({
 			image: noteImg,
-			scale: {x: 0.4, y: 0.4},
+			scale: {x: vm.getCombatPuppetScale(), y: vm.getCombatPuppetScale()},
+			width: 108,
+			height: 29,
 			opacity: 0.0,
 		});
 
