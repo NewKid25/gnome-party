@@ -19,8 +19,8 @@ namespace Models.CharacterData.PlayerCharacterClasses
                 new PowerCord().ActionDescription,
             };
             CharacterType = "Bard";
-            Health = 1000;
-            MaxHealth = 1000;
+            Health = 25;
+            MaxHealth = 25;
             Name = "Bard";
             CurrentSong = BardSongs.Soothing;
         }
