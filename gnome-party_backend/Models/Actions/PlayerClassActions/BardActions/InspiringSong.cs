@@ -9,9 +9,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
     // Inspiring Song: Subset of Song. Buffs an ally's damage for 1 turn
     public sealed class InspiringSong : CharacterAction
     {
-        public InspiringSong() : base("Inspiring Song") // Pass the name of the action to the base constructor
+        private bool resplaceAction;
+        public InspiringSong(bool resplaceAction=true) : base("Inspiring Song") // Pass the name of the action to the base constructor
         {
             ActionDescription = new CharacterActionDescription("Inspiring Song", "Buff an ally's damage", CharacterActionTargetRule.Ally); // Set the action description
+            this.resplaceAction = resplaceAction;
         }
 
         public override AttackResolution ResolveAttack(
@@ -37,7 +39,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
                 OwnerId = ally.Id
             }));
             //move to next bard song
-            ReplaceActionInUser(user, this, new FrighteningSong());
+            if (resplaceAction)
+            {
+                (user as Bard).CurrentSong = Bard.BardSongs.Frightening;
+                ReplaceActionInUser(user, this, new FrighteningSong());
+            }
             return resolution;
         }
 

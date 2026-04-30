@@ -8,9 +8,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
     // Soothing Song. Subset of Song. Heal an ally for 8 health.
     public sealed class SoothingSong : CharacterAction
     {
-        public SoothingSong() : base("Soothing Song") // Pass the name of the action to the base constructor
+        private bool resplaceAction;
+        public SoothingSong(bool _replaceAction = true) : base("Soothing Song") // Pass the name of the action to the base constructor
         {
             ActionDescription = new CharacterActionDescription("Soothing Song", "Heal an ally", CharacterActionTargetRule.Ally); // Set the action description
+            resplaceAction = _replaceAction;
         }
         public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false, bool isUnblockable = false)
         {
@@ -33,7 +35,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
                 TargetCharacterId = target.Id,
             });
             //move to next bard song
-            ReplaceActionInUser(user, this, new InspiringSong());
+            if (resplaceAction)
+            {
+                (user as Bard).CurrentSong = Bard.BardSongs.Inspiring;
+                ReplaceActionInUser(user, this, new InspiringSong());
+            }
             return resolution;
         }
 

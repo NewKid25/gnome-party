@@ -3,6 +3,7 @@ using Models.CharacterData;
 using Models.CharacterData.PlayerCharacterClasses;
 using Models.CombatData;
 using Models.Status;
+using System.Text.Json;
 using static Models.CharacterData.PlayerCharacterClasses.Bard;
 
 namespace Models.Actions.PlayerClassActions.BardActions
@@ -10,9 +11,9 @@ namespace Models.Actions.PlayerClassActions.BardActions
     // Power Cord: Amplify the power of your current song
     public sealed class PowerCord : CharacterAction
     {
-        public PowerCord() : base("Power Cord") // Call the base constructor with the name of the action
+        public PowerCord() : base("Power Chord") // Call the base constructor with the name of the action
         {
-            ActionDescription = new CharacterActionDescription("Power Cord", "Amplify your current song."); // Set the action description
+            ActionDescription = new CharacterActionDescription("Power Chord", "Amplify your current song.", CharacterActionTargetRule.NoTargets); // Set the action description
         }
 
         public override AttackResolution ResolveAttack(
@@ -28,25 +29,31 @@ namespace Models.Actions.PlayerClassActions.BardActions
 
             if(user is not Bard bard) { throw new InvalidOperationException("Power Cord can only be used by a Bard"); } // Confirm if the user is a bard
             
-            var currentSong = bard.GetCurrentSong(); // Get the bard's current song
+            var currentSong = bard.GetCurrentSong().Name; // Get the bard's current song
 
             // Initialize variables to store the targets and action to use
             CharacterAction songAction;
             List<Character> powerCordTargets;
 
             // Choose which song to amplify based on the current bard's song
-            switch(currentSong)
+            Console.WriteLine($"current Song = {currentSong}");
+            Console.WriteLine($"current Song user = {(user as Bard).GetCurrentSong().Name}");
+
+            Console.WriteLine($"user = {JsonSerializer.Serialize(user)}");
+            Console.WriteLine($"bard {JsonSerializer.Serialize(user)}");
+
+            switch ((user as Bard).GetCurrentSong().Name)
             {
                 case BardSongs.Soothing:
-                    songAction = new SoothingSong();
+                    songAction = new SoothingSong(false);
                     powerCordTargets = TargetingService.GetTargetsTeam(gameState, user.Id);
                     break;
                 case BardSongs.Inspiring:
-                    songAction = new InspiringSong();
+                    songAction = new InspiringSong(false);
                     powerCordTargets = TargetingService.GetTargetsTeam(gameState, user.Id);
                     break;
                 case BardSongs.Frightening:
-                    songAction= new FrighteningSong();
+                    songAction= new FrighteningSong(false);
                     powerCordTargets = TargetingService.GetOpposingTeam(gameState, user.Id);
                     break;
                 default:

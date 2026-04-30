@@ -33,11 +33,8 @@ namespace Models.Actions
         {
             // place new action in same slot as this action, by swapping out at same index
             var actionIndex = user.ActionsDescriptions.IndexOf(actionToReplace.ActionDescription);
-            Console.WriteLine($"Replacing action at index {actionIndex} with new action {newAction.AttackName}");
-            Console.WriteLine($"User's actions before replacement: {JsonSerializer.Serialize(user.ActionsDescriptions)}");
             user.ActionsDescriptions.RemoveAt(actionIndex);
             user.ActionsDescriptions.Insert(actionIndex, newAction.ActionDescription);
-            Console.WriteLine($"User's actions after replacement: {JsonSerializer.Serialize(user.ActionsDescriptions)}");
             // Emit event with updated character
             SocketEvents.RaiseActionUpdated(user);
         }

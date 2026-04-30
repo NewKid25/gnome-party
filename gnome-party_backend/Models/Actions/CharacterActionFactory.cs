@@ -53,7 +53,7 @@ public class CharacterActionFactory
             "Soothing Song" => new SoothingSong(),
             "Inspiring Song" => new InspiringSong(),
             "Frightening Song" => new FrighteningSong(),
-            "Power Cord" => new PowerCord(),
+            "Power Chord" => new PowerCord(),
 
             // Skeleton Attacks
             "Bone Slash" => new BoneSlash(),

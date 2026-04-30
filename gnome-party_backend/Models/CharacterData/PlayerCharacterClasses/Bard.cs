@@ -48,7 +48,23 @@ namespace Models.CharacterData.PlayerCharacterClasses
             };
         }
 
-        public string GetCurrentSong() { return CurrentSong; } // Accessible method to return the current bardic song
+        public CharacterActionDescription GetCurrentSong() 
+        { 
+            var possibleSongActionDescriptions = new List<CharacterActionDescription>
+            {
+                new SoothingSong().ActionDescription,
+                new InspiringSong().ActionDescription,
+                new FrighteningSong().ActionDescription,
+            };
+            foreach(var songActionDescription in possibleSongActionDescriptions)
+            {
+                if (ActionsDescriptions.Exists(ad => ad.Equals(songActionDescription)))
+                {
+                    return songActionDescription;
+                }
+            }
+            return new SoothingSong().ActionDescription; // Default to Soothing Song if no match is found
+        } 
 
         // List of bardic songs
         public static class BardSongs 

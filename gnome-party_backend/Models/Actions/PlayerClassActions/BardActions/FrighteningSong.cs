@@ -9,9 +9,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
     // Frightening Song: Subset attack of Song. Stun an enemy for a turn
     public sealed class FrighteningSong : CharacterAction
     {
-        public FrighteningSong() : base("Frightening Song") // Pass the name of the action to the base constructor
+        private bool resplaceAction;
+        public FrighteningSong(bool _replaceAction = true) : base("Frightening Song") // Pass the name of the action to the base constructor
         {
             ActionDescription = new CharacterActionDescription("Frightening Song", "Stun an enemy for a turn"); // Set the action description
+            resplaceAction = _replaceAction;
         }
 
         public override AttackResolution ResolveAttack(Character user, Character target, CombatEncounterGameState gameState, bool isRedirected = false, bool isUnblockable = false)
@@ -32,7 +34,11 @@ namespace Models.Actions.PlayerClassActions.BardActions
                 OwnerId = target.Id
             }));
             //move to next bard song
-            ReplaceActionInUser(user, this, new SoothingSong());
+            if (resplaceAction)
+            {
+                (user as Bard).CurrentSong = Bard.BardSongs.Soothing;
+                ReplaceActionInUser(user, this, new SoothingSong());
+            }
             return resolution;
         }
     }

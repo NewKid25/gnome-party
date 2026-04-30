@@ -24,7 +24,7 @@ namespace Models.Actions.PlayerClassActions.BardActions
 
             CharacterAction chosenAction; // Variable to hold the chosen action
 
-            string currentSong = bard.GetCurrentSong(); // Retrieve the bard's current song
+            string currentSong = bard.GetCurrentSong().Name; // Retrieve the bard's current song
             
             // Choose the correct action based on the current song
             switch(currentSong)
@@ -58,7 +58,7 @@ namespace Models.Actions.PlayerClassActions.BardActions
 
             CharacterAction chosenAction; // Variable to hold the chosen action
 
-            string currentSong = bard.GetCurrentSong(); // Retrieve the bard's current song
+            string currentSong = bard.GetCurrentSong().Name; // Retrieve the bard's current song
 
             // Choose the correct action based on the current song
             switch (currentSong)
